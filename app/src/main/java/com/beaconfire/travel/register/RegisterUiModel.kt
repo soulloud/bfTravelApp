@@ -1,5 +1,8 @@
 package com.beaconfire.travel.register
 
+import com.beaconfire.travel.repo.model.City
+import com.beaconfire.travel.repo.model.State
+
 enum class RegisterStatus {
     Registering,
     RegistrationFailed,
@@ -12,6 +15,6 @@ enum class RegisterStatus {
 
 data class RegisterUiModel(
     val registerStatus: RegisterStatus = RegisterStatus.None,
-    val states: List<String> = emptyList(),
-    val cities: List<String> = emptyList(),
+    val states: List<State> = emptyList(),
+    val cities: List<City> = emptyList(),
 )

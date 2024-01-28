@@ -49,6 +49,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.beaconfire.travel.R
 import com.beaconfire.travel.navigation.Navigation
+import com.beaconfire.travel.repo.model.City
+import com.beaconfire.travel.repo.model.State
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,8 +61,8 @@ fun RegisterScreen(
     var email by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var selectedState by remember { mutableStateOf("") }
-    var selectedCity by remember { mutableStateOf("") }
+    var selectedState by remember { mutableStateOf(State.INVALID_STATE) }
+    var selectedCity by remember { mutableStateOf(City.INVALID_CITY) }
     var passwordVisibility by remember { mutableStateOf(false) }
     val registerUiModel by registerViewModel.registerUiModel.collectAsState()
 
@@ -168,10 +170,10 @@ fun RegisterScreen(
 @Composable
 fun DropdownForStateAndCity(
     registerViewModel: RegisterViewModel,
-    onCitySelected: (String, String) -> Unit,
+    onCitySelected: (State, City) -> Unit,
 ) {
-    var selectedState by remember { mutableStateOf("Select State") }
-    var selectedCity by remember { mutableStateOf("Select City") }
+    var selectedState by remember { mutableStateOf(State.INVALID_STATE) }
+    var selectedCity by remember { mutableStateOf(City.INVALID_CITY) }
     val scope = rememberCoroutineScope()
     var expandedState by remember { mutableStateOf(false) }
     var expandedCity by remember { mutableStateOf(false) }
@@ -187,11 +189,11 @@ fun DropdownForStateAndCity(
             ) {
                 registerUiModel.states.forEach { state ->
                     DropdownMenuItem(
-                        text = { Text(state) },
+                        text = { Text(state.state) },
                         onClick = {
                             selectedState = state
                             expandedState = false
-                            selectedCity = "Select City"
+                            selectedCity = City.INVALID_CITY
 
                             scope.launch {
                                 registerViewModel.getAllCitiesForStates(selectedState)
@@ -200,7 +202,7 @@ fun DropdownForStateAndCity(
                 }
             }
 
-            OutlineText(title = "State", selectedOption = selectedState) {
+            OutlineText(title = "State", selectedOption = selectedState.state) {
                 expandedState = !expandedState
             }
         }
@@ -214,7 +216,7 @@ fun DropdownForStateAndCity(
             ) {
                 registerUiModel.cities.forEach { city ->
                     DropdownMenuItem(
-                        text = { Text(city) },
+                        text = { Text(city.city) },
                         onClick = {
                             selectedCity = city
                             expandedCity = false
@@ -223,7 +225,7 @@ fun DropdownForStateAndCity(
                 }
             }
 
-            OutlineText(title = "City", selectedOption = selectedCity) {
+            OutlineText(title = "City", selectedOption = selectedCity.city) {
                 expandedCity = !expandedCity
             }
         }
