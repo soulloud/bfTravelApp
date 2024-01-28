@@ -30,24 +30,22 @@ class LoginViewModel(
         Log.d(TAG, "LoginViewModel()")
     }
 
-    fun login(username: String, password: String) {
-        if (username.isEmpty() || password.isEmpty()) {
+    fun login(email: String, password: String) {
+        if (email.isEmpty() || password.isEmpty()) {
             _loginUiModel.update { it.copy(loginStatus = LoginStatus.UsernameOrPasswordIsEmpty) }
-            viewModelScope.launch { _errorMessage.emit("Username and password cannot be empty!") }
+            viewModelScope.launch { _errorMessage.emit("Email and password cannot be empty!") }
             return
         }
         _loginUiModel.update { it.copy(loginStatus = LoginStatus.Authenticating) }
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val loginUser = userRepository.login(username, password)
-                if (loginUser == User.INVALID_USER) {
-                    _errorMessage.emit("Username and password doesn't match, please try again!")
-                }
-                _loginUiModel.update {
-                    it.copy(
-                        loginStatus = if (loginUser == User.INVALID_USER) LoginStatus.AuthenticationFailed else LoginStatus.AuthenticationSuccess,
-                        user = loginUser
-                    )
+            userRepository.login(email, password) { user ->
+                if (user != null) {
+                    _loginUiModel.value = LoginUiModel(LoginStatus.AuthenticationSuccess, user)
+                } else {
+                    _loginUiModel.value = LoginUiModel(LoginStatus.AuthenticationFailed, User.INVALID_USER)
+                    launch { // Launch a new coroutine in the viewModelScope
+                        _errorMessage.emit("Email and password don't match, please try again!")
+                    }
                 }
             }
         }

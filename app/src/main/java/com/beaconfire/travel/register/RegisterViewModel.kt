@@ -1,10 +1,8 @@
 package com.beaconfire.travel.register
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.UserRepository
 import com.beaconfire.travel.repo.model.City
 import com.beaconfire.travel.repo.model.State
@@ -15,9 +13,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RegisterViewModel(
     private val userRepository: UserRepository,
@@ -102,3 +98,5 @@ class RegisterViewModel(
         }
     }
 }
+
+// Rest of the classes (RegisterStatus, RegisterUiModel) remain the same
