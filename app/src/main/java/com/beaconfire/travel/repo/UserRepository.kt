@@ -1,12 +1,13 @@
 package com.beaconfire.travel.repo
 
+import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.User
 import com.google.firebase.firestore.FirebaseFirestore
 
 class UserRepository {
 
     private val db = FirebaseFirestore.getInstance()
-    fun login(email: String, password: String, completion: (User?) -> Unit) {
+    suspend fun login(email: String, password: String, completion: (User?) -> Unit) {
         db.collection("user")
             .whereEqualTo("email", email)
             .whereEqualTo("password", password) // Note: This is not secure for real applications
@@ -23,15 +24,21 @@ class UserRepository {
                 completion(null)
             }
     }
-    fun register(user: User, completion: (Boolean) -> Unit) {
-        db.collection("user")
-            .add(user)
+    suspend fun register(user: User, profile: Profile, completion: (Boolean) -> Unit) {
+        // First, create a Profile document
+        val profileRef = db.collection("profile").document()
+        profileRef.set(profile)
             .addOnSuccessListener {
-                completion(true)
+                // Now, create a User document with the Profile reference
+                val updatedUser = user.copy(profile = profileRef.path)
+                db.collection("user")
+                    .add(updatedUser)
+                    .addOnSuccessListener { completion(true) }
+                    .addOnFailureListener { completion(false) }
             }
-            .addOnFailureListener {
-                completion(false)
-            }
+            .addOnFailureListener { completion(false) }
     }
+
+
 
 }
