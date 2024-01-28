@@ -59,7 +59,7 @@ fun RegisterScreen(
     onNavigate: (Navigation) -> Unit,
 ) {
     var email by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
+    var displayName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var selectedState by remember { mutableStateOf(State.INVALID_STATE) }
     var selectedCity by remember { mutableStateOf(City.INVALID_CITY) }
@@ -102,9 +102,9 @@ fun RegisterScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") }
+            value = displayName,
+            onValueChange = { displayName = it },
+            label = { Text("Display Name") }
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
@@ -127,7 +127,13 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                registerViewModel.register(email, username, password, selectedState, selectedCity)
+                registerViewModel.register(
+                    email,
+                    displayName,
+                    password,
+                    selectedState,
+                    selectedCity
+                )
             }) {
             Text(
                 modifier = Modifier
@@ -152,6 +158,10 @@ fun RegisterScreen(
 
             RegisterStatus.LoadingCities -> {
                 Text(text = "Loading Cities!")
+            }
+
+            RegisterStatus.RegistrationSuccess -> {
+                onNavigate(Navigation.Main)
             }
 
             else -> {}
