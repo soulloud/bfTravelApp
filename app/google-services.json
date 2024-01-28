@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "1021637146550",
+    "firebase_url": "https://beaconfiretripapp-default-rtdb.firebaseio.com",
+    "project_id": "beaconfiretripapp",
+    "storage_bucket": "beaconfiretripapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021637146550:android:5d6118f6d07fcdb2817317",
+        "android_client_info": {
+          "package_name": "com.beaconfire.travel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9lD0N8znlNxT4WGA4m2Tk-zd746tplB0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021637146550:android:a489d1f9bd39b03c817317",
+        "android_client_info": {
+          "package_name": "com.example.quizapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9lD0N8znlNxT4WGA4m2Tk-zd746tplB0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021637146550:android:be34c56591254b34817317",
+        "android_client_info": {
+          "package_name": "com.huichang.bftravelapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9lD0N8znlNxT4WGA4m2Tk-zd746tplB0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

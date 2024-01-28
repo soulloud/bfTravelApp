@@ -46,7 +46,7 @@ fun LoginScreen(
     loginViewModel: LoginViewModel,
     onNavigate: (Navigation) -> Unit,
 ) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
 
@@ -77,9 +77,9 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(64.dp))
             TextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") }
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") }
             )
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
@@ -97,7 +97,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { loginViewModel.login(username, password) }) {
+                onClick = { loginViewModel.login(email, password) }) {
                 Text(
                     modifier = Modifier
                         .width(64.dp)
