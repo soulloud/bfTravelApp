@@ -7,7 +7,7 @@ class UserRepository {
 
     private val db = FirebaseFirestore.getInstance()
     fun login(email: String, password: String, completion: (User?) -> Unit) {
-        db.collection("users")
+        db.collection("user")
             .whereEqualTo("email", email)
             .whereEqualTo("password", password) // Note: This is not secure for real applications
             .get()
@@ -24,12 +24,12 @@ class UserRepository {
             }
     }
     fun register(user: User, completion: (Boolean) -> Unit) {
-        db.collection("users")
+        db.collection("user")
             .add(user)
-            .addOnSuccessListener { documentReference ->
+            .addOnSuccessListener {
                 completion(true)
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener {
                 completion(false)
             }
     }
