@@ -6,6 +6,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.UserRepository
+import com.beaconfire.travel.repo.model.City
+import com.beaconfire.travel.repo.model.State
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.repo.region.RegionRepository
 import kotlinx.coroutines.Dispatchers
@@ -38,10 +40,10 @@ class RegisterViewModel(
         email: String,
         username: String,
         password: String,
-        state: String,
-        city: String,
+        state: State,
+        city: City,
     ) {
-        if (listOf(email, username, password, state, city).any { it.isEmpty() }) {
+        if (listOf(email, username, password, state.state, city.city).any { it.isEmpty() }) {
             _registerUiModel.update { it.copy(registerStatus = RegisterStatus.FieldsCannotBeEmpty) }
             viewModelScope.launch { _errorMessage.emit("Email, username, password, state or city cannot be empty!") }
             return
@@ -62,14 +64,14 @@ class RegisterViewModel(
         }
     }
 
-    suspend fun getAllCitiesForStates(city: String) {
+    suspend fun getAllCitiesForStates(state: State) {
         _registerUiModel.update {
             it.copy(registerStatus = RegisterStatus.LoadingCities)
         }
         _registerUiModel.update {
             it.copy(
                 registerStatus = RegisterStatus.None,
-                cities = regionRepository.getAllCitiesForStatus(city)
+                cities = regionRepository.getCities(state)
             )
         }
     }
@@ -81,7 +83,7 @@ class RegisterViewModel(
         _registerUiModel.update {
             it.copy(
                 registerStatus = RegisterStatus.None,
-                states = regionRepository.getAllStates(),
+                states = regionRepository.getStates(),
                 cities = emptyList()
             )
         }

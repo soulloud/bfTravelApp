@@ -8,8 +8,8 @@ interface RegionApi {
     @GET("states/United States")
     suspend fun allStates(): List<StateResponse>
 
-    @GET("cities/{city}")
-    suspend fun allCitiesForStates(@Path(value = "city") city: String): List<CityResponse>
+    @GET("cities/{state}")
+    suspend fun allCitiesForState(@Path(value = "state") state: String): List<CityResponse>
 }
 
 data class StateResponse(val state_name: String)
