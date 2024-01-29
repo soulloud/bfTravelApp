@@ -1,13 +1,17 @@
 package com.beaconfire.travel.repo.model
 
 data class Destination(
-    val name: String,
-    val ownerOrOrganization: String,
-    val location: String,
-    val description: String,
-    val reviewList: List<String>, // Assuming reviews are represented as strings
-    val price: Price,
-    val localLanguages: List<String>,
-    val ageRecommendation: String,
-    val recommendedByPercentage: String
+    val name: String? = null,
+    val ownerOrOrganization: String? = null,
+    val location: String? = null,
+    val description: String? = null,
+    val reviewList: List<String>? = null, // Assuming reviews are represented as strings
+    //val price: Price? = null,
+    val localLanguages: List<String>? = null,
+    val ageRecommendation: String? = null,
+    val recommendedByPercentage: String? = null
 )
+
+//data class DestinationList(
+//    val destinationList: List<Destination>? = null
+//)

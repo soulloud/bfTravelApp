@@ -3,6 +3,7 @@ package com.beaconfire.travel
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.beaconfire.travel.repo.HomeRepository
 import com.beaconfire.travel.repo.UserRepository
 import com.beaconfire.travel.repo.database.RegionDatabase
 import com.beaconfire.travel.repo.database.region.RegionDao
@@ -15,6 +16,7 @@ interface AppContainer {
     val regionDao: RegionDao
     val userRepository: UserRepository
     val regionRepository: RegionRepository
+    val homeRepository: HomeRepository
 }
 
 class MallAppDataContainer(
@@ -24,6 +26,8 @@ class MallAppDataContainer(
     override val regionDao by lazy { RegionDatabase.getDatabase(context).regionDao() }
     override val userRepository by lazy { UserRepository() }
     override val regionRepository by lazy { RegionRepository(regionApi, regionDao) }
+    override val homeRepository by lazy { HomeRepository() }
+
 }
 
 fun CreationExtras.mallApplication(): TravelApplication =
