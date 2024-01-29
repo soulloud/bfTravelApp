@@ -38,13 +38,17 @@ class LoginViewModel(
         }
         _loginUiModel.update { it.copy(loginStatus = LoginStatus.Authenticating) }
         viewModelScope.launch {
-            userRepository.login(email, password) { user ->
-                if (user != null) {
-                    _loginUiModel.value = LoginUiModel(LoginStatus.AuthenticationSuccess, user)
-                } else {
-                    _loginUiModel.value = LoginUiModel(LoginStatus.AuthenticationFailed, User.INVALID_USER)
-                    launch { // Launch a new coroutine in the viewModelScope
-                        _errorMessage.emit("Email and password don't match, please try again!")
+            withContext(Dispatchers.IO) {
+                withContext(Dispatchers.IO) {
+                    val loginUser = userRepository.login(email, password)
+                    if (loginUser == User.INVALID_USER) {
+                        _errorMessage.emit("Username and password doesn't match, please try again!")
+                    }
+                    _loginUiModel.update {
+                        it.copy(
+                            loginStatus = if (loginUser == User.INVALID_USER) LoginStatus.AuthenticationFailed else LoginStatus.AuthenticationSuccess,
+                            user = loginUser
+                        )
                     }
                 }
             }

@@ -6,7 +6,7 @@ data class Profile(
     val joinDate: String = "", // Format: YYYY-MM-DD or similar
     val photoImage: String = "", // URL or reference to Firebase Storage
     val aboutYou: String = "",
-    val uploadedPhotos: List<String> = listOf() // URLs or references to Firebase Storage
+    val uploadedPhotos: List<String> = emptyList() // URLs or references to Firebase Storage
 )
 
 

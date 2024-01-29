@@ -3,7 +3,6 @@ package com.beaconfire.travel.register
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -47,12 +46,12 @@ class RegisterViewModel(
     @RequiresApi(Build.VERSION_CODES.O)
     fun register(
         email: String,
-        username: String,
+        displayName: String,
         password: String,
         state: State,
         city: City
     ) {
-        if (listOf(email, username, password, state.state, city.city).any { it.isEmpty() }) {
+        if (listOf(email, displayName, password, state.state, city.city).any { it.isEmpty() }) {
             _registerUiModel.update { it.copy(registerStatus = RegisterStatus.FieldsCannotBeEmpty) }
             viewModelScope.launch {
                 _errorMessage.emit("Email, username, password, state, or city cannot be empty!")
@@ -60,30 +59,26 @@ class RegisterViewModel(
             return
         }
 
+        _registerUiModel.update {
+            it.copy(registerStatus = RegisterStatus.Registering)
+        }
+
         val location = "${city.city}, ${state.state}"
         val profile = Profile(
-            fullName = username, // Assuming full name is same as username for now
+            fullName = displayName, // Assuming full name is same as username for now
             location = location,
             joinDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
         )
 
-        val newUser = User(
-            displayName = username,
-            email = email,
-            password = password
-        )
-
-        _registerUiModel.update { it.copy(registerStatus = RegisterStatus.Registering) }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            userRepository.register(newUser, profile) { success ->
-                if (success) {
-                    _registerUiModel.update { it.copy(registerStatus = RegisterStatus.RegistrationSuccess) }
-                } else {
-                    viewModelScope.launch {
-                        _errorMessage.emit("Registration failed. Please try again!")
-                    }
-                    _registerUiModel.update { it.copy(registerStatus = RegisterStatus.RegistrationFailed) }
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val user = User(email = email, displayName = displayName, password = password)
+                val registeredUser = userRepository.register(user, profile)
+                if (User.INVALID_USER == registeredUser) {
+                    _errorMessage.emit("Email or username already exist, please try again!")
+                }
+                _registerUiModel.update {
+                    it.copy(registerStatus = if (User.INVALID_USER == registeredUser) RegisterStatus.RegistrationFailed else RegisterStatus.RegistrationSuccess)
                 }
             }
         }
@@ -129,5 +124,3 @@ class RegisterViewModel(
         }
     }
 }
-
-// Rest of the classes (RegisterStatus, RegisterUiModel) remain the same
