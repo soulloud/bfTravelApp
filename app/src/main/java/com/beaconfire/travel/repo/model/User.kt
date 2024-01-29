@@ -10,6 +10,7 @@ data class User(
     val saveList: List<String> = listOf(),
     val profile: String? = null // Assuming this will be a reference or ID to a profile document
 ){
+
     companion object {
         val INVALID_USER = User() // Represents an invalid user
     }
