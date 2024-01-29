@@ -9,3 +9,4 @@ data class Profile(
     val uploadedPhotos: List<String> = emptyList() // URLs or references to Firebase Storage
 )
 
+

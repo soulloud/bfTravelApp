@@ -71,6 +71,6 @@ class UserRepository {
 
     companion object {
         val TAG = UserRepository::javaClass::class.simpleName
-    }
 
+    }
 }

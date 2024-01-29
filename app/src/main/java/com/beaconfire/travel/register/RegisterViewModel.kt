@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
+import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.UserRepository
 import com.beaconfire.travel.repo.model.City
 import com.beaconfire.travel.repo.model.Profile
@@ -35,6 +36,7 @@ class RegisterViewModel(
     val registerUiModel: StateFlow<RegisterUiModel> = _registerUiModel
     val errorMessage: SharedFlow<String?> = _errorMessage
 
+
     init {
         viewModelScope.launch {
             getAllStates()
@@ -47,11 +49,13 @@ class RegisterViewModel(
         displayName: String,
         password: String,
         state: State,
-        city: City,
+        city: City
     ) {
         if (listOf(email, displayName, password, state.state, city.city).any { it.isEmpty() }) {
             _registerUiModel.update { it.copy(registerStatus = RegisterStatus.FieldsCannotBeEmpty) }
-            viewModelScope.launch { _errorMessage.emit("Email, username, password, state or city cannot be empty!") }
+            viewModelScope.launch {
+                _errorMessage.emit("Email, username, password, state, or city cannot be empty!")
+            }
             return
         }
 
@@ -79,6 +83,8 @@ class RegisterViewModel(
             }
         }
     }
+
+
 
     suspend fun getAllCitiesForStates(state: State) {
         _registerUiModel.update {
