@@ -7,6 +7,8 @@ data class Profile(
     val photoImage: String = "", // URL or reference to Firebase Storage
     val aboutYou: String = "",
     val uploadedPhotos: List<String> = emptyList() // URLs or references to Firebase Storage
-)
-
-
+) {
+    companion object {
+        val InvalidProfile = Profile()
+    }
+}
