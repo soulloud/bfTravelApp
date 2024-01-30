@@ -11,6 +11,6 @@ enum class LoginStatus {
 }
 
 data class LoginUiModel(
-    val loginStatus: LoginStatus = LoginStatus.None,
-    val user: User = User.INVALID_USER,
+    val loginStatus: LoginStatus,
+    val user: User?
 )

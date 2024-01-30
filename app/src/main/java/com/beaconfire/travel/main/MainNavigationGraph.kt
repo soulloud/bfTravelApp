@@ -1,5 +1,6 @@
 package com.beaconfire.travel.main
 
+import ProfileViewModel
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -34,7 +35,8 @@ fun MainNavigationGraph(
             TripsScreen()
         }
         composable(route = Navigation.Profile.route) {
-            ProfileScreen()
+            val profileViewModel: ProfileViewModel = viewModel()
+            ProfileScreen(profileViewModel = profileViewModel)
         }
         composable(route = Navigation.Settings.route) {
             SettingsScreen()
