@@ -1,5 +1,6 @@
 package com.beaconfire.travel.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -69,10 +70,13 @@ class HomeViewModel(
     fun onSearch() {
         _isSearching.value = !_isSearching.value
         viewModelScope.launch {
-            destinationUiState = try {
-                DestinationUiState.Success(homeRepository.searchDestination(searchText.value))
-            } catch (e: Exception){
-                DestinationUiState.Error
+            withContext(Dispatchers.IO) {
+                destinationUiState = try {
+                    val searchResult = homeRepository.searchDestination(searchText.value)
+                    DestinationUiState.Success(searchResult)
+                } catch (e: Exception) {
+                    DestinationUiState.Error
+                }
             }
         }
         onSearchTextChange("")

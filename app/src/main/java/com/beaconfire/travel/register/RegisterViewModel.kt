@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
-import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.UserRepository
 import com.beaconfire.travel.repo.model.City
 import com.beaconfire.travel.repo.model.Profile

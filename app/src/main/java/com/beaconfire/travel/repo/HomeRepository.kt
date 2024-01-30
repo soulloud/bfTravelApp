@@ -2,6 +2,7 @@ package com.beaconfire.travel.repo
 
 import android.graphics.BitmapFactory
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.data.DestinationData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -16,30 +17,33 @@ class HomeRepository {
     private val storage = Firebase.storage
     private val storageUrl = "gs://beaconfiretripapp.appspot.com"
 
-    suspend fun getDestinations(): List<Destination> = callbackFlow {
+    suspend fun getDestinations() = callbackFlow<List<Destination>> {
         db.collection("destination")
             .get()
             .addOnSuccessListener { documents ->
-                val result = documents.toObjects(Destination::class.java)
+                val result = documents.toObjects(DestinationData::class.java).map { it.toDestination() }
                 trySend(result)
             }
-//            .addOnFailureListener{
-//                trySend()
-//            }
+            .addOnFailureListener{
+                trySend(emptyList())
+            }
             .await()
         awaitClose()
     }.first()
 
-    suspend fun searchDestination(searchText: String): List<Destination> = callbackFlow{
-        db.collection("destination")
+    suspend fun searchDestination(searchText: String) = callbackFlow<List<Destination>> {
+        db.collection("DestinationPojo")
             .whereEqualTo("name", searchText)
             //.whereArrayContains("location", searchText)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    val result = documents.toObjects(Destination::class.java).toList()
+                    val result = documents.toObjects(DestinationData::class.java).map { it.toDestination() }
                     trySend(result)
                 }
+            }
+            .addOnFailureListener {
+                trySend(emptyList())
             }
             .await()
         awaitClose()

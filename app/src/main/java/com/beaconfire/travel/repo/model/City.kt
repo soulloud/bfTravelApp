@@ -1,7 +1,6 @@
 package com.beaconfire.travel.repo.model
 
 import com.beaconfire.travel.repo.database.region.CityEntity
-import com.beaconfire.travel.repo.database.region.StateEntity
 
 data class City(
     val id: Long? = null,

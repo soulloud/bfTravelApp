@@ -67,17 +67,8 @@ dependencies {
 
     // material
     implementation("androidx.compose.material3:material3:1.1.2")
-    implementation("androidx.compose.material:material-icons-extended:1.5.4")
-    implementation("com.google.firebase:firebase-database:20.3.0")
-    implementation("com.google.firebase:firebase-firestore:24.10.1")
-    implementation("androidx.room:room-common:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
-    kapt ("androidx.room:room-compiler:2.6.1")
-
-
-
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -98,19 +89,15 @@ dependencies {
     implementation("com.google.firebase:firebase-database:20.3.0")
     implementation("com.google.firebase:firebase-firestore:24.10.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
+    implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
+    implementation("com.google.firebase:firebase-storage")
 
-    //room
+    // room
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0")
     kapt("androidx.room:room-compiler:2.6.1")
 
-    // Import the BoM for the Firebase platform
-    implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
-
-    // Add the dependency for the Cloud Storage library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation("com.google.firebase:firebase-storage")
-
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    // coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
