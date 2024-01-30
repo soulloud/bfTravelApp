@@ -7,4 +7,3 @@ import androidx.compose.runtime.Composable
 fun TripsScreen() {
     Text(text = "Trips")
 }
-        

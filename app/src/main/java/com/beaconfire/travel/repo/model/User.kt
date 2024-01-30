@@ -3,6 +3,7 @@ package com.beaconfire.travel.repo.model
 import com.beaconfire.travel.R
 
 data class User(
+    var userId: String? = null,
     val displayName: String = "",
     val email: String = "",
     val password: String = "",

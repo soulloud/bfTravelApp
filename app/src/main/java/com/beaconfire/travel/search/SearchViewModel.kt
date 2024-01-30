@@ -1,4 +1,4 @@
-package com.beaconfire.travel.home
+package com.beaconfire.travel.search
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,37 +15,33 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeViewModel(
+class SearchViewModel(
     private val destinationRepository: DestinationRepository
-): ViewModel() {
+) : ViewModel() {
 
-    var homeUiModel by mutableStateOf<HomeUiModel>(HomeUiModel.None)
+    var searchUiModel by mutableStateOf<SearchUiModel>(SearchUiModel.None)
 
-    init {
-        loadDestinations()
-    }
-
-    private fun loadDestinations() {
-        homeUiModel = HomeUiModel.Loading
+    fun search(keyword: String) {
+        searchUiModel = SearchUiModel.Searching
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                homeUiModel = try {
-                    val destinations =
-                        destinationRepository.getDestinations().sort(SortMethod.AlphabetAscending)
-                    HomeUiModel.LoadSucceed(destinations)
+                searchUiModel = try {
+                    val destinations = destinationRepository.searchDestination(keyword)
+                        .sort(SortMethod.AlphabetAscending)
+                    SearchUiModel.SearchSucceed(destinations)
                 } catch (e: Exception) {
-                    HomeUiModel.LoadFailed
+                    SearchUiModel.SearchFailed
                 }
             }
         }
     }
 
     companion object {
-        private val TAG = HomeViewModel::class.java.simpleName
+        private val TAG = SearchViewModel::class.java.simpleName
 
         val Factory = viewModelFactory {
             initializer {
-                HomeViewModel(mallApplication().container.destinationRepository)
+                SearchViewModel(mallApplication().container.destinationRepository)
             }
         }
     }
