@@ -1,6 +1,5 @@
 package com.beaconfire.travel.home
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -60,7 +59,7 @@ class HomeViewModel(
         _searchText.value = text
     }
 
-    fun onToogleSearch() {
+    fun onToggleSearch() {
         _isSearching.value = !_isSearching.value
         if (!_isSearching.value) {
             onSearchTextChange("")
