@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.beaconfire.travel.destination.DestinationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -31,6 +32,7 @@ import coil.compose.AsyncImage
 fun HomeScreen() {
 
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
+    val destinationViewModel: DestinationViewModel = viewModel(factory = DestinationViewModel.Factory)
 
     val searchText by homeViewModel.searchText.collectAsState()
     val isSearching by homeViewModel.isSearching.collectAsState()
@@ -78,5 +80,8 @@ fun HomeScreen() {
                 }
             }
         }
+
+
+        //Text(destinationViewModel, modifier = Modifier.padding(top = 100.dp))
     }
 }
