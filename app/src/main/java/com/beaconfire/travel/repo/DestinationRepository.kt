@@ -1,8 +1,8 @@
 package com.beaconfire.travel.repo
 
 import android.graphics.BitmapFactory
-import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.data.DestinationData
+import com.beaconfire.travel.repo.model.Destination
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
-class HomeRepository {
+class DestinationRepository {
 
     private val db = FirebaseFirestore.getInstance()
     private val storage = Firebase.storage
@@ -21,7 +21,8 @@ class HomeRepository {
         db.collection("destination")
             .get()
             .addOnSuccessListener { documents ->
-                val result = documents.toObjects(DestinationData::class.java).map { it.toDestination() }
+                val result =
+                    documents.toObjects(DestinationData::class.java).map { it.toDestination() }
                 trySend(result)
             }
             .addOnFailureListener{
@@ -32,14 +33,14 @@ class HomeRepository {
     }.first()
 
     suspend fun searchDestination(searchText: String) = callbackFlow<List<Destination>> {
-        db.collection("DestinationPojo")
+        db.collection("destination")
             .whereEqualTo("name", searchText)
             //.whereArrayContains("location", searchText)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    val result = documents.toObjects(DestinationData::class.java).map { it.toDestination() }
-                    trySend(result)
+                    val destinations = documents.toObjects(DestinationData::class.java).map { it.toDestination() }
+                    trySend(destinations)
                 }
             }
             .addOnFailureListener {
@@ -63,6 +64,4 @@ class HomeRepository {
             .await()
         awaitClose()
     }
-
-
 }

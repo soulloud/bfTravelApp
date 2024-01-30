@@ -34,7 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.beaconfire.travel.R
 import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.User
-import com.beaconfire.travel.ui.screen.ProfileImage
+import com.beaconfire.travel.ui.component.ProfileImage
 
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel) {
