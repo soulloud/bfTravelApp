@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.beaconfire.travel.R
 import com.beaconfire.travel.repo.model.User
-import com.beaconfire.travel.ui.screen.ProfileImage
+import com.beaconfire.travel.ui.component.ProfileImage
 
 @Composable
 fun SettingsScreen() {
