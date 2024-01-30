@@ -1,13 +1,9 @@
 package com.beaconfire.travel.destination
 
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.beaconfire.travel.home.HomeViewModel
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.DestinationRepository
 import com.beaconfire.travel.repo.model.Trip
@@ -29,7 +25,7 @@ class DestinationViewModel(
 
     private fun getAllTrips(){
         viewModelScope.launch {
-            _tripList.value = destinationRepository.getAllTrips("zhao")
+            //_tripList.value = destinationRepository.getAllTrips("zhao")
             //Log.d("test", tripList.toString())
 
         }
