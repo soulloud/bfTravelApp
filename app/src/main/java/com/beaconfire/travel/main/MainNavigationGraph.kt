@@ -49,7 +49,7 @@ fun MainNavigationGraph(
             }
         }
         composable(route = Navigation.Profile.route) {
-            val profileViewModel: ProfileViewModel = viewModel()
+            val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
             ProfileScreen(profileViewModel = profileViewModel)
         }
         composable(route = Navigation.Settings.route) {
