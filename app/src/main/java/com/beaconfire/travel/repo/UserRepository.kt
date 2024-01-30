@@ -1,6 +1,7 @@
 package com.beaconfire.travel.repo
 
 import android.util.Log
+import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.utils.SessionManager
@@ -9,9 +10,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
-import java.util.concurrent.Flow
 
-class UserRepository {
+class UserRepository(val appContainer: AppContainer) {
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -65,19 +65,12 @@ class UserRepository {
         awaitClose()
     }.first()
 
-
-    private suspend fun createProfile(profile: Profile) = callbackFlow {
-        val profileRef = db.collection("profile").document()
-        profileRef.set(profile)
-            .addOnSuccessListener {
-                trySend(profileRef.path)
-            }
-            .addOnFailureListener {
-                trySend(null)
-            }
-            .await()
-        awaitClose()
-    }.first()
+    suspend fun fetchUser(documentId: String): User {
+        // TODO: @David
+        // fetch from user table and document.toObject(UserData::class.java) and then convert into User object
+        // see example at DestinationRepository.searchDestination()
+        return User.INVALID_USER
+    }
 
     companion object {
         val TAG = UserRepository::javaClass::class.simpleName

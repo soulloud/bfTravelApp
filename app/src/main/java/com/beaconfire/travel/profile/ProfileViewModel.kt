@@ -2,7 +2,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.beaconfire.travel.home.HomeViewModel
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.profile.ProfileUiModel
 import com.beaconfire.travel.profile.ProfileUiModelStatus
@@ -35,16 +34,6 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
                         profile = profile?: Profile.InvalidProfile
                     )
                 }
-            }
-        }
-    }
-
-    companion object {
-        private val TAG = ProfileViewModel::class.java.simpleName
-
-        val Factory = viewModelFactory {
-            initializer {
-                ProfileViewModel(mallApplication().container.profileRepository)
             }
         }
     }
