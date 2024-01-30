@@ -38,6 +38,6 @@ private class ServiceInterceptor : Interceptor {
 
     companion object {
         private const val TOKEN =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfZW1haWwiOiJ6aGFveGlhOTQwNkBnbWFpbC5jb20iLCJhcGlfdG9rZW4iOiJxUGg3amxYQzM1Z3UyTTJ2RGNwblg4bGEtREtwUUZDMnU2dE5DS0o0WXFTcTI1TVVhVUVFSGstVDRYLWxIWlhFbmZrIn0sImV4cCI6MTcwNjUxNjgwMn0.c054k7ncqDsL46kR9AR8Jf2i7rNdVP7iJdMNUcvAahc"
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJfZW1haWwiOiJ6aGFveGlhOTQwNkBnbWFpbC5jb20iLCJhcGlfdG9rZW4iOiJxUGg3amxYQzM1Z3UyTTJ2RGNwblg4bGEtREtwUUZDMnU2dE5DS0o0WXFTcTI1TVVhVUVFSGstVDRYLWxIWlhFbmZrIn0sImV4cCI6MTcwNjczMDM0MH0.7MCCq3ehUuJd3DU2aEt6OP4P_ZVslUhg3QCQpeEj2-8"
     }
 }
