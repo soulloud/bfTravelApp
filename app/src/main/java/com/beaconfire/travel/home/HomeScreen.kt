@@ -1,8 +1,6 @@
 package com.beaconfire.travel.home
 
 import android.annotation.SuppressLint
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,12 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import com.beaconfire.travel.navigation.Navigation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onNavigate: (Navigation) -> Unit) {
 
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 
@@ -40,19 +38,15 @@ fun HomeScreen() {
             SearchBar(
                 query = searchText,//text showed on SearchBar
                 onQueryChange = homeViewModel::onSearchTextChange, //update the value of searchText
-                //onSearch = homeViewModel::onSearchTextChange, //the callback to be invoked when the input service triggers the ImeAction.Search action
-                onSearch = {},
+                onSearch = { onNavigate(Navigation.Search) },
                 active = isSearching, //whether the user is searching or not
-                onActiveChange = { homeViewModel.onToogleSearch()}, //the callback to be invoked when this search bar's active state is changed
+                onActiveChange = { onNavigate(Navigation.Search) }, //the callback to be invoked when this search bar's active state is changed
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 trailingIcon = {
                     IconButton(
-                        onClick = {
-                            Log.d("test", searchText)
-                            homeViewModel.onSearch()
-                                  },
+                        onClick = { onNavigate(Navigation.Search) },
                         modifier = Modifier.size(50.dp),
                         content = {
                             Icon(
