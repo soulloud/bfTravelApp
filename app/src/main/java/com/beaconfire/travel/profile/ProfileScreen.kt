@@ -38,27 +38,25 @@ import com.beaconfire.travel.ui.component.ProfileImage
 
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel) {
-    val profile by profileViewModel.profile.collectAsState()
+    val profileUiModel by profileViewModel.profile.collectAsState()
 
-    profile?.let {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ProfileHeader(profile = profileUiModel.profile, image = R.drawable.ic_profile_shuaige, size = 96)
+        Spacer(modifier = Modifier.height(24.dp))
+        ProfileItem("Edit Profile", Icons.Filled.Edit, onClick = {})
+        ProfileItem("Your reviews", Icons.Filled.Reviews, onClick = {})
+        Spacer(modifier = Modifier.height(128.dp))
+        Button(
+            onClick = { /* Handle log out */ },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            ProfileHeader(profile = it, image = R.drawable.ic_profile_shuaige, size = 96)
-            Spacer(modifier = Modifier.height(24.dp))
-            ProfileItem("Edit Profile", Icons.Filled.Edit, onClick = {})
-            ProfileItem("Your reviews", Icons.Filled.Reviews, onClick = {})
-            Spacer(modifier = Modifier.height(128.dp))
-            Button(
-                onClick = { /* Handle log out */ },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Delete Account")
-            }
+            Text("Delete Account")
         }
     }
 }
