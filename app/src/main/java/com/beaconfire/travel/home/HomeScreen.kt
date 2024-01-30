@@ -2,9 +2,12 @@ package com.beaconfire.travel.home
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -28,11 +32,8 @@ fun HomeScreen() {
 
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 
-    //Collecting states from ViewModel
     val searchText by homeViewModel.searchText.collectAsState()
     val isSearching by homeViewModel.isSearching.collectAsState()
-    val destination by homeViewModel.destination.collectAsState()
-
 
     Scaffold(
         topBar = {
@@ -63,10 +64,19 @@ fun HomeScreen() {
                     )
                 }
             ) {
-
             }
         }
     ) {
-        Text(text = destination.toString(), modifier = Modifier.padding(top = 100.dp))
+        if (homeViewModel.destinationUiState is DestinationUiState.Success){
+            LazyColumn(modifier = Modifier
+                .padding(top = 100.dp)
+                .padding(bottom = 70.dp)){
+                items((homeViewModel.destinationUiState as DestinationUiState.Success).destinationList){ destination ->
+                    //Image(bitmap = homeViewModel.getImage(), contentDescription = )
+                    val str = "${destination.name}, ${destination.location}"
+                    Text(str, modifier = Modifier.padding(bottom = 20.dp))
+                }
+            }
+        }
     }
 }

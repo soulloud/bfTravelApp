@@ -1,44 +1,64 @@
 package com.beaconfire.travel.repo
 
+import android.graphics.BitmapFactory
 import com.beaconfire.travel.repo.model.Destination
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.tasks.await
 
 class HomeRepository {
 
     private val db = FirebaseFirestore.getInstance()
+    private val storage = Firebase.storage
+    private val storageUrl = "gs://beaconfiretripapp.appspot.com"
 
-    suspend fun getDestinations(completion: (List<Destination>?) -> Unit){
+    suspend fun getDestinations(): List<Destination> = callbackFlow {
         db.collection("destination")
-            //.whereArrayContains("location", searchText)
             .get()
             .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    completion(documents.toObjects(Destination::class.java))
-                } else {
-                    completion(null)
-                }
+                val result = documents.toObjects(Destination::class.java)
+                trySend(result)
             }
-            .addOnFailureListener{
-                completion(null)
-            }
-    }
+//            .addOnFailureListener{
+//                trySend()
+//            }
+            .await()
+        awaitClose()
+    }.first()
 
-    suspend fun searchDestination(searchText: String, completion: (Destination?) -> Unit){
+    suspend fun searchDestination(searchText: String): List<Destination> = callbackFlow{
         db.collection("destination")
             .whereEqualTo("name", searchText)
             //.whereArrayContains("location", searchText)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    val destination = documents.first().toObject(Destination::class.java)
-                    completion(destination)
-                } else {
-                    completion(null)
+                    val result = documents.toObjects(Destination::class.java).toList()
+                    trySend(result)
                 }
             }
-            .addOnFailureListener{
-                completion(null)
+            .await()
+        awaitClose()
+    }.first()
+
+    suspend fun getImage() = callbackFlow {
+        // Points to the root reference
+        val storageRef = storage.reference
+        val MEGABYTE: Long = 1024 * 1024
+
+        val imagesRef = storageRef.child("newyork.jpg")
+        imagesRef.getBytes(MEGABYTE)
+            .addOnSuccessListener {bytes ->
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                trySend(bitmap)
             }
+            .await()
+        awaitClose()
     }
+
 
 }

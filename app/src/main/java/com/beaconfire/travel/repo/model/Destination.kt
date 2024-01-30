@@ -11,7 +11,3 @@ data class Destination(
     val ageRecommendation: String? = null,
     val recommendedByPercentage: String? = null
 )
-
-//data class DestinationList(
-//    val destinationList: List<Destination>? = null
-//)
