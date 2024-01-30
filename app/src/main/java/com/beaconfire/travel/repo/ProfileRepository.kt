@@ -19,20 +19,16 @@ class ProfileRepository {
     suspend fun getProfileForUser(user: String) = callbackFlow {
         val profileRef = userId?.let { db.collection("profiles").document(it) }
 
-        if (profileRef != null) {
-            profileRef.get()
-                .addOnSuccessListener { profileSnapshot ->
-                    if (profileSnapshot.exists()) {
-                        val profileData = profileSnapshot.toObject(Profile::class.java)
-                        trySend(profileData)
-                    } else {
-                        trySend(null) // Profile not found
-                    }
-                }
-                .addOnFailureListener {
-                    Log.d(TAG, "Failed to fetch profile: $it")
-                    trySend(null)
-                }
+        profileRef?.get()?.addOnSuccessListener { profileSnapshot ->
+            if (profileSnapshot.exists()) {
+                val profileData = profileSnapshot.toObject(Profile::class.java)
+                trySend(profileData)
+            } else {
+                trySend(null) // Profile not found
+            }
+        }?.addOnFailureListener {
+            Log.d(TAG, "Failed to fetch profile: $it")
+            trySend(null)
         }
 
         awaitClose()
