@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.beaconfire.travel.R
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.component.ProfileImage
+import com.beaconfire.travel.utils.MockData
 
 @Composable
 fun SettingsScreen() {
@@ -41,7 +42,7 @@ fun SettingsScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        SettingHeader(user = User.mockUsers[0], image = R.drawable.ic_profile_shuaige, 96)
+        SettingHeader(user = MockData.users[0], image = R.drawable.ic_profile_shuaige, 96)
         Spacer(modifier = Modifier.height(24.dp))
         SettingItem("Feedback", Icons.Filled.Feedback, onClick = {})
         SettingItem("Currency", Icons.Filled.CurrencyExchange, onClick = {})

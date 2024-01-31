@@ -8,7 +8,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.beaconfire.travel.repo.model.Destination
 
 @Composable
 fun TripsScreen() {
@@ -45,7 +44,7 @@ fun TripsScreen() {
         tripsViewModel.changeTripVisibility(tripUiState.trips[0])
 
 
-        tripsViewModel.removeDestinationFromCurrentTrip(Destination(), tripUiState.trips[0])
+//        tripsViewModel.removeDestinationFromCurrentTrip(Destination(), tripUiState.trips[0])
 
         Text(text = totalCost.toString())
     }
