@@ -1,90 +1,85 @@
 package com.beaconfire.travel.repo
 
-import android.util.Log
 import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.repo.data.TripData
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
 class TripRepository(private val appContainer: AppContainer) {
+    suspend fun getAllTrips(): List<Trip> = appContainer.userRepository.getLoginUser()?.let {
+        queryTrips(it.userId).map { tripData ->
+            tripData.toTrip(
+                destinations = appContainer.destinationRepository.getAllDestinations(tripData.destinations)
+            )
+        }
+    } ?: emptyList()
 
-    private val db = FirebaseFirestore.getInstance()
-    suspend fun getAllTrips(userId: String): List<Trip> = getTripDatas(userId).map { trip ->
-        trip.toTrip(destinations = appContainer.destinationRepository.getAllDestinations(trip.destinations))
+    suspend fun createTrip() = appContainer.userRepository.getLoginUser()?.let {
+        callbackFlow {
+            val tripData = TripData(
+                owner = it.userId,
+                duration = "duration",
+                title = "title",
+                visibility = Trip.Visibility.Public().value
+            )
+            val tripRef = appContainer.firebaseStore.collection("trip").document()
+            tripRef.set(tripData)
+                .addOnSuccessListener {
+                    trySend(
+                        tripData.copy(tripId = tripRef.id).toTrip(emptyList())
+                    )
+                }
+                .addOnFailureListener { trySend(null) }
+                .await()
+            awaitClose()
+        }.first()
     }
 
-    private suspend fun getTripDatas(userId: String) = callbackFlow<List<TripData>> {
-        db.collection("trip")
+    suspend fun removeDestination(trip: Trip, destination: Destination) = callbackFlow {
+        val tripRef = appContainer.firebaseStore.collection("trip").document(trip.tripId)
+        tripRef.update("destinations", FieldValue.arrayRemove(destination.destinationId))
+            .addOnSuccessListener { trySend(true) }
+            .addOnFailureListener { trySend(false) }
+            .await()
+        awaitClose()
+    }.first()
+
+    suspend fun deleteTrip(trip: Trip) = callbackFlow {
+        appContainer.firebaseStore.collection("trip").document(trip.tripId)
+            .delete()
+            .addOnSuccessListener { trySend(true) }
+            .addOnFailureListener { trySend(false) }
+            .await()
+        awaitClose()
+    }.first()
+
+    suspend fun updateTripVisibility(trip: Trip) = callbackFlow {
+        val tripRef = appContainer.firebaseStore.collection("trip").document(trip.tripId)
+        appContainer.firebaseStore.runTransaction { transaction ->
+            transaction.update(tripRef, "visibility", trip.visibility.value)
+        }
+            .addOnSuccessListener { trySend(true) }
+            .addOnFailureListener { trySend(false) }
+            .await()
+        awaitClose()
+    }.first()
+
+    private suspend fun queryTrips(userId: String) = callbackFlow<List<TripData>> {
+        appContainer.firebaseStore.collection("trip")
             .whereEqualTo("owner", userId)
             .get()
-            .addOnSuccessListener { documents ->
-                val trips = documents.map { it.toObject(TripData::class.java).copy(tripId = it.id) }
-                trySend(trips)
-            }
-            .addOnFailureListener {
-                trySend(emptyList())
-            }
+            .addOnSuccessListener { documents -> trySend(documents.mapNotNull { it.toTripData() }) }
+            .addOnFailureListener { trySend(emptyList()) }
             .await()
         awaitClose()
     }.first()
 
-    suspend fun createNewTrip(tripData: TripData) = callbackFlow {
-        db.collection("trip")
-            .add(tripData)
-            .addOnSuccessListener {
-                Log.d("test", "new trip created!")
-                trySend("new trip created!")
-            }
-            .addOnFailureListener {
-                Log.d("test", "something went wrong on creating new trip")
-                trySend("something went wrong on creating new trip")
-            }
-            .await()
-        awaitClose()
-    }.first()
-
-    suspend fun removeFromCurrentTrip(destination: Destination, trip: Trip) {
-
-
-        val destinationToDelete = "aHmLo7Vy6WLAWKRNbCF9"
-        val tripRef = db.collection("trip").document(trip.tripId)
-        tripRef.update("destinations", FieldValue.arrayRemove(destinationToDelete)).await()
-
-    }
-
-    suspend fun deleteCurrentTrip(tripId: String) = callbackFlow {
-        db.collection("trip").document(tripId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d("test", "trip deleted")
-                trySend("trip deleted")
-            }
-            .addOnFailureListener {
-                Log.d("test", "something went wrong on deleting trip")
-            }
-            .await()
-        awaitClose()
-    }.first()
-
-    suspend fun changeTripVisibility(tripId: String) = callbackFlow {
-        val tripRef = db.collection("trip").document(tripId)
-        db.runTransaction { transaction ->
-            val snapshot = transaction.get(tripRef)
-            val currentVisibility: String = snapshot.getString("visibility")!!
-            val newVisibility = if (currentVisibility == "public") "private" else "public"
-            transaction.update(tripRef, "visibility", newVisibility)
-        }
-            .addOnSuccessListener {
-                Log.d("test", "changed")
-                trySend("Successful")
-            }
-            .await()
-        awaitClose()
-    }.first()
+    private fun DocumentSnapshot.toTripData() =
+        toObject(TripData::class.java)?.copy(tripId = id)
 }

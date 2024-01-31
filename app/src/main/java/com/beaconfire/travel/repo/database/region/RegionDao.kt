@@ -9,6 +9,7 @@ interface RegionDao {
 
     @Insert
     suspend fun insertStates(states: List<StateEntity>)
+
     @Insert
     suspend fun insertCities(states: List<CityEntity>)
 

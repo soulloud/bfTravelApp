@@ -11,7 +11,7 @@ data class TripData(
     val duration: String? = null,
     val title: String? = null,
     val description: String? = null,
-    val visibility: String? = null, //visibility can be either "private" or "public"
+    val visibility: String? = null,
     val numPeople: Long? = 1
 ) {
     fun toTrip(destinations: List<Destination>) = Trip(
@@ -22,7 +22,19 @@ data class TripData(
         duration = duration ?: "",
         title = title ?: "",
         description = description ?: "",
-        visibility = visibility ?: "",
+        visibility = Trip.Visibility.fromString(visibility),
         numPeople = numPeople ?: 1
     )
 }
+
+fun Trip.toTripData() = TripData(
+    tripId = tripId,
+    owner = owner,
+    destinations = destinations.mapNotNull { it.destinationId },
+    collaborators = collaborators,
+    duration = duration,
+    title = title,
+    description = description,
+    visibility = visibility.value,
+    numPeople = numPeople
+)

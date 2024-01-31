@@ -1,6 +1,5 @@
 package com.beaconfire.travel.trips
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +10,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.TripRepository
-import com.beaconfire.travel.repo.data.TripData
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
 import kotlinx.coroutines.Dispatchers
@@ -20,72 +18,71 @@ import kotlinx.coroutines.withContext
 
 class TripsViewModel(
     private val tripRepository: TripRepository
-): ViewModel() {
+) : ViewModel() {
 
     var tripUiState by mutableStateOf<TripUiState>(TripUiState.None)
+
     //var destinationListUiState by mutableStateOf<DestinationUiState>(DestinationUiState.None)
     var currentDestinationList: List<Destination> = emptyList()
     val totalCost = MutableLiveData(0.0)
-    val huichangId = "Aq6oY2SW5NiQRkKwYqPE"
 
     init {
         loadTrips()
     }
 
-    private fun loadTrips(){
+    private fun loadTrips() {
         tripUiState = TripUiState.Loading
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 tripUiState = try {
-                    val trips = tripRepository.getAllTrips(huichangId)
+                    val trips = tripRepository.getAllTrips()
                     TripUiState.LoadSucceed(trips)
-                } catch (e: Exception){
+                } catch (e: Exception) {
                     TripUiState.LoadFailed
                 }
             }
         }
     }
 
-    fun createNewTrip(tripData: TripData){
+    fun createTrip() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                tripRepository.createNewTrip(tripData)
+            withContext(Dispatchers.IO) {
+                tripRepository.createTrip()
             }
         }
         loadTrips()
     }
 
-    fun deleteCurrentTrip(trip: Trip){
+    fun deleteTrip(trip: Trip) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                tripRepository.deleteCurrentTrip(trip.tripId)
+            withContext(Dispatchers.IO) {
+                tripRepository.deleteTrip(trip)
             }
         }
         loadTrips()
     }
 
-    fun setCurrentDestinationList(trip: Trip){
+    fun setCurrentDestinationList(trip: Trip) {
         currentDestinationList = trip.destinations
         getTotalPrice()
     }
 
-    fun removeDestinationFromCurrentTrip(destination: Destination, trip: Trip){
+    fun removeDestination(trip: Trip, destination: Destination) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                tripRepository.removeFromCurrentTrip(destination, trip)
+            withContext(Dispatchers.IO) {
+                tripRepository.removeDestination(trip, destination)
             }
-            //setCurrentDestinationList(trip)
         }
     }
 
-    fun changeTripVisibility(trip: Trip){
+    fun toggleTripVisibility(trip: Trip) {
         viewModelScope.launch {
-            tripRepository.changeTripVisibility(trip.tripId)
-            Log.d(TAG, "visibility changed")
+            tripRepository.updateTripVisibility(trip.copy(visibility = trip.visibility.toggle()))
+            loadTrips()
         }
     }
 
-    private fun getTotalPrice(){
+    private fun getTotalPrice() {
         val cost = (currentDestinationList)
             .sumOf { it.price.value }
         totalCost.value = cost

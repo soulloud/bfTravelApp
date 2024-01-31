@@ -3,7 +3,7 @@ package com.beaconfire.travel.repo.data
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Price
 
-data class DestinationData (
+data class DestinationData(
     val destinationId: String? = null,
     val name: String? = null,
     val location: String? = null,
