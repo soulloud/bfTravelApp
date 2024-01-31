@@ -38,6 +38,7 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
         }
     }
 
+
     companion object {
         private val TAG = ProfileViewModel::class.java.simpleName
 

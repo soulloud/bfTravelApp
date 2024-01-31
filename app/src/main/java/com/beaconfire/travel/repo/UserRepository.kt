@@ -41,28 +41,32 @@ class UserRepository(val appContainer: AppContainer) {
 
 
 
+
     // TODO: Make sure register and login methods either both to take a User object,
     //       or both to take individual components.
-    suspend fun register(user: User, profile: Profile) = callbackFlow {
+    suspend fun register(user: User, profile: Profile): User? {
+        // Create a new document reference for the user
         val newUserRef = db.collection("user").document()
-        val userProfileRef = db.collection("profile").document()
 
-        // Set the profile first
-        userProfileRef.set(profile).await()
-        val userWithProfile = user.copy(profile = userProfileRef.path)
+        // Prepare the profile and save it
+        val profileRef = db.collection("profile").document()
+        profileRef.set(profile).await()
 
-        // Include the userId in the user document
-        val userWithId = userWithProfile.copy(userId = newUserRef.id)
+        // Prepare the user object with the document ID and profile reference
+        val userWithIdAndProfile = user.copy(
+            userId = newUserRef.id,
+            profile = profileRef.id
+        )
 
-        // Set the user with the profile reference and userId
-        newUserRef.set(userWithId).await()
+        // Save the user object to Firestore
+        newUserRef.set(userWithIdAndProfile).await()
 
-        // Store the userId in SessionManager
+        // Update SessionManager with the new userId
         SessionManager.setUserId(newUserRef.id)
 
-        trySend(userWithId)
-        awaitClose()
-    }.first()
+        return userWithIdAndProfile
+    }
+
 
     suspend fun fetchUser(documentId: String): User {
         // TODO: @David
