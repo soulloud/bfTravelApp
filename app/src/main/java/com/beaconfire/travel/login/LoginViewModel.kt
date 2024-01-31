@@ -40,7 +40,7 @@ class LoginViewModel(
         }
         _loginUiModel.update { it.copy(loginStatus = LoginStatus.Authenticating, user = null) }
         viewModelScope.launch(Dispatchers.IO) {
-            val loginUser = userRepository.login(email, password).first()
+            val loginUser = userRepository.login(email, password)
             if (loginUser == User.INVALID_USER) {
                 _errorMessage.emit("Username and password doesn't match, please try again!")
                 _loginUiModel.update { it.copy(loginStatus = LoginStatus.AuthenticationFailed, user = null) }

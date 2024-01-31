@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Reviews
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,21 +37,32 @@ import com.beaconfire.travel.R
 import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.component.ProfileImage
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel) {
     val profileUiModel by profileViewModel.profile.collectAsState()
+    var showEditProfile by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         ProfileHeader(profile = profileUiModel.profile, image = R.drawable.ic_profile_shuaige, size = 96)
         Spacer(modifier = Modifier.height(24.dp))
-        ProfileItem("Edit Profile", Icons.Filled.Edit, onClick = {})
+        ProfileItem("Edit Profile", Icons.Filled.Edit) { showEditProfile = !showEditProfile }
+        if (showEditProfile) {
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                item {
+                    Text("Full Name: ${profileUiModel.profile.fullName}", Modifier.padding(8.dp))
+                    Text("Location: ${profileUiModel.profile.location}", Modifier.padding(8.dp))
+                    // Add more Text composables for other profile details
+                }
+            }
+        }
         ProfileItem("Your reviews", Icons.Filled.Reviews, onClick = {})
         Spacer(modifier = Modifier.height(128.dp))
         Button(
@@ -58,6 +71,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
         ) {
             Text("Delete Account")
         }
+
     }
 }
 
@@ -75,11 +89,7 @@ fun ProfileHeader(profile: Profile, image: Int, size: Int) {
 
 
 @Composable
-fun ProfileItem(
-    text: String,
-    iconId: ImageVector,
-    onClick: () -> Unit
-) {
+fun ProfileItem(text: String, iconId: ImageVector, onClick: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -87,11 +97,7 @@ fun ProfileItem(
             .padding(vertical = 12.dp)
             .clickable { onClick() }
     ) {
-        Icon(
-            iconId,
-            contentDescription = text,
-            modifier = Modifier.size(24.dp)
-        )
+        Icon(iconId, contentDescription = text, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = text, fontSize = 16.sp)
     }

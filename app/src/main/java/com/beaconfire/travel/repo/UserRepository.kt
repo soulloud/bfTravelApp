@@ -16,31 +16,30 @@ class UserRepository(val appContainer: AppContainer) {
     private val db = FirebaseFirestore.getInstance()
 
     // The login function returns a Flow<User?>
-    suspend fun login(email: String, password: String) = callbackFlow {
+    suspend fun login(email: String, password: String): User? = callbackFlow {
         db.collection("user")
             .whereEqualTo("email", email)
-            .whereEqualTo("password", password)
+            .whereEqualTo("password", password) // Note: Consider using Firebase Auth for secure password handling
             .get()
             .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
+                if (querySnapshot.documents.isNotEmpty()) {
                     val document = querySnapshot.documents.first()
-                    val loginUser = document.toObject(User::class.java)
-                    if (loginUser != null) {
-                        // Store the userId in SessionManager
-                        SessionManager.setUserId(document.id)
-                        loginUser.userId = document.id // Only if you need to set it in the User object
+                    val user = document.toObject(User::class.java)?.apply {
+                        this.userId = document.id // Update the user object with the document ID
                     }
-                    trySend(loginUser)
+                    SessionManager.setUserId(document.id) // Update SessionManager with the userId
+                    trySend(user).isSuccess
                 } else {
-                    trySend(User.INVALID_USER)
+                    trySend(null).isSuccess // No user found
                 }
             }
             .addOnFailureListener {
-                Log.e(TAG, "Login failed", it)
-                trySend(User.INVALID_USER)
+                trySend(null).isSuccess
             }
         awaitClose()
-    }
+    }.first()
+
+
 
     // TODO: Make sure register and login methods either both to take a User object,
     //       or both to take individual components.
