@@ -2,8 +2,6 @@ package com.beaconfire.travel.repo
 
 import android.graphics.BitmapFactory
 import com.beaconfire.travel.repo.data.DestinationData
-import com.google.firebase.ktx.Firebase
-import android.util.Log
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,7 +16,7 @@ class DestinationRepository {
 
     private val db = FirebaseFirestore.getInstance()
 
-    suspend fun getCurrentDestination(searchText: String): Destination = callbackFlow {
+    suspend fun getCurrentDestination(searchText: String): Destination? = callbackFlow {
         db.collection("destination")
             .whereEqualTo("name", searchText)
             .get()
@@ -26,14 +24,14 @@ class DestinationRepository {
                 val result = documents.first().toObject(Destination::class.java)
                 trySend(result)
             }
-//            .addOnFailureListener{
-//                trySend()
-//            }
+            .addOnFailureListener {
+                trySend(null)
+            }
             .await()
         awaitClose()
     }.first()
 
-    suspend fun getAllTrips(username: String): List<Trip> = callbackFlow{
+    suspend fun getAllTrips(username: String): List<Trip> = callbackFlow {
         db.collection("trip")
             .whereEqualTo("owner", username)
             .get()
@@ -44,6 +42,7 @@ class DestinationRepository {
             .await()
         awaitClose()
     }.first()
+
     private val storage = Firebase.storage
     private val storageUrl = "gs://beaconfiretripapp.appspot.com"
 
@@ -51,56 +50,39 @@ class DestinationRepository {
         db.collection("destination")
             .get()
             .addOnSuccessListener { documents ->
-
                 val result: MutableList<Destination> = ArrayList()
-                for (document in documents){
-                    result.add(document.toObject(DestinationData::class.java).toDestination(document.id))
+                for (document in documents) {
+                    result.add(
+                        document.toObject(DestinationData::class.java).toDestination(document.id)
+                    )
                 }
-
                 trySend(result)
             }
-            .addOnFailureListener{
+            .addOnFailureListener {
                 trySend(emptyList())
             }
             .await()
         awaitClose()
     }.first()
 
-    suspend fun getDestinations(destinationIds: List<String>) = destinationIds.mapNotNull { getDestination(it) }
+    suspend fun getDestinations(destinationIds: List<String>) =
+        destinationIds.mapNotNull { getDestination(it) }
 
     suspend fun getDestination(destinationId: String) = callbackFlow<Destination?> {
         db.collection("destination")
             .document(destinationId)
             .get()
             .addOnSuccessListener { document ->
-                val destination = document.toObject(DestinationData::class.java)?.toDestination(document.id)
+                val destination =
+                    document.toObject(DestinationData::class.java)?.toDestination(document.id)
                 trySend(destination)
             }
-            .addOnFailureListener{
+            .addOnFailureListener {
                 trySend(null)
             }
             .await()
         awaitClose()
     }.first()
-
-    suspend fun getDestinations(destinationIds: List<String>) = destinationIds.mapNotNull { getDestination(it) }
-
-    suspend fun getDestination(destinationId: String) = callbackFlow<Destination?> {
-        db.collection("destination")
-            .document(destinationId)
-            .get()
-            .addOnSuccessListener { document ->
-                val destination = document.toObject(DestinationData::class.java)?.toDestination(document.id)
-                trySend(destination)
-            }
-            .addOnFailureListener{
-                trySend(null)
-            }
-            .await()
-        awaitClose()
-    }.first()
-
-
 
     suspend fun searchDestination(searchText: String) = callbackFlow<List<Destination>> {
         db.collection("destination")
@@ -110,8 +92,11 @@ class DestinationRepository {
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val result: MutableList<Destination> = ArrayList()
-                    for (document in documents){
-                        result.add(document.toObject(DestinationData::class.java).toDestination(document.id))
+                    for (document in documents) {
+                        result.add(
+                            document.toObject(DestinationData::class.java)
+                                .toDestination(document.id)
+                        )
                     }
                 }
             }
@@ -126,11 +111,12 @@ class DestinationRepository {
 
             val imagesRef = storageRef.child("newyork.jpg")
             imagesRef.getBytes(MEGABYTE)
-                .addOnSuccessListener {bytes ->
+                .addOnSuccessListener { bytes ->
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                     trySend(bitmap)
                 }
                 .await()
             awaitClose()
         }
+    }
 }

@@ -9,11 +9,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.beaconfire.travel.repo.model.User
 
 @Composable
 fun ProfileImage(
-    user: User,
     image: Int,
     size: Int,
 ) {

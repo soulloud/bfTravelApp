@@ -65,7 +65,7 @@ fun SettingHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ProfileImage(user = user, image = image, size = size)
+        ProfileImage(image = image, size = size)
         Text(text = user.displayName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Text(text = user.email, fontSize = 16.sp, color = Color.Gray)
     }
