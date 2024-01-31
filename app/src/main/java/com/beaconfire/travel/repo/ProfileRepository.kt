@@ -5,6 +5,7 @@ import android.util.Log
 import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.repo.UserRepository.Companion.TAG
 import com.beaconfire.travel.repo.model.Profile
+import com.beaconfire.travel.utils.SessionManager
 import com.beaconfire.travel.utils.SessionManager.userId
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -19,11 +20,11 @@ class ProfileRepository(val appContainer: AppContainer) {
 
     suspend fun getProfileForUser(user: String) = callbackFlow {
         // TODO: Not a good idea to save user id as global, but let's refactor later
-        val user = userId?.let { appContainer.userRepository.fetchUser(it) }
+//        val user = userId?.let { appContainer.userRepository.fetchUser(it) }
 
 
         // TODO: @David similar to userRepository.fetchUser to get ProfileData and then convert to Profile object
-        val profileRef = user?.profile?.let { db.collection("profiles").document(it) }
+        val profileRef = userId?.let { db.collection("profiles").document(it) }
 
         profileRef?.get()?.addOnSuccessListener { profileSnapshot ->
             if (profileSnapshot.exists()) {
@@ -36,7 +37,6 @@ class ProfileRepository(val appContainer: AppContainer) {
             Log.d(TAG, "Failed to fetch profile: $it")
             trySend(null)
         }
-
         awaitClose()
     }.first()
 
@@ -62,6 +62,8 @@ class ProfileRepository(val appContainer: AppContainer) {
         ref.putFile(imageUri).await()
         return ref.downloadUrl.await().toString()
     }
+
+
 
 
 }

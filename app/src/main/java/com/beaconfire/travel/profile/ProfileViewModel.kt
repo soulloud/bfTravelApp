@@ -31,7 +31,7 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
                 _profile.update {
                     it.copy(
                         status = profile?.let { ProfileUiModelStatus.LoadSucceed } ?: ProfileUiModelStatus.LoadFailed,
-                        profile = profile?: Profile.InvalidProfile
+                        profile = profile ?: Profile.InvalidProfile
                     )
                 }
             }
