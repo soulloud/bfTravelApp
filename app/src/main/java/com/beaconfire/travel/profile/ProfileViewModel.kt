@@ -5,34 +5,42 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.profile.ProfileUiModel
 import com.beaconfire.travel.profile.ProfileUiModelStatus
-import com.beaconfire.travel.repo.ProfileRepository
-import com.beaconfire.travel.repo.model.Profile // Make sure this is imported
-import com.beaconfire.travel.utils.SessionManager
+import com.beaconfire.travel.repo.UserRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() {
+class ProfileViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     // Change the type from User? to Profile?
-    private val _profile = MutableStateFlow(ProfileUiModel(status = ProfileUiModelStatus.None, Profile.InvalidProfile))
-    val profile: StateFlow<ProfileUiModel> = _profile.asStateFlow()
+    private val _profileUiModel =
+        MutableStateFlow(ProfileUiModel(status = ProfileUiModelStatus.None, null))
+    val profileUiModel: StateFlow<ProfileUiModel> = _profileUiModel.asStateFlow()
 
     init {
         fetchUserProfile()
     }
 
     private fun fetchUserProfile() {
-        SessionManager.userId?.let { userId ->
-            viewModelScope.launch {
-                val profile = repository.getProfileForUser()
-                _profile.update {
-                    it.copy(
-                        status = profile?.let { ProfileUiModelStatus.LoadSucceed } ?: ProfileUiModelStatus.LoadFailed,
-                        profile = profile ?: Profile.InvalidProfile
-                    )
+        _profileUiModel.update { it.copy(ProfileUiModelStatus.Loading) }
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val user = userRepository.getLoginUser()
+                if (user != null) {
+                    _profileUiModel.update {
+                        it.copy(
+                            status = ProfileUiModelStatus.LoadSucceed,
+                            profile = user.profile
+                        )
+                    }
+                } else {
+                    _profileUiModel.update { it.copy(ProfileUiModelStatus.LoadFailed) }
                 }
             }
         }
@@ -44,7 +52,7 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
 
         val Factory = viewModelFactory {
             initializer {
-                ProfileViewModel(mallApplication().container.profileRepository)
+                ProfileViewModel(mallApplication().container.userRepository)
             }
         }
     }

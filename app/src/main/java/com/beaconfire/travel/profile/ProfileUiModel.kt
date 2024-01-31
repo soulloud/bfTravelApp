@@ -9,4 +9,7 @@ enum class ProfileUiModelStatus {
     None
 }
 
-data class ProfileUiModel(val status: ProfileUiModelStatus, val profile: Profile)
+data class ProfileUiModel(
+    val status: ProfileUiModelStatus,
+    val profile: Profile?
+)

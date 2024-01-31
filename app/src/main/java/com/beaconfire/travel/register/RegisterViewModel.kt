@@ -11,7 +11,6 @@ import com.beaconfire.travel.repo.UserRepository
 import com.beaconfire.travel.repo.model.City
 import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.State
-import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.repo.region.RegionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -71,19 +70,16 @@ class RegisterViewModel(
 
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val user = User(email = email, displayName = displayName, password = password)
-                val registeredUser = userRepository.register(user, profile)
-                if (User.INVALID_USER == registeredUser) {
+                val user = userRepository.register(email, displayName, password, profile)
+                if (user == null) {
                     _errorMessage.emit("Email or username already exist, please try again!")
                 }
                 _registerUiModel.update {
-                    it.copy(registerStatus = if (User.INVALID_USER == registeredUser) RegisterStatus.RegistrationFailed else RegisterStatus.RegistrationSuccess)
+                    it.copy(registerStatus = RegisterStatus.RegistrationSuccess)
                 }
             }
         }
     }
-
-
 
     suspend fun getAllCitiesForStates(state: State) {
         _registerUiModel.update {

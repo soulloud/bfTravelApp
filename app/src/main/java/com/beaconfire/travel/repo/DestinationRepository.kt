@@ -53,7 +53,7 @@ class DestinationRepository {
                 val result: MutableList<Destination> = ArrayList()
                 for (document in documents) {
                     result.add(
-                        document.toObject(DestinationData::class.java).toDestination(document.id)
+                        document.toObject(DestinationData::class.java).toDestination()
                     )
                 }
                 trySend(result)
@@ -74,7 +74,7 @@ class DestinationRepository {
             .get()
             .addOnSuccessListener { document ->
                 val destination =
-                    document.toObject(DestinationData::class.java)?.toDestination(document.id)
+                    document.toObject(DestinationData::class.java)?.toDestination()
                 trySend(destination)
             }
             .addOnFailureListener {
@@ -95,7 +95,7 @@ class DestinationRepository {
                     for (document in documents) {
                         result.add(
                             document.toObject(DestinationData::class.java)
-                                .toDestination(document.id)
+                                .toDestination()
                         )
                     }
                 }

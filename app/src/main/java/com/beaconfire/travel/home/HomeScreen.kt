@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -70,7 +71,7 @@ fun HomeScreen(onNavigate: (Navigation) -> Unit) {
     var tags = remember { mutableListOf<String>() }
     LazyColumn(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 64.dp)) {
         item {
-            Title(User.mockUsers[0])
+            Title(MockData.users[0])
             TopMenu(onNavigate, homeViewModel)
             LazyRow {
                 items(MockData.tagImages.size) {
@@ -118,18 +119,13 @@ fun HomeScreen(onNavigate: (Navigation) -> Unit) {
                 }
 
                 is HomeUiModel.LoadSucceed -> {
-//                LazyColumn {
-//                    itemsIndexed(homeUiModel.destinations) { _, destination ->
-//                        val str = "${destination.name}, ${destination.location}"
-//                        Text(str, modifier = Modifier.padding(bottom = 20.dp))
-//                    }
-//                }
+                    Destinations(destinations = homeUiModel.destinations, onNavigate = onNavigate)
                 }
 
                 is HomeUiModel.LoadFailed -> {}
                 else -> {}
             }
-            Destinations(onNavigate)
+
         }
     }
 }
@@ -180,10 +176,7 @@ fun DestinationSearchBar(onNavigate: (Navigation) -> Unit) {
 }
 
 @Composable
-fun Destinations(onNavigate: (Navigation) -> Unit) {
-    val destinations = Destination.mockDestinations
-    val images = Destination.mockImages
-
+fun Destinations(destinations: List<Destination>, onNavigate: (Navigation) -> Unit) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(128.dp),
         modifier = Modifier
@@ -193,8 +186,12 @@ fun Destinations(onNavigate: (Navigation) -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalItemSpacing = 16.dp
     ) {
-        items(destinations.size) {
-            DestinationCard(destination = destinations[it], image = images[it], onNavigate = onNavigate)
+        itemsIndexed(destinations) { _, destination ->
+            DestinationCard(
+                destination = destination,
+                imageUrl = destination.images[0],
+                onNavigate = onNavigate
+            )
         }
     }
 }
@@ -202,18 +199,20 @@ fun Destinations(onNavigate: (Navigation) -> Unit) {
 @Composable
 fun DestinationCard(
     destination: Destination,
-    image: Int,
+    imageUrl: String,
     onNavigate: (Navigation) -> Unit,
 ) {
     Card(
         modifier = Modifier
             .padding(4.dp)
-            .fillMaxWidth().clickable { onNavigate(Navigation.DestinationDetail) },
+            .fillMaxWidth()
+            .clickable { onNavigate(Navigation.DestinationDetail) },
     ) {
         Column {
-            // Use Coil to load image from URL
-            Image(
-                painter = painterResource(id = image),
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageUrl)
+                    .build(),
                 contentDescription = "Destination Image",
                 modifier = Modifier.fillMaxWidth(),
                 contentScale = ContentScale.FillWidth,
@@ -229,7 +228,10 @@ fun DestinationCard(
                 Spacer(modifier = Modifier.width(16.dp))
                 Row(modifier = Modifier.weight(1f)) {
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("4.8 (32) reviews)", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "\u2606 ${destination.rating}\n${destination.reviews.size} reviews",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }
