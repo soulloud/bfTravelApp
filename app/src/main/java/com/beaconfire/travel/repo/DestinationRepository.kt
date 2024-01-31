@@ -36,6 +36,23 @@ class DestinationRepository {
         awaitClose()
     }.first()
 
+    suspend fun getDestinations(destinationIds: List<String>) = destinationIds.mapNotNull { getDestination(it) }
+
+    suspend fun getDestination(destinationId: String) = callbackFlow<Destination?> {
+        db.collection("destination")
+            .document(destinationId)
+            .get()
+            .addOnSuccessListener { document ->
+                val destination = document.toObject(DestinationData::class.java)?.toDestination(document.id)
+                trySend(destination)
+            }
+            .addOnFailureListener{
+                trySend(null)
+            }
+            .await()
+        awaitClose()
+    }.first()
+
     suspend fun searchDestination(searchText: String) = callbackFlow<List<Destination>> {
         db.collection("destination")
             .whereEqualTo("name", searchText)
