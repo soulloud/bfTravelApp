@@ -1,10 +1,19 @@
 package com.beaconfire.travel.home
 
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.utils.DestinationFilter
+import com.beaconfire.travel.utils.DestinationSort
 
-sealed interface HomeUiModel {
-    data object None : HomeUiModel
-    data object Loading : HomeUiModel
-    data object LoadFailed : HomeUiModel
-    data class LoadSucceed(val destinations: List<Destination>) : HomeUiModel
+data class HomeUiModel(
+    val homeUiState: HomeUiState = HomeUiState.None,
+    val destinations: List<Destination> = emptyList(),
+    val filter: DestinationFilter = DestinationFilter.FilterByTag(emptyList()),
+    val sort: DestinationSort = DestinationSort.None,
+)
+
+enum class HomeUiState {
+    Loading,
+    LoadFailed,
+    LoadSucceed,
+    None,
 }

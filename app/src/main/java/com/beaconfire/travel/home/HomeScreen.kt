@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,8 +57,8 @@ import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.TagCard
 import com.beaconfire.travel.ui.component.carousel.AutoSlidingCarousel
+import com.beaconfire.travel.utils.DestinationSort
 import com.beaconfire.travel.utils.MockData
-import com.beaconfire.travel.utils.SortMethod
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -67,7 +68,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(onNavigate: (Navigation) -> Unit) {
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
-    val homeUiModel = homeViewModel.homeUiModel
+    val homeUiModel by homeViewModel.homeUiModel.collectAsState()
     var tags = remember { mutableListOf<String>() }
     LazyColumn(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 64.dp)) {
         item {
@@ -89,7 +90,7 @@ fun HomeScreen(onNavigate: (Navigation) -> Unit) {
                         } else {
                             tags.remove(MockData.tags[it])
                         }
-                        homeViewModel.onTagUpdated(tags)
+                        homeViewModel.onFilterChanged(tags)
                     }
                 }
             }
@@ -113,16 +114,16 @@ fun HomeScreen(onNavigate: (Navigation) -> Unit) {
                 )
             }
 
-            when (homeUiModel) {
-                is HomeUiModel.Loading -> {
+            when (homeUiModel.homeUiState) {
+                HomeUiState.Loading -> {
                     Text(text = "Loading")
                 }
 
-                is HomeUiModel.LoadSucceed -> {
+                HomeUiState.LoadSucceed -> {
                     Destinations(destinations = homeUiModel.destinations, onNavigate = onNavigate)
                 }
 
-                is HomeUiModel.LoadFailed -> {}
+                HomeUiState.LoadFailed -> {}
                 else -> {}
             }
 
@@ -287,12 +288,12 @@ private fun Actions(
         FilterDropdownMenuItem(
             text = "A - Z",
             homeViewModel,
-            SortMethod.AlphabetAscending
+            DestinationSort.AlphabetAscending
         ) { expanded = false }
         FilterDropdownMenuItem(
             text = "Z - A",
             homeViewModel,
-            SortMethod.AlphabetDescending
+            DestinationSort.AlphabetDescending
         ) { expanded = false }
     }
 }
@@ -301,14 +302,16 @@ private fun Actions(
 private fun FilterDropdownMenuItem(
     text: String,
     homeViewModel: HomeViewModel,
-    sortMethod: SortMethod,
+    destinationSort: DestinationSort,
     onClick: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     DropdownMenuItem(
         text = { Text(text = text) },
         onClick = {
-            scope.launch { }
+            scope.launch {
+                homeViewModel.onSortChanged(destinationSort)
+            }
             onClick()
         })
 }

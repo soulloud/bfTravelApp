@@ -75,7 +75,7 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(128.dp),
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+            painter = painterResource(id = R.drawable.ic_register_background),
             contentDescription = null,
             contentScale = ContentScale.FillWidth
         )

@@ -9,7 +9,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.DestinationRepository
-import com.beaconfire.travel.utils.SortMethod
+import com.beaconfire.travel.utils.DestinationSort
 import com.beaconfire.travel.utils.sort
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ class SearchViewModel(
             withContext(Dispatchers.IO) {
                 searchUiModel = try {
                     val destinations = destinationRepository.searchDestination(keyword)
-                        .sort(SortMethod.AlphabetAscending)
+                        .sort(DestinationSort.AlphabetAscending)
                     SearchUiModel.SearchSucceed(destinations)
                 } catch (e: Exception) {
                     SearchUiModel.SearchFailed
