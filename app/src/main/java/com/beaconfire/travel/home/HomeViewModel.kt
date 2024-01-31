@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
 
 class HomeViewModel(
     private val destinationRepository: DestinationRepository
-): ViewModel() {
+) : ViewModel() {
 
     var homeUiModel by mutableStateOf<HomeUiModel>(HomeUiModel.None)
 
