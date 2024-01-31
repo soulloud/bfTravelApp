@@ -21,8 +21,12 @@ class DestinationRepository {
         db.collection("destination")
             .get()
             .addOnSuccessListener { documents ->
-                val result =
-                    documents.toObjects(DestinationData::class.java).map { it.toDestination() }
+
+                val result: MutableList<Destination> = ArrayList()
+                for (document in documents){
+                    result.add(document.toObject(DestinationData::class.java).toDestination(document.id))
+                }
+
                 trySend(result)
             }
             .addOnFailureListener{
@@ -39,8 +43,10 @@ class DestinationRepository {
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    val destinations = documents.toObjects(DestinationData::class.java).map { it.toDestination() }
-                    trySend(destinations)
+                    val result: MutableList<Destination> = ArrayList()
+                    for (document in documents){
+                        result.add(document.toObject(DestinationData::class.java).toDestination(document.id))
+                    }
                 }
             }
             .addOnFailureListener {

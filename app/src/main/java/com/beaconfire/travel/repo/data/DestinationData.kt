@@ -14,7 +14,8 @@ data class DestinationData (
     val ageRecommendation: String? = null,
     val recommendedByPercentage: String? = null,
 ) {
-    fun toDestination() = Destination(
+    fun toDestination(id: String) = Destination(
+        destinationId = id ?: "",
         name = name ?: "",
         ownerOrOrganization = ownerOrOrganization ?: "",
         location = location ?: "",
