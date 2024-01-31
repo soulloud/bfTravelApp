@@ -12,7 +12,6 @@ import com.beaconfire.travel.repo.DestinationRepository
 import com.beaconfire.travel.utils.SortMethod
 import com.beaconfire.travel.utils.sort
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -28,7 +27,6 @@ class SearchViewModel(
             withContext(Dispatchers.IO) {
                 searchUiModel = try {
                     val destinations = destinationRepository.searchDestination(keyword)
-                        .first()
                         .sort(SortMethod.AlphabetAscending)
                     SearchUiModel.SearchSucceed(destinations)
                 } catch (e: Exception) {

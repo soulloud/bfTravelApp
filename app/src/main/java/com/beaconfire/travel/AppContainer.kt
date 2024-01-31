@@ -33,13 +33,13 @@ interface AppContainer {
 class MallAppDataContainer(
     context: Context
 ) : AppContainer {
-    override val destinationRepository by lazy { DestinationRepository() }
+    override val destinationRepository by lazy { DestinationRepository(this) }
     override val firebaseStore by lazy { FirebaseFirestore.getInstance() }
     override val firebaseStorage by lazy { FirebaseStorage.getInstance() }
     override val profileRepository by lazy { ProfileRepository(this) }
     override val regionApi by lazy { ApiClient.getRegionApi() }
     override val regionDao by lazy { RegionDatabase.getDatabase(context).regionDao() }
-    override val regionRepository by lazy { RegionRepository(regionApi, regionDao) }
+    override val regionRepository by lazy { RegionRepository(this) }
     override val userRepository by lazy { UserRepository(this) }
     override val userSharedPreferences by lazy {
         context.getSharedPreferences(
