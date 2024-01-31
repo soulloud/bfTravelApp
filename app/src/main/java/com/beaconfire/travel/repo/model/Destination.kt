@@ -3,6 +3,7 @@ package com.beaconfire.travel.repo.model
 import com.beaconfire.travel.R
 
 data class Destination(
+    val destinationId: String? = "",
     val name: String = "",
     val ownerOrOrganization: String = "",
     val location: String = "",
