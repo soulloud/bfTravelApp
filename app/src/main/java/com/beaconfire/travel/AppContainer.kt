@@ -31,7 +31,7 @@ class MallAppDataContainer(
     override val regionRepository by lazy { RegionRepository(regionApi, regionDao) }
     //override val homeRepository by lazy { HomeRepository() }
     override val destinationRepository by lazy { DestinationRepository() }
-    override val tripRepository by lazy { TripRepository() }
+    override val tripRepository by lazy { TripRepository(this) }
 }
 
 fun CreationExtras.mallApplication(): TravelApplication =

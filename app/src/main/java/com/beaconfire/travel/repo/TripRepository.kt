@@ -1,7 +1,7 @@
 package com.beaconfire.travel.repo
 
 import android.util.Log
-import com.beaconfire.travel.repo.data.DestinationData
+import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.repo.data.TripData
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
@@ -9,49 +9,28 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.tasks.await
 
-class TripRepository {
+class TripRepository(val appContainer: AppContainer) {
 
     private val db = FirebaseFirestore.getInstance()
-    suspend fun getAllTrips(userId: String) = callbackFlow {
+    suspend fun getAllTrips(userId: String): List<Trip> = getTripDatas(userId).map { trip ->
+        trip.toTrip(destinations = appContainer.destinationRepository.getDestinations(trip.destinations))
+    }
+
+    private suspend fun getTripDatas(userId: String) = callbackFlow<List<TripData>> {
         db.collection("trip")
             .whereEqualTo("owner", userId)
             .get()
             .addOnSuccessListener { documents ->
-                val result: MutableList<Trip> = ArrayList()
-                for (document in documents){
-                    val destination = document.toObject(TripData::class.java).toTrip(document.id)
-                    result.add(destination)
-                }
-                trySend(result)
+                val trips = documents.map { it.toObject(TripData::class.java).copy(tripId = it.id) }
+                trySend(trips)
+            }
+            .addOnFailureListener {
+                trySend(emptyList())
             }
             .await()
         awaitClose()
-    }.first()
-
-    suspend fun getAllDestinationsInTheTrip(trip: Trip) = callbackFlow<List<Destination>> {
-        val destinationList = trip.destinationList
-        if (destinationList.isNullOrEmpty()){
-            Log.d("test", "destination list is empty")
-            trySend(emptyList())
-        }
-        else {
-            Log.d("test", "trying to get destination in repo")
-            val result: MutableList<Destination> = ArrayList()
-            for (destinationId in destinationList){
-                db.collection("destination")
-                    .document(destinationId)
-                    .get()
-                    .addOnSuccessListener {document ->
-                        document.toObject(DestinationData::class.java)
-                            ?.let { result.add(it.toDestination(document.id)) }
-                    }.await()
-            }
-            Log.d("test", result.toString())
-            trySend(result)
-        }
     }.first()
 
     suspend fun createNewTrip(tripData: TripData) = callbackFlow {
@@ -73,7 +52,7 @@ class TripRepository {
         db.collection("trip")
     }
 
-    suspend fun deleteCurrentTrip(tripId: String) = callbackFlow{
+    suspend fun deleteCurrentTrip(tripId: String) = callbackFlow {
         db.collection("trip").document(tripId)
             .delete()
             .addOnSuccessListener {
@@ -87,21 +66,20 @@ class TripRepository {
         awaitClose()
     }.first()
 
-    suspend fun changeTripVisibility(tripId: String) = callbackFlow{
+    suspend fun changeTripVisibility(tripId: String) = callbackFlow {
         val tripRef = db.collection("trip").document(tripId)
         db.runTransaction { transaction ->
             val snapshot = transaction.get(tripRef)
             val currentVisibility: String = snapshot.getString("visibility")!!
-            if (currentVisibility == "public"){
+            if (currentVisibility == "public") {
                 transaction.update(tripRef, "visibility", "private")
-            }
-            else {
+            } else {
                 transaction.update(tripRef, "visibility", "public")
             }
         }
             .addOnSuccessListener {
-            trySend("Successful")
-        }
+                trySend("Successful")
+            }
             .await()
         awaitClose()
     }

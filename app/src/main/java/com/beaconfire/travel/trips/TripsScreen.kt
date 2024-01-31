@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.beaconfire.travel.home.DestinationUiState
-import com.beaconfire.travel.repo.data.TripData
 
 @Composable
 fun TripsScreen() {
@@ -37,18 +36,9 @@ fun TripsScreen() {
 
     // test for change visibility
 
-
-
     //test for load trip
     if (tripUiState is TripUiState.LoadSucceed){
-
-        val str = """
-            ${tripUiState.trips[0].title!!} : ${tripUiState.trips[0].destinationList} 
-            ${tripUiState.trips[1].title!!} : ${tripUiState.trips[1].destinationList} 
-        """.trimIndent()
-
-        Text(text = str, modifier = Modifier.padding(all = 30.dp))
-        tripsViewModel.getAllDestinationsInCurrentTrip(tripUiState.trips[0])
+        Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
     }
 
     if (destinationUiState is DestinationUiState.LoadSucceed){
