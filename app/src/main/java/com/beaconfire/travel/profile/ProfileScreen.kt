@@ -1,6 +1,7 @@
 package com.beaconfire.travel.profile
 
 import ProfileViewModel
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Reviews
@@ -39,27 +41,46 @@ import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.component.ProfileImage
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.ContentScale
+import coil.ImageLoader
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 
 
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel) {
     val profileUiModel by profileViewModel.profile.collectAsState()
     var showEditProfile by remember { mutableStateOf(false) }
-
+    var showUploadedPhotos by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ProfileHeader(profile = profileUiModel.profile, image = R.drawable.ic_profile_shuaige, size = 96)
-        Spacer(modifier = Modifier.height(24.dp))
+//        Spacer(modifier = Modifier.height(24.dp))
         ProfileItem("Edit Profile", Icons.Filled.Edit) { showEditProfile = !showEditProfile }
         if (showEditProfile) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 item {
+                    // Display profile image
+                    ImageLoader(url = profileUiModel.profile.photoImage, modifier = Modifier.fillMaxWidth().height(200.dp))
                     Text("Full Name: ${profileUiModel.profile.fullName}", Modifier.padding(8.dp))
                     Text("Location: ${profileUiModel.profile.location}", Modifier.padding(8.dp))
-                    // Add more Text composables for other profile details
+                    Text("About You: ${profileUiModel.profile.aboutYou}", Modifier.padding(8.dp))
+                    Text("Join Date: ${profileUiModel.profile.joinDate}", Modifier.padding(8.dp))
+
+                    // Button to show/hide uploaded photos
+                    Button(onClick = { showUploadedPhotos = !showUploadedPhotos }) {
+                        Text("Uploaded Photos")
+                    }
+                    // LazyColumn to display uploaded photos
+                    if (showUploadedPhotos) {
+                        LazyColumn {
+                            items(profileUiModel.profile.uploadedPhotos) { photoUrl ->
+                                ImageLoader(url = photoUrl, modifier = Modifier.fillMaxWidth().height(200.dp))
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -75,17 +96,17 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
     }
 }
 
-@Composable
-fun ProfileHeader(profile: Profile, image: Int, size: Int) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-//        ProfileImage(image = image, size = size)
-        Text(text = profile.fullName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        // You can add more Text composables here for other profile properties like location.
-    }
-}
+//@Composable
+//fun ProfileHeader(profile: Profile, image: Int, size: Int) {
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+////        ProfileImage(image = image, size = size)
+//        Text(text = profile.fullName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+//        // You can add more Text composables here for other profile properties like location.
+//    }
+//}
 
 
 @Composable
@@ -110,4 +131,16 @@ fun ProfilePreview() {
         val profileViewModel = viewModel<ProfileViewModel>()
         ProfileScreen(profileViewModel)
     }
+}
+
+@Composable
+fun ImageLoader(url: String, modifier: Modifier = Modifier) {
+    val painter = rememberAsyncImagePainter(model = url)
+
+    Image(
+        painter = painter,
+        contentDescription = "Loaded image",
+        modifier = modifier,
+        contentScale = ContentScale.Crop // or other ContentScale as needed
+    )
 }
