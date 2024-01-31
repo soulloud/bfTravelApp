@@ -1,5 +1,9 @@
 package com.beaconfire.travel.utils
 
+import com.beaconfire.travel.R
+import com.beaconfire.travel.repo.model.Profile
+import com.beaconfire.travel.repo.model.User
+
 object MockData {
     val destinationImages = listOf(
         "https://media.vietravel.com/images/news/beijing_1.jpg",
@@ -24,5 +28,71 @@ object MockData {
         "Historic",
         "Culture",
         "Music",
+    )
+
+    val users = listOf(
+        User(
+            userId = "",
+            displayName = "John Doe",
+            email = "john@example.com",
+            password = "password123",
+            currency = "USD",
+            reviews = listOf("Review 1", "Review 2"),
+            trips = listOf("Trip 1", "Trip 2"),
+            saves = listOf("Save 1", "Save 2"),
+            profile = Profile(),
+        ),
+        User(
+            userId = "",
+            displayName = "David",
+            email = "john@example.com",
+            password = "password123",
+            currency = "USD",
+            reviews = listOf("Review 1", "Review 2"),
+            trips = listOf("Trip 1", "Trip 2"),
+            saves = listOf("Save 1", "Save 2"),
+            profile = Profile(),
+        ),
+        User(
+            userId = "",
+            displayName = "Su",
+            email = "john@example.com",
+            password = "password123",
+            currency = "USD",
+            reviews = listOf("Review 1", "Review 2"),
+            trips = listOf("Trip 1", "Trip 2"),
+            saves = listOf("Save 1", "Save 2"),
+            profile = Profile(),
+        ),
+        User(
+            userId = "",
+            displayName = "Alice Smith",
+            email = "alice@example.com",
+            password = "alice_password",
+            currency = "EUR",
+            reviews = listOf("Review 3", "Review 4"),
+            trips = listOf("Trip 3", "Trip 4"),
+            saves = listOf("Save 3", "Save 4"),
+            profile = Profile(),
+        ),
+        User(
+            userId = "",
+            displayName = "Bob Johnson",
+            email = "bob@example.com",
+            password = "bob_password",
+            currency = "GBP",
+            reviews = listOf("Review 5", "Review 6"),
+            trips = listOf("Trip 5", "Trip 6"),
+            saves = listOf("Save 5", "Save 6"),
+            profile = Profile(),
+        )
+    )
+
+    val profileIcons = listOf(
+        R.drawable.ic_profile_alice,
+        R.drawable.ic_profile_mia,
+        R.drawable.ic_profile_mike,
+        R.drawable.ic_profile_shali,
+        R.drawable.ic_profile_shuaige
     )
 }

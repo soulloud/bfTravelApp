@@ -26,58 +26,63 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.beaconfire.travel.R
-import com.beaconfire.travel.repo.model.Profile
-import com.beaconfire.travel.repo.model.User
-import com.beaconfire.travel.ui.component.ProfileImage
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.layout.ContentScale
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 
 
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel) {
-    val profileUiModel by profileViewModel.profile.collectAsState()
+    val profileUiModel by profileViewModel.profileUiModel.collectAsState()
     var showEditProfile by remember { mutableStateOf(false) }
     var showUploadedPhotos by remember { mutableStateOf(false) }
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-//        Spacer(modifier = Modifier.height(24.dp))
         ProfileItem("Edit Profile", Icons.Filled.Edit) { showEditProfile = !showEditProfile }
         if (showEditProfile) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                item {
-                    // Display profile image
-                    ImageLoader(url = profileUiModel.profile.photoImage, modifier = Modifier.fillMaxWidth().height(200.dp))
-                    Text("Full Name: ${profileUiModel.profile.fullName}", Modifier.padding(8.dp))
-                    Text("Location: ${profileUiModel.profile.location}", Modifier.padding(8.dp))
-                    Text("About You: ${profileUiModel.profile.aboutYou}", Modifier.padding(8.dp))
-                    Text("Join Date: ${profileUiModel.profile.joinDate}", Modifier.padding(8.dp))
+                profileUiModel.profile?.let { profile ->
+                    item {
+                        // Display profile image
+                        ImageLoader(
+                            url = profile.photoImage,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                        )
+                        Text("Full Name: ${profile.fullName}", Modifier.padding(8.dp))
+                        Text("Location: ${profile.location}", Modifier.padding(8.dp))
+                        Text("About You: ${profile.aboutYou}", Modifier.padding(8.dp))
+                        Text("Join Date: ${profile.joinDate}", Modifier.padding(8.dp))
 
-                    // Button to show/hide uploaded photos
-                    Button(onClick = { showUploadedPhotos = !showUploadedPhotos }) {
-                        Text("Uploaded Photos")
-                    }
-                    // LazyColumn to display uploaded photos
-                    if (showUploadedPhotos) {
-                        LazyColumn {
-                            items(profileUiModel.profile.uploadedPhotos) { photoUrl ->
-                                ImageLoader(url = photoUrl, modifier = Modifier.fillMaxWidth().height(200.dp))
+                        // Button to show/hide uploaded photos
+                        Button(onClick = { showUploadedPhotos = !showUploadedPhotos }) {
+                            Text("Uploaded Photos")
+                        }
+                        // LazyColumn to display uploaded photos
+                        if (showUploadedPhotos) {
+                            LazyColumn {
+                                items(profile.uploadedPhotos) { photoUrl ->
+                                    ImageLoader(
+                                        url = photoUrl,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(200.dp)
+                                    )
+                                }
                             }
                         }
                     }

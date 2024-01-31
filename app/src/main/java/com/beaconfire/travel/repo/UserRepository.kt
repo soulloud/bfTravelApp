@@ -1,87 +1,86 @@
 package com.beaconfire.travel.repo
 
-import android.util.Log
 import com.beaconfire.travel.AppContainer
+import com.beaconfire.travel.constant.Constant
+import com.beaconfire.travel.repo.data.UserData
 import com.beaconfire.travel.repo.model.Profile
-import com.beaconfire.travel.repo.model.User
-import com.beaconfire.travel.utils.SessionManager
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
-
-class UserRepository(val appContainer: AppContainer) {
-
-    private val db = FirebaseFirestore.getInstance()
-
-    // The login function returns a Flow<User?>
-    suspend fun login(email: String, password: String): User? = callbackFlow {
-        db.collection("user")
-            .whereEqualTo("email", email)
-            .whereEqualTo("password", password) // Note: Consider using Firebase Auth for secure password handling
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (querySnapshot.documents.isNotEmpty()) {
-                    val document = querySnapshot.documents.first()
-                    val user = document.toObject(User::class.java)?.apply {
-                        this.userId = document.id // Update the user object with the document ID
-                    }
-                    Log.d("LoginSuccess", "User ID: ${user?.userId}") // Log the userId
-                    SessionManager.setUserId(document.id) // Update SessionManager with the userId
-                    trySend(user).isSuccess
-                } else {
-                    Log.d("LoginFail", "No user found") // Log no user found
-                    trySend(null).isSuccess // No user found
+class UserRepository(private val appContainer: AppContainer) {
+    suspend fun login(email: String, password: String) =
+        queryUser(email, password)?.let { userData ->
+            userData.profile?.let { appContainer.profileRepository.queryProfile(userData.profile) }
+                ?.let { profile ->
+                    userData.toUser(profile).also { persistUserId(userData.userId) }
                 }
+        }
+
+    suspend fun register(email: String, displayName: String, password: String, profile: Profile) =
+        appContainer.profileRepository.createProfile(profile)?.let { it ->
+            createUser(
+                UserData(
+                    displayName = displayName,
+                    email = email,
+                    password = password,
+                    profile = it.profileId
+                )
+            )?.toUser(profile)?.also { persistUserId(it.userId) }
+        }
+
+    suspend fun getLoginUser() =
+        appContainer.userSharedPreferences.getString(Constant.SP_USER_KEY_USER_ID, null)?.let {
+            queryUser(it)?.let { userData ->
+                userData.profile?.let { appContainer.profileRepository.queryProfile(userData.profile) }
+                    ?.let { profile ->
+                        userData.toUser(profile)
+                    }
             }
-            .addOnFailureListener { e ->
-                Log.e("LoginError", "Login failed", e) // Log the error
-                trySend(null).isSuccess
+        }
+
+    private suspend fun createUser(userData: UserData) = callbackFlow {
+        val userRef = appContainer.firebaseStore.collection("user").document()
+        userRef.set(userData)
+            .addOnSuccessListener {
+                trySend(userData)
             }
+            .addOnFailureListener { trySend(null) }
+            .await()
         awaitClose()
     }.first()
 
+    private suspend fun queryUser(email: String, password: String) = callbackFlow {
+        appContainer.firebaseStore.collection("user")
+            .whereEqualTo("email", email)
+            .whereEqualTo("password", password)
+            .get()
+            .addOnSuccessListener {
+                val document = it.documents.firstOrNull()
+                trySend(document?.toObject(UserData::class.java)?.copy(userId = document.id))
+            }
+            .addOnFailureListener { trySend(null) }
+        awaitClose()
+    }.first()
 
+    private suspend fun queryUser(userId: String) = callbackFlow {
+        appContainer.firebaseStore.collection("user")
+            .document(userId)
+            .get()
+            .addOnSuccessListener {
+                trySend(it?.toObject(UserData::class.java)?.copy(userId = it.id))
+            }
+            .addOnFailureListener { trySend(null) }
+        awaitClose()
+    }.first()
 
-
-
-    // TODO: Make sure register and login methods either both to take a User object,
-    //       or both to take individual components.
-    suspend fun register(user: User, profile: Profile): User? {
-        // Create a new document reference for the user
-        val newUserRef = db.collection("user").document()
-
-        // Prepare the profile and save it
-        val profileRef = db.collection("profile").document()
-        profileRef.set(profile).await()
-
-        // Prepare the user object with the document ID and profile reference
-        val userWithIdAndProfile = user.copy(
-            userId = newUserRef.id,
-            profile = profileRef.id
-        )
-
-        // Save the user object to Firestore
-        newUserRef.set(userWithIdAndProfile).await()
-
-        // Update SessionManager with the new userId
-        SessionManager.setUserId(newUserRef.id)
-
-        return userWithIdAndProfile
-    }
-
-
-    suspend fun fetchUser(documentId: String): User {
-        // TODO: @David
-        // fetch from user table and document.toObject(UserData::class.java) and then convert into User object
-        // see example at DestinationRepository.searchDestination()
-        return User.INVALID_USER
+    private fun persistUserId(userId: String) {
+        appContainer.userSharedPreferences.edit()
+            .putString(Constant.SP_USER_KEY_USER_ID, userId).apply()
     }
 
     companion object {
         val TAG = UserRepository::javaClass::class.simpleName
-
     }
 }
