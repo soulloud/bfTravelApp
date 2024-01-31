@@ -16,7 +16,7 @@ class TripRepository(private val appContainer: AppContainer) {
 
     private val db = FirebaseFirestore.getInstance()
     suspend fun getAllTrips(userId: String): List<Trip> = getTripDatas(userId).map { trip ->
-        trip.toTrip(destinations = appContainer.destinationRepository.getDestinations(trip.destinations))
+        trip.toTrip(destinations = appContainer.destinationRepository.getAllDestinations(trip.destinations))
     }
 
     private suspend fun getTripDatas(userId: String) = callbackFlow<List<TripData>> {

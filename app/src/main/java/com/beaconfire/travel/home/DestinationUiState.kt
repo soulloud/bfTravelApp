@@ -8,11 +8,3 @@ sealed interface HomeUiModel {
     data object LoadFailed : HomeUiModel
     data class LoadSucceed(val destinations: List<Destination>) : HomeUiModel
 }
-
-// Can be reused in the trip view model
-sealed interface DestinationUiState {
-    data object None : DestinationUiState
-    data object Loading : DestinationUiState
-    data object LoadFailed : DestinationUiState
-    data class LoadSucceed(val destinations: List<Destination>) : DestinationUiState
-}
