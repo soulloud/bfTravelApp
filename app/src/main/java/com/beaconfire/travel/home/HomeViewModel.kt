@@ -1,18 +1,19 @@
 package com.beaconfire.travel.home
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.DestinationRepository
-import com.beaconfire.travel.utils.SortMethod
+import com.beaconfire.travel.utils.DestinationFilter
+import com.beaconfire.travel.utils.DestinationSort
+import com.beaconfire.travel.utils.filterBy
 import com.beaconfire.travel.utils.sort
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -20,27 +21,51 @@ class HomeViewModel(
     private val destinationRepository: DestinationRepository
 ) : ViewModel() {
 
-    var homeUiModel by mutableStateOf<HomeUiModel>(HomeUiModel.None)
+    private val _homeUiModel = MutableStateFlow(HomeUiModel())
+
+    val homeUiModel: StateFlow<HomeUiModel> = _homeUiModel
 
     init {
         loadDestinations()
     }
 
-    fun onTagUpdated(tags: List<String>) {
-        Log.d(TAG, "onTagUpdated() $tags")
+    fun onFilterChanged(tags: List<String>) {
+        _homeUiModel.update {
+            it.copy(
+                homeUiState = HomeUiState.Loading,
+                filter = DestinationFilter.FilterByTag(tags)
+            )
+        }
+        viewModelScope.launch {
+            _homeUiModel.update {
+                it.copy(
+                    homeUiState = HomeUiState.LoadSucceed,
+                    destinations = destinationRepository.getAllDestinations()
+                        .filterBy(it.filter)
+                        .sort(it.sort)
+                )
+            }
+        }
+    }
+
+    fun onSortChanged(sort: DestinationSort) {
+        _homeUiModel.update {
+            it.copy(
+                destinations = it.destinations.sort(sort),
+                sort = sort
+            )
+        }
     }
 
     private fun loadDestinations() {
-        homeUiModel = HomeUiModel.Loading
+        _homeUiModel.update { it.copy(homeUiState = HomeUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                homeUiModel = try {
-                    val destinations =
-                        destinationRepository.getAllDestinations()
-                            .sort(SortMethod.AlphabetAscending)
-                    HomeUiModel.LoadSucceed(destinations)
-                } catch (e: Exception) {
-                    HomeUiModel.LoadFailed
+                _homeUiModel.update {
+                    it.copy(
+                        homeUiState = HomeUiState.LoadSucceed,
+                        destinations = destinationRepository.getAllDestinations().sort(it.sort)
+                    )
                 }
             }
         }

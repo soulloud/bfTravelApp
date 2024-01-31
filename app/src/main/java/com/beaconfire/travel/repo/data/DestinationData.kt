@@ -29,8 +29,7 @@ data class DestinationData(
 
 private fun Map<String, Any>.toPrice(): Price {
     val currency = get("currency") as String
-    val value = get("value")
-    when (value) {
+    when (val value = get("value")) {
         is Long -> {
             return Price(value = value.toDouble(), currency = currency)
         }

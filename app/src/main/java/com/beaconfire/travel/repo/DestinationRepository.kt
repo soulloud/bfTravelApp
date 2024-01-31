@@ -25,7 +25,7 @@ class DestinationRepository(val appContainer: AppContainer) {
     suspend fun getAllDestinations(destinationIds: List<String>) =
         destinationIds.mapNotNull { getDestination(it) }
 
-    suspend fun getDestination(destinationId: String) = callbackFlow {
+    private suspend fun getDestination(destinationId: String) = callbackFlow {
         appContainer.firebaseStore.collection("destination")
             .document(destinationId)
             .get()
