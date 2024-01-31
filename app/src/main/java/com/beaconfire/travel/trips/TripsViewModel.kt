@@ -67,21 +67,6 @@ class TripsViewModel(
         loadTrips()
     }
 
-    fun getAllDestinationsInCurrentTrip(trip: Trip){
-        viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                destinationListUiState = try {
-                    val destinations = tripRepository.getAllDestinationsInTheTrip(trip)
-                    Log.d("test", "destination got")
-                    DestinationUiState.LoadSucceed(destinations)
-                } catch (e: Exception) {
-                    Log.d("test", "got destination failed")
-                    DestinationUiState.LoadFailed
-                }
-            }
-        }
-    }
-
     fun removeDestinationFromCurrentTrip(){
 
     }

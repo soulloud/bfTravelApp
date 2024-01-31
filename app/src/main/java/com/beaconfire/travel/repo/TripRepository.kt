@@ -1,6 +1,7 @@
 package com.beaconfire.travel.repo
 
 import android.util.Log
+import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.repo.data.DestinationData
 import com.beaconfire.travel.repo.data.TripData
 import com.beaconfire.travel.repo.model.Destination
@@ -9,49 +10,25 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.tasks.await
 
-class TripRepository {
+class TripRepository(val appContainer: AppContainer) {
 
     private val db = FirebaseFirestore.getInstance()
-    suspend fun getAllTrips(userId: String) = callbackFlow {
+    suspend fun getAllTrips(userId: String): List<Trip> = getAllTripsWithoutDestination(userId).map { trip ->
+            trip.copy(destinations = appContainer.destinationRepository.getDestinations())
+        }
+
+    private suspend fun getAllTripsWithoutDestination(userId: String) = callbackFlow {
         db.collection("trip")
             .whereEqualTo("owner", userId)
             .get()
             .addOnSuccessListener { documents ->
-                val result: MutableList<Trip> = ArrayList()
-                for (document in documents){
-                    val destination = document.toObject(TripData::class.java).toTrip(document.id)
-                    result.add(destination)
-                }
-                trySend(result)
+                val trips = documents.map { it.toObject(TripData::class.java).toTrip(it.id) }
+                trySend(trips)
             }
             .await()
         awaitClose()
-    }.first()
-
-    suspend fun getAllDestinationsInTheTrip(trip: Trip) = callbackFlow<List<Destination>> {
-        val destinationList = trip.destinationList
-        if (destinationList.isNullOrEmpty()){
-            Log.d("test", "destination list is empty")
-            trySend(emptyList())
-        }
-        else {
-            Log.d("test", "trying to get destination in repo")
-            val result: MutableList<Destination> = ArrayList()
-            for (destinationId in destinationList){
-                db.collection("destination")
-                    .document(destinationId)
-                    .get()
-                    .addOnSuccessListener {document ->
-                        document.toObject(DestinationData::class.java)
-                            ?.let { result.add(it.toDestination(document.id)) }
-                    }.await()
-            }
-            Log.d("test", result.toString())
-            trySend(result)
-        }
     }.first()
 
     suspend fun createNewTrip(tripData: TripData) = callbackFlow {

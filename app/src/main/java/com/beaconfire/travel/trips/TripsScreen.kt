@@ -37,18 +37,14 @@ fun TripsScreen() {
 
     // test for change visibility
 
-
-
     //test for load trip
     if (tripUiState is TripUiState.LoadSucceed){
-
         val str = """
-            ${tripUiState.trips[0].title!!} : ${tripUiState.trips[0].destinationList} 
-            ${tripUiState.trips[1].title!!} : ${tripUiState.trips[1].destinationList} 
+            ${tripUiState.trips[0].title!!} : ${tripUiState.trips[0].destinations} 
+            ${tripUiState.trips[1].title!!} : ${tripUiState.trips[1].destinations} 
         """.trimIndent()
 
         Text(text = str, modifier = Modifier.padding(all = 30.dp))
-        tripsViewModel.getAllDestinationsInCurrentTrip(tripUiState.trips[0])
     }
 
     if (destinationUiState is DestinationUiState.LoadSucceed){
