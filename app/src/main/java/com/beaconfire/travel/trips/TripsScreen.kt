@@ -42,7 +42,7 @@ fun TripsScreen() {
 
     //Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
         tripsViewModel.setCurrentDestinationList(tripUiState.trips[0]) //Ok
-        tripsViewModel.removeDestination(tripUiState.trips[0], tripsViewModel.currentDestinationList[0])
+        //tripsViewModel.removeDestination(tripUiState.trips[0], tripsViewModel.currentDestinationList[0])
 
         //tripsViewModel.toggleTripVisibility(tripUiState.trips[0]) //OK
 
