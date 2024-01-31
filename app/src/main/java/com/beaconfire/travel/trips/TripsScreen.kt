@@ -1,8 +1,6 @@
 package com.beaconfire.travel.trips
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -10,7 +8,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.beaconfire.travel.home.DestinationUiState
 import com.beaconfire.travel.repo.model.Destination
 
 @Composable
@@ -42,13 +39,7 @@ fun TripsScreen() {
 
     //test for load trip
     if (tripUiState is TripUiState.LoadSucceed){
-        val str = """
-            ${tripUiState.trips[0].title} : 
-            ${tripUiState.trips[0].destinations[0].price}
-            ${tripUiState.trips[0].destinations[1].price}
-        """.trimIndent()
-
-        Text(text = str, modifier = Modifier.padding(all = 30.dp))
+        Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
 
         tripsViewModel.setCurrentDestinationList(tripUiState.trips[0])
         tripsViewModel.changeTripVisibility(tripUiState.trips[0])

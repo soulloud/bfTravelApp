@@ -52,6 +52,7 @@ android {
 }
 
 dependencies {
+    val composeVersion = rootProject.extra.get("compose_ui_version") as String
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
@@ -59,6 +60,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     // navigation
@@ -84,7 +86,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-storage-ktx")
-
 
     // room
     implementation("androidx.room:room-runtime:2.6.1")
