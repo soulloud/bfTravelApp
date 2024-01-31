@@ -5,13 +5,14 @@ import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.repo.data.TripData
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
-class TripRepository(val appContainer: AppContainer) {
+class TripRepository(private val appContainer: AppContainer) {
 
     private val db = FirebaseFirestore.getInstance()
     suspend fun getAllTrips(userId: String): List<Trip> = getTripDatas(userId).map { trip ->
@@ -49,7 +50,12 @@ class TripRepository(val appContainer: AppContainer) {
     }.first()
 
     suspend fun removeFromCurrentTrip(destination: Destination, trip: Trip) {
-        db.collection("trip")
+
+
+        val destinationToDelete = "aHmLo7Vy6WLAWKRNbCF9"
+        val tripRef = db.collection("trip").document(trip.tripId)
+        tripRef.update("destinations", FieldValue.arrayRemove(destinationToDelete)).await()
+
     }
 
     suspend fun deleteCurrentTrip(tripId: String) = callbackFlow {
@@ -71,16 +77,14 @@ class TripRepository(val appContainer: AppContainer) {
         db.runTransaction { transaction ->
             val snapshot = transaction.get(tripRef)
             val currentVisibility: String = snapshot.getString("visibility")!!
-            if (currentVisibility == "public") {
-                transaction.update(tripRef, "visibility", "private")
-            } else {
-                transaction.update(tripRef, "visibility", "public")
-            }
+            val newVisibility = if (currentVisibility == "public") "private" else "public"
+            transaction.update(tripRef, "visibility", newVisibility)
         }
             .addOnSuccessListener {
+                Log.d("test", "changed")
                 trySend("Successful")
             }
             .await()
         awaitClose()
-    }
+    }.first()
 }

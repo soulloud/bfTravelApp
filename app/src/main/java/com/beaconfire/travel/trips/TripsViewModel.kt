@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,6 +15,7 @@ import com.beaconfire.travel.home.HomeUiModel
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.TripRepository
 import com.beaconfire.travel.repo.data.TripData
+import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,21 +26,19 @@ class TripsViewModel(
 ): ViewModel() {
 
     var tripUiState by mutableStateOf<TripUiState>(TripUiState.None)
-    var destinationListUiState by mutableStateOf<DestinationUiState>(DestinationUiState.None)
+    //var destinationListUiState by mutableStateOf<DestinationUiState>(DestinationUiState.None)
+    var currentDestinationList: List<Destination> = emptyList()
+    val totalCost = MutableLiveData(0.0)
     val huichangId = "Aq6oY2SW5NiQRkKwYqPE"
 
     init {
         loadTrips()
-//        if (tripUiState is TripUiState.LoadSucceed){
-//            changeTripVisibility((tripUiState as TripUiState.LoadSucceed).trips[0])
-//        }
     }
 
     private fun loadTrips(){
         tripUiState = TripUiState.Loading
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-
                 tripUiState = try {
                     val trips = tripRepository.getAllTrips(huichangId)
                     TripUiState.LoadSucceed(trips)
@@ -67,8 +67,18 @@ class TripsViewModel(
         loadTrips()
     }
 
-    fun removeDestinationFromCurrentTrip(){
+    fun setCurrentDestinationList(trip: Trip){
+        currentDestinationList = trip.destinations
+        getTotalPrice()
+    }
 
+    fun removeDestinationFromCurrentTrip(destination: Destination, trip: Trip){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                tripRepository.removeFromCurrentTrip(destination, trip)
+            }
+            //setCurrentDestinationList(trip)
+        }
     }
 
     fun changeTripVisibility(trip: Trip){
@@ -76,6 +86,12 @@ class TripsViewModel(
             tripRepository.changeTripVisibility(trip.tripId)
             Log.d(TAG, "visibility changed")
         }
+    }
+
+    private fun getTotalPrice(){
+        val cost = (currentDestinationList)
+            .sumOf { it.price.value }
+        totalCost.value = cost
     }
 
     companion object {
