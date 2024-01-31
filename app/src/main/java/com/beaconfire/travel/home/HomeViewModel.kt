@@ -36,7 +36,8 @@ class HomeViewModel(
             withContext(Dispatchers.IO) {
                 homeUiModel = try {
                     val destinations =
-                        destinationRepository.getDestinations().sort(SortMethod.AlphabetAscending)
+                        destinationRepository.getAllDestinations()
+                            .sort(SortMethod.AlphabetAscending)
                     HomeUiModel.LoadSucceed(destinations)
                 } catch (e: Exception) {
                     HomeUiModel.LoadFailed

@@ -7,11 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.beaconfire.travel.home.DestinationUiState
-import com.beaconfire.travel.home.HomeUiModel
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.TripRepository
 import com.beaconfire.travel.repo.data.TripData
