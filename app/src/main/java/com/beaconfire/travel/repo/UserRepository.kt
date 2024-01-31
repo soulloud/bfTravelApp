@@ -43,9 +43,7 @@ class UserRepository(private val appContainer: AppContainer) {
     private suspend fun createUser(userData: UserData) = callbackFlow {
         val userRef = appContainer.firebaseStore.collection("user").document()
         userRef.set(userData)
-            .addOnSuccessListener {
-                trySend(userData)
-            }
+            .addOnSuccessListener { trySend(userData.copy(userId = userRef.id)) }
             .addOnFailureListener { trySend(null) }
             .await()
         awaitClose()

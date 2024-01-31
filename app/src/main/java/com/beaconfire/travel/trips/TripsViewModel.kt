@@ -73,6 +73,8 @@ class TripsViewModel(
                 tripRepository.removeDestination(trip, destination)
             }
         }
+        loadTrips()
+        setCurrentDestinationList(trip)
     }
 
     fun toggleTripVisibility(trip: Trip) {
