@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class DestinationViewModel(
     private val destinationRepository: DestinationRepository
-): ViewModel(){
+) : ViewModel() {
 
     private val _tripList = MutableStateFlow<List<Trip>>(emptyList())
     val tripList: StateFlow<List<Trip>> = _tripList.asStateFlow()
@@ -23,7 +23,7 @@ class DestinationViewModel(
         getAllTrips()
     }
 
-    private fun getAllTrips(){
+    private fun getAllTrips() {
         viewModelScope.launch {
             //_tripList.value = destinationRepository.getAllTrips("zhao")
             //Log.d("test", tripList.toString())

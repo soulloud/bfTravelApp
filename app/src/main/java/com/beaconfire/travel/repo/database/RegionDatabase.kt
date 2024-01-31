@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.beaconfire.travel.repo.database.region.RegionDao
 import com.beaconfire.travel.repo.database.region.CityEntity
+import com.beaconfire.travel.repo.database.region.RegionDao
 import com.beaconfire.travel.repo.database.region.StateEntity
 
 @Database(entities = [CityEntity::class, StateEntity::class], version = 1, exportSchema = false)

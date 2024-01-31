@@ -37,11 +37,11 @@ fun TripsScreen() {
     // test for change visibility
 
     //test for load trip
-    if (tripUiState is TripUiState.LoadSucceed){
+    if (tripUiState is TripUiState.LoadSucceed) {
         Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
 
         tripsViewModel.setCurrentDestinationList(tripUiState.trips[0])
-        tripsViewModel.changeTripVisibility(tripUiState.trips[0])
+        tripsViewModel.toggleTripVisibility(tripUiState.trips[0])
 
 
 //        tripsViewModel.removeDestinationFromCurrentTrip(Destination(), tripUiState.trips[0])

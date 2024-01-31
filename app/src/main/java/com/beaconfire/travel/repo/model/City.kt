@@ -13,6 +13,7 @@ data class City(
         val INVALID_CITY = City(stateId = -1, city = "")
         fun fromString(state: State, city: String) = City(stateId = state.id!!, city = city)
 
-        fun fromCityEntity(cityEntity: CityEntity) = City(stateId = cityEntity.stateId, city = cityEntity.city)
+        fun fromCityEntity(cityEntity: CityEntity) =
+            City(stateId = cityEntity.stateId, city = cityEntity.city)
     }
 }
