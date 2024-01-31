@@ -19,13 +19,7 @@ class ProfileRepository(val appContainer: AppContainer) {
     private val storage = FirebaseStorage.getInstance()
 
     suspend fun getProfileForUser(user: String) = callbackFlow {
-        // TODO: Not a good idea to save user id as global, but let's refactor later
-//        val user = userId?.let { appContainer.userRepository.fetchUser(it) }
-
-
-        // TODO: @David similar to userRepository.fetchUser to get ProfileData and then convert to Profile object
         val profileRef = userId?.let { db.collection("profiles").document(it) }
-
         profileRef?.get()?.addOnSuccessListener { profileSnapshot ->
             if (profileSnapshot.exists()) {
                 val profileData = profileSnapshot.toObject(Profile::class.java)
@@ -39,6 +33,7 @@ class ProfileRepository(val appContainer: AppContainer) {
         }
         awaitClose()
     }.first()
+
 
     private suspend fun createProfile(profile: Profile) = callbackFlow {
         val profileRef = db.collection("profile").document()
@@ -62,6 +57,8 @@ class ProfileRepository(val appContainer: AppContainer) {
         ref.putFile(imageUri).await()
         return ref.downloadUrl.await().toString()
     }
+
+
 
 
 
