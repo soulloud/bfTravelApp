@@ -7,6 +7,8 @@ import android.util.Log
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
@@ -63,6 +65,42 @@ class DestinationRepository {
             .await()
         awaitClose()
     }.first()
+
+    suspend fun getDestinations(destinationIds: List<String>) = destinationIds.mapNotNull { getDestination(it) }
+
+    suspend fun getDestination(destinationId: String) = callbackFlow<Destination?> {
+        db.collection("destination")
+            .document(destinationId)
+            .get()
+            .addOnSuccessListener { document ->
+                val destination = document.toObject(DestinationData::class.java)?.toDestination(document.id)
+                trySend(destination)
+            }
+            .addOnFailureListener{
+                trySend(null)
+            }
+            .await()
+        awaitClose()
+    }.first()
+
+    suspend fun getDestinations(destinationIds: List<String>) = destinationIds.mapNotNull { getDestination(it) }
+
+    suspend fun getDestination(destinationId: String) = callbackFlow<Destination?> {
+        db.collection("destination")
+            .document(destinationId)
+            .get()
+            .addOnSuccessListener { document ->
+                val destination = document.toObject(DestinationData::class.java)?.toDestination(document.id)
+                trySend(destination)
+            }
+            .addOnFailureListener{
+                trySend(null)
+            }
+            .await()
+        awaitClose()
+    }.first()
+
+
 
     suspend fun searchDestination(searchText: String) = callbackFlow<List<Destination>> {
         db.collection("destination")
