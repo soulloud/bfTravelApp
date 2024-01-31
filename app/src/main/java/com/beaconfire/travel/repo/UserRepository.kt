@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
+
 class UserRepository(val appContainer: AppContainer) {
 
     private val db = FirebaseFirestore.getInstance()
@@ -27,17 +28,21 @@ class UserRepository(val appContainer: AppContainer) {
                     val user = document.toObject(User::class.java)?.apply {
                         this.userId = document.id // Update the user object with the document ID
                     }
+                    Log.d("LoginSuccess", "User ID: ${user?.userId}") // Log the userId
                     SessionManager.setUserId(document.id) // Update SessionManager with the userId
                     trySend(user).isSuccess
                 } else {
+                    Log.d("LoginFail", "No user found") // Log no user found
                     trySend(null).isSuccess // No user found
                 }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
+                Log.e("LoginError", "Login failed", e) // Log the error
                 trySend(null).isSuccess
             }
         awaitClose()
     }.first()
+
 
 
 

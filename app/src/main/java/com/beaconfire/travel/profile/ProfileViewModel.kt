@@ -27,7 +27,7 @@ class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() 
     private fun fetchUserProfile() {
         SessionManager.userId?.let { userId ->
             viewModelScope.launch {
-                val profile = repository.getProfileForUser(userId)
+                val profile = repository.getProfileForUser()
                 _profile.update {
                     it.copy(
                         status = profile?.let { ProfileUiModelStatus.LoadSucceed } ?: ProfileUiModelStatus.LoadFailed,
