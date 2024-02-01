@@ -14,7 +14,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.tasks.await
 
 class UserRepository(private val appContainer: AppContainer) {
+    private val _loginUserId = MutableStateFlow(queryLoginUserId())
     private val _loginUser = MutableStateFlow<User?>(null)
+
+    val loginUserId: StateFlow<String?> = _loginUserId
     val loginUser: StateFlow<User?> = _loginUser
 
     suspend fun login(email: String, password: String) =
@@ -25,11 +28,7 @@ class UserRepository(private val appContainer: AppContainer) {
                 }
         }
 
-    fun logout() {
-        appContainer.userSharedPreferences.edit()
-            .remove(Constant.SP_USER_KEY_USER_ID).apply()
-        _loginUser.update { null }
-    }
+    fun logout() = persistUserId(null)
 
     suspend fun register(email: String, displayName: String, password: String, profile: Profile) =
         appContainer.profileRepository.createProfile(profile)?.let { it ->
@@ -43,10 +42,7 @@ class UserRepository(private val appContainer: AppContainer) {
             )?.toUser(profile)?.also { persistUserId(it) }
         }
 
-    suspend fun getLoginUser() = _loginUser.value ?: appContainer.userSharedPreferences.getString(
-        Constant.SP_USER_KEY_USER_ID,
-        null
-    )?.let {
+    suspend fun getLoginUser() = _loginUser.value ?: _loginUserId.value?.let {
         queryUser(it)?.let { userData ->
             userData.profile?.let { appContainer.profileRepository.queryProfile(it) }
                 ?.let { profile ->
@@ -54,6 +50,9 @@ class UserRepository(private val appContainer: AppContainer) {
                 }
         }
     }
+
+    private fun queryLoginUserId() =
+        appContainer.userSharedPreferences.getString(Constant.SP_USER_KEY_USER_ID, null)
 
     private suspend fun createUser(userData: UserData) = callbackFlow {
         val userRef = appContainer.firebaseStore.collection("user").document()
@@ -88,9 +87,15 @@ class UserRepository(private val appContainer: AppContainer) {
         awaitClose()
     }.first()
 
-    private fun persistUserId(user: User) {
-        appContainer.userSharedPreferences.edit()
-            .putString(Constant.SP_USER_KEY_USER_ID, user.userId).apply()
+    private fun persistUserId(user: User?) {
+        if (user == null) {
+            appContainer.userSharedPreferences.edit()
+                .remove(Constant.SP_USER_KEY_USER_ID).apply()
+        } else {
+            appContainer.userSharedPreferences.edit()
+                .putString(Constant.SP_USER_KEY_USER_ID, user.userId).apply()
+        }
+        _loginUserId.update { user?.userId }
         _loginUser.update { user }
     }
 
