@@ -1,5 +1,6 @@
 package com.beaconfire.travel.profile
 
+import android.net.Uri
 import com.beaconfire.travel.repo.model.Profile
 
 enum class ProfileUiModelStatus {
@@ -11,5 +12,6 @@ enum class ProfileUiModelStatus {
 
 data class ProfileUiModel(
     val status: ProfileUiModelStatus,
-    val profile: Profile?
+    val profile: Profile?,
+    val capturedImageUri: Uri? = Uri.EMPTY,
 )

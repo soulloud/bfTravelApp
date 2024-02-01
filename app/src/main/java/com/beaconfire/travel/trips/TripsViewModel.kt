@@ -95,8 +95,7 @@ class TripsViewModel(
         totalCost.value = cost
     }
 
-    fun testReviewRepo(){
-
+    fun testReviewRepo() {
         viewModelScope.launch {
             //reviewRepository.addNewReview()
         }

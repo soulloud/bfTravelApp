@@ -18,7 +18,7 @@ class ReviewRepository(private val appContainer: AppContainer) {
         return queryReviewsByCondition(
             "destination", destinationId!!
         ).map {
-              it.toReview()
+            it.toReview()
         }
     }
 
@@ -31,7 +31,7 @@ class ReviewRepository(private val appContainer: AppContainer) {
         }
     }
 
-    suspend fun addNewReview(reviewData: ReviewData) = callbackFlow{
+    suspend fun addNewReview(reviewData: ReviewData) = callbackFlow {
 
         val userId = getUserInfo()?.userId
 //        val reviewData = ReviewData(
@@ -52,7 +52,7 @@ class ReviewRepository(private val appContainer: AppContainer) {
         awaitClose()
     }.first()
 
-    suspend fun deleteReview(review: Review) = callbackFlow{
+    suspend fun deleteReview(review: Review) = callbackFlow {
         appContainer.firebaseStore.collection("review").document(review.reviewId)
             .delete()
             .addOnSuccessListener { trySend(true) }
@@ -64,7 +64,7 @@ class ReviewRepository(private val appContainer: AppContainer) {
     private suspend fun queryReviewsByCondition(
         collectionName: String,
         conditionText: String
-    ) = callbackFlow<List<ReviewData>>{
+    ) = callbackFlow<List<ReviewData>> {
         appContainer.firebaseStore.collection("review")
             .whereEqualTo(collectionName, conditionText)
             .get()
