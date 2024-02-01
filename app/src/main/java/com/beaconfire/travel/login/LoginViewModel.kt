@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.UserRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -44,6 +45,8 @@ class LoginViewModel(
                         user = user
                     )
                 }
+                delay(1000)
+                _loginUiModel.update { it.copy(loginStatus = LoginStatus.None) }
             } else {
                 _errorMessage.emit("Username and password doesn't match, please try again!")
                 _loginUiModel.update {

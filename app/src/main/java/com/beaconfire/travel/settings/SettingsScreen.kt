@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.beaconfire.travel.R
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.component.ProfileImage
@@ -34,6 +35,8 @@ import com.beaconfire.travel.utils.MockData
 
 @Composable
 fun SettingsScreen() {
+    val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,7 +51,7 @@ fun SettingsScreen() {
         SettingItem("Currency", Icons.Filled.CurrencyExchange, onClick = {})
         Spacer(modifier = Modifier.height(128.dp))
         Button(
-            onClick = { /* Handle log out */ },
+            onClick = { settingsViewModel.logout() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Log Out")
