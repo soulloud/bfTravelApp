@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
-class DestinationRepository(val appContainer: AppContainer) {
+class DestinationRepository(private val appContainer: AppContainer) {
 
     suspend fun getAllDestinations() = callbackFlow<List<Destination>> {
         appContainer.firebaseStore.collection("destination")
