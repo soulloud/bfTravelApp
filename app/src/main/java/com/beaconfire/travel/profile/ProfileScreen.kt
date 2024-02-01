@@ -37,13 +37,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-
+import com.beaconfire.travel.ui.component.button.CameraCaptureButton
+import com.beaconfire.travel.ui.component.button.GalleryPhotoPickerButton
 
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel) {
     val profileUiModel by profileViewModel.profileUiModel.collectAsState()
     var showEditProfile by remember { mutableStateOf(false) }
     var showUploadedPhotos by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,13 +58,21 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 profileUiModel.profile?.let { profile ->
                     item {
-                        // Display profile image
-                        ImageLoader(
-                            url = profile.photoImage,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                        )
+                        if (profileUiModel.capturedImageUri?.path?.isNotEmpty() == true) {
+                            Image(
+                                modifier = Modifier
+                                    .width(200.dp)
+                                    .height(200.dp)
+                                    .padding(16.dp, 8.dp),
+                                painter = rememberAsyncImagePainter(profileUiModel.capturedImageUri),
+                                contentDescription = null
+                            )
+                        }
+                        GalleryPhotoPickerButton { profileViewModel.onImageCaptured(it) }
+                        CameraCaptureButton { profileViewModel.onImageCaptured(it) }
+                        Button(onClick = { profileViewModel.setAsProfilePhoto() }) {
+                            Text(text = "Set as Profile Photo")
+                        }
                         Text("Full Name: ${profile.fullName}", Modifier.padding(8.dp))
                         Text("Location: ${profile.location}", Modifier.padding(8.dp))
                         Text("About You: ${profile.aboutYou}", Modifier.padding(8.dp))
@@ -97,22 +107,8 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
         ) {
             Text("Delete Account")
         }
-
     }
 }
-
-//@Composable
-//fun ProfileHeader(profile: Profile, image: Int, size: Int) {
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-//    ) {
-////        ProfileImage(image = image, size = size)
-//        Text(text = profile.fullName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-//        // You can add more Text composables here for other profile properties like location.
-//    }
-//}
-
 
 @Composable
 fun ProfileItem(text: String, iconId: ImageVector, onClick: () -> Unit) {

@@ -10,6 +10,8 @@ enum class DestinationSort {
 
 sealed class DestinationFilter {
     data class FilterByTag(val tags: List<String>) : DestinationFilter()
+    data class FilterByName(val name: String) : DestinationFilter()
+    data class FilterByLocation(val location: String) : DestinationFilter()
 }
 
 fun List<Destination>.sort(sortMode: DestinationSort) = when (sortMode) {
@@ -21,6 +23,14 @@ fun List<Destination>.sort(sortMode: DestinationSort) = when (sortMode) {
 fun List<Destination>.filterBy(filter: DestinationFilter) = when (filter) {
     is DestinationFilter.FilterByTag -> this.filter { destination ->
         destination.tags.map { it.lowercase() }.containsAll(filter.tags.map { it.lowercase() })
+    }
+
+    is DestinationFilter.FilterByName -> this.filter { destination ->
+        destination.name.contains(filter.name, ignoreCase = true)
+    }
+
+    is DestinationFilter.FilterByLocation -> this.filter { destination ->
+        destination.location.contains(filter.location, ignoreCase = true)
     }
 
     else -> this

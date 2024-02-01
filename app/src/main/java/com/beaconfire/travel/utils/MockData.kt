@@ -1,6 +1,8 @@
 package com.beaconfire.travel.utils
 
 import com.beaconfire.travel.R
+import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.model.Price
 import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.User
 
@@ -94,5 +96,45 @@ object MockData {
         R.drawable.ic_profile_mike,
         R.drawable.ic_profile_shali,
         R.drawable.ic_profile_shuaige
+    )
+
+
+    val destination = Destination(
+        name = "Lorem ipsum",
+        location = "China",
+        description = "Integer placerat dui odio, quis tempus libero mollis molestie. Curabitur ultrices leo diam, at porta massa suscipit sagittis. Vivamus a nisi quam. Aliquam sit amet lobortis sapien, vitae porttitor magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum sit amet feugiat nisl. Nunc mattis odio sit amet erat mollis, vitae tempus nibh porttitor. Nunc ac imperdiet nunc. Proin eget laoreet arcu. Mauris fringilla vehicula mauris, non viverra ex pharetra ut. Suspendisse at dui nec nisi scelerisque convallis at dignissim risus. Curabitur rhoncus diam vitae libero auctor, quis feugiat neque ornare. Donec id eros turpis. In hac habitasse platea dictumst. Duis sit amet metus ac dui suscipit vulputate sit amet in urna. Nam vel augue faucibus, faucibus ligula non, sollicitudin risus.\n" +
+                "\n" +
+                "Cras sollicitudin, arcu vel luctus auctor, velit massa consectetur felis, non pellentesque enim felis gravida leo. Integer urna ipsum, pellentesque id nisi ac, cursus egestas mauris. Ut aliquet consectetur leo, id fermentum dolor pellentesque eleifend. Nulla neque eros, hendrerit in rhoncus eu, viverra sit amet est. Fusce lacinia erat a nulla sodales dignissim. Fusce viverra ligula ac egestas fringilla. Praesent aliquam elementum laoreet. Sed egestas dictum lacus vel tincidunt. In posuere a turpis eu iaculis.",
+        images = listOf(
+            "https://img.freepik.com/premium-photo/dock-with-mountain-background_865967-28763.jpg",
+            "https://wallpapers.com/images/featured/beautiful-love-2wtfr7zi86cfovd9.jpg",
+            "https://static8.depositphotos.com/1491329/1068/i/450/depositphotos_10687188-stock-photo-foggy-landscape-early-morning-mist.jpg",
+            "https://www.womansworld.com/wp-content/uploads/2024/08/cute-cats.jpg?w=953",
+            "https://hips.hearstapps.com/hmg-prod/images/cat-instagram-captions-64ff2dfa47e9a.jpg?crop=1xw:0.84375xh;center,top&resize=1200:*"
+        ),
+        price = Price(233.0, "USD"),
+        reviews = listOf("this,", "good"),
+        destinationId = "3333",
+        tags = listOf("nature", "music"),
+        rating = 34.9
+    )
+
+    val categoryCard = listOf(
+        listOf(
+            "Camping & Hiking",
+            R.drawable.ic_camp,
+            "Money can not buy happiness but it can buy a tent and that's kinda the same thing."
+        ),
+        listOf(
+            "Restaurant & Coffee",
+            R.drawable.ic_food,
+            "Know the best places to eat and drink in this City. "
+        ),
+        listOf("National Park", R.drawable.ic_park, "Best National Parks In this city To Visit "),
+        listOf(
+            "Buildings",
+            R.drawable.ic_building,
+            "Explore those beautiful buildings in this city"
+        ),
     )
 }

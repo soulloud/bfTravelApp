@@ -1,5 +1,6 @@
 package com.beaconfire.travel.trips
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -11,9 +12,6 @@ fun TripsScreen() {
     //val destinationUiState = tripsViewModel.destinationListUiState
     val totalCost by tripsViewModel.totalCost.observeAsState()
     val tripUiState = tripsViewModel.tripUiState
-
-    val testReviewRepoOutput by tripsViewModel.testReviewRepoOutput.observeAsState()
-
 
 
 //    // test for create new trip
@@ -38,16 +36,15 @@ fun TripsScreen() {
     //test for load trip
     if (tripUiState is TripUiState.LoadSucceed) {
 
-    //Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
-        //tripsViewModel.setCurrentDestinationList(tripUiState.trips[0]) //Ok
+        //Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
+        tripsViewModel.setCurrentDestinationList(if (tripUiState.trips.isNotEmpty()) tripUiState.trips[0] else return) //Ok
         //tripsViewModel.removeDestination(tripUiState.trips[0], tripsViewModel.currentDestinationList[0])
 
         //tripsViewModel.toggleTripVisibility(tripUiState.trips[0]) //OK
 
 //        tripsViewModel.removeDestinationFromCurrentTrip(Destination(), tripUiState.trips[0])
 
-        //Text(text = totalCost.toString())
-
+        Text(text = totalCost.toString())
     }
 
 //    if (destinationUiState is DestinationUiState.LoadSucceed){

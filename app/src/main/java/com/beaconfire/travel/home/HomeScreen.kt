@@ -2,6 +2,7 @@ package com.beaconfire.travel.home
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,9 +24,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,12 +56,12 @@ import com.beaconfire.travel.R
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.User
+import com.beaconfire.travel.ui.BlueIconButton
 import com.beaconfire.travel.ui.TagCard
 import com.beaconfire.travel.ui.component.carousel.AutoSlidingCarousel
 import com.beaconfire.travel.utils.DestinationSort
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
@@ -69,11 +70,12 @@ import kotlinx.coroutines.launch
 fun HomeScreen(onNavigate: (Navigation) -> Unit) {
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
     val homeUiModel by homeViewModel.homeUiModel.collectAsState()
-    var tags = remember { mutableListOf<String>() }
+    val tags = remember { mutableListOf<String>() }
+
     LazyColumn(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 64.dp)) {
         item {
-            Title(MockData.users[0])
-            TopMenu(onNavigate, homeViewModel)
+            homeUiModel.user?.let { Title(it) }
+            TopMenu(homeViewModel, onNavigate)
             LazyRow {
                 items(MockData.tagImages.size) {
                     TagCard(
@@ -134,8 +136,8 @@ fun HomeScreen(onNavigate: (Navigation) -> Unit) {
 
 @Composable
 private fun TopMenu(
+    homeViewModel: HomeViewModel,
     onNavigate: (Navigation) -> Unit,
-    homeViewModel: HomeViewModel
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -144,7 +146,7 @@ private fun TopMenu(
             DestinationSearchBar(onNavigate)
         }
         Row(modifier = Modifier.weight(1f)) {
-            Actions(scope = rememberCoroutineScope(), homeViewModel = homeViewModel)
+            Actions(homeViewModel = homeViewModel)
         }
     }
 }
@@ -208,8 +210,9 @@ fun DestinationCard(
             .padding(4.dp)
             .fillMaxWidth()
             .clickable { onNavigate(Navigation.DestinationDetail) },
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column {
+        Column(modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary)) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imageUrl)
@@ -264,37 +267,28 @@ private fun Title(
 
 @Composable
 private fun Actions(
-    scope: CoroutineScope,
     homeViewModel: HomeViewModel
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     Box(
         Modifier
             .wrapContentSize(Alignment.TopEnd)
     ) {
-        IconButton(onClick = {
-            expanded = true
-        }) {
-            Icon(
-                Icons.Filled.MoreVert,
-                contentDescription = "More Menu"
-            )
+        var expanded by remember { mutableStateOf(false) }
+        BlueIconButton(onClick = { expanded = !expanded })
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }) {
+            FilterDropdownMenuItem(
+                text = "A - Z",
+                homeViewModel,
+                DestinationSort.AlphabetAscending
+            ) { expanded = false }
+            FilterDropdownMenuItem(
+                text = "Z - A",
+                homeViewModel,
+                DestinationSort.AlphabetDescending
+            ) { expanded = false }
         }
-    }
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false }) {
-        FilterDropdownMenuItem(
-            text = "A - Z",
-            homeViewModel,
-            DestinationSort.AlphabetAscending
-        ) { expanded = false }
-        FilterDropdownMenuItem(
-            text = "Z - A",
-            homeViewModel,
-            DestinationSort.AlphabetDescending
-        ) { expanded = false }
     }
 }
 
@@ -313,5 +307,6 @@ private fun FilterDropdownMenuItem(
                 homeViewModel.onSortChanged(destinationSort)
             }
             onClick()
-        })
+        }
+    )
 }

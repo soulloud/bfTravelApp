@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.mallApplication
-import com.beaconfire.travel.repo.DestinationRepository
 import com.beaconfire.travel.utils.DestinationFilter
 import com.beaconfire.travel.utils.DestinationSort
 import com.beaconfire.travel.utils.filterBy
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeViewModel(
-    private val destinationRepository: DestinationRepository
+    private val appContainer: AppContainer
 ) : ViewModel() {
 
     private val _homeUiModel = MutableStateFlow(HomeUiModel())
@@ -26,6 +26,7 @@ class HomeViewModel(
     val homeUiModel: StateFlow<HomeUiModel> = _homeUiModel
 
     init {
+        loadUser()
         loadDestinations()
     }
 
@@ -40,7 +41,7 @@ class HomeViewModel(
             _homeUiModel.update {
                 it.copy(
                     homeUiState = HomeUiState.LoadSucceed,
-                    destinations = destinationRepository.getAllDestinations()
+                    destinations = appContainer.destinationRepository.getAllDestinations()
                         .filterBy(it.filter)
                         .sort(it.sort)
                 )
@@ -57,6 +58,18 @@ class HomeViewModel(
         }
     }
 
+    private fun loadUser() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _homeUiModel.update {
+                    it.copy(
+                        user = appContainer.userRepository.getLoginUser()
+                    )
+                }
+            }
+        }
+    }
+
     private fun loadDestinations() {
         _homeUiModel.update { it.copy(homeUiState = HomeUiState.Loading) }
         viewModelScope.launch {
@@ -64,7 +77,8 @@ class HomeViewModel(
                 _homeUiModel.update {
                     it.copy(
                         homeUiState = HomeUiState.LoadSucceed,
-                        destinations = destinationRepository.getAllDestinations().sort(it.sort)
+                        destinations = appContainer.destinationRepository.getAllDestinations()
+                            .sort(it.sort)
                     )
                 }
             }
@@ -76,7 +90,7 @@ class HomeViewModel(
 
         val Factory = viewModelFactory {
             initializer {
-                HomeViewModel(mallApplication().container.destinationRepository)
+                HomeViewModel(mallApplication().container)
             }
         }
     }

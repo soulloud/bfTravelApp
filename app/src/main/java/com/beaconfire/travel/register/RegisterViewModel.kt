@@ -13,6 +13,7 @@ import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.State
 import com.beaconfire.travel.repo.region.RegionRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -51,9 +52,7 @@ class RegisterViewModel(
     ) {
         if (listOf(email, displayName, password, state.state, city.city).any { it.isEmpty() }) {
             _registerUiModel.update { it.copy(registerStatus = RegisterStatus.FieldsCannotBeEmpty) }
-            viewModelScope.launch {
-                _errorMessage.emit("Email, username, password, state, or city cannot be empty!")
-            }
+            viewModelScope.launch { _errorMessage.emit("Email, username, password, state, or city cannot be empty!") }
             return
         }
 
@@ -74,17 +73,15 @@ class RegisterViewModel(
                 if (user == null) {
                     _errorMessage.emit("Email or username already exist, please try again!")
                 }
-                _registerUiModel.update {
-                    it.copy(registerStatus = RegisterStatus.RegistrationSuccess)
-                }
+                _registerUiModel.update { it.copy(registerStatus = RegisterStatus.RegistrationSuccess) }
+                delay(1000)
+                _registerUiModel.update { it.copy(registerStatus = RegisterStatus.None) }
             }
         }
     }
 
     suspend fun getAllCitiesForStates(state: State) {
-        _registerUiModel.update {
-            it.copy(registerStatus = RegisterStatus.LoadingCities)
-        }
+        _registerUiModel.update { it.copy(registerStatus = RegisterStatus.LoadingCities) }
         _registerUiModel.update {
             it.copy(
                 registerStatus = RegisterStatus.None,
@@ -94,9 +91,7 @@ class RegisterViewModel(
     }
 
     private suspend fun getAllStates() {
-        _registerUiModel.update {
-            it.copy(registerStatus = RegisterStatus.LoadingStates)
-        }
+        _registerUiModel.update { it.copy(registerStatus = RegisterStatus.LoadingStates) }
         _registerUiModel.update {
             it.copy(
                 registerStatus = RegisterStatus.None,

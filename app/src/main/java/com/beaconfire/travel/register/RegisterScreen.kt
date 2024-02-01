@@ -161,7 +161,7 @@ fun RegisterScreen(
             }
 
             RegisterStatus.RegistrationSuccess -> {
-                onNavigate(Navigation.Main)
+                onNavigate(Navigation.Login)
             }
 
             else -> {}
