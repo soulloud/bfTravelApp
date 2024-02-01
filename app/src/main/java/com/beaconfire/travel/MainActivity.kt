@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppScreen(appViewModel: AppViewModel) {
     val appUiModel by appViewModel.appUiModel.collectAsState()
-    val loginUser by (LocalContext.current.applicationContext as TravelApplication).container.userRepository.loginUser.collectAsState()
+    val loginUser by (LocalContext.current.applicationContext as TravelApplication).container.userRepository.loginUserId.collectAsState()
 
     if (loginUser != null) {
         MainScreen()
