@@ -1,13 +1,9 @@
 package com.beaconfire.travel.trips
 
-import android.util.Log
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
@@ -40,8 +36,8 @@ fun TripsScreen() {
     //test for load trip
     if (tripUiState is TripUiState.LoadSucceed) {
 
-    //Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
-        tripsViewModel.setCurrentDestinationList(tripUiState.trips[0]) //Ok
+        //Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
+        tripsViewModel.setCurrentDestinationList(if (tripUiState.trips.isNotEmpty()) tripUiState.trips[0] else return) //Ok
         //tripsViewModel.removeDestination(tripUiState.trips[0], tripsViewModel.currentDestinationList[0])
 
         //tripsViewModel.toggleTripVisibility(tripUiState.trips[0]) //OK
