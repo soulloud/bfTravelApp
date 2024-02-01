@@ -14,36 +14,34 @@ import com.beaconfire.travel.repo.TripRepository
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TripsViewModel(
     private val tripRepository: TripRepository,
-    private val reviewRepository: ReviewRepository
 ) : ViewModel() {
 
-    var tripUiState by mutableStateOf<TripUiState>(TripUiState.None)
-
-    //var destinationListUiState by mutableStateOf<DestinationUiState>(DestinationUiState.None)
+    private val _tripUiModel = MutableStateFlow(TripUiModel())
+    val tripUiModel: StateFlow<TripUiModel> = _tripUiModel
     var currentDestinationList: List<Destination> = emptyList()
     val totalCost = MutableLiveData(0.0)
 
-    val testReviewRepoOutput = MutableLiveData("")
-
     init {
         loadTrips()
-        //testReviewRepo()
     }
 
     private fun loadTrips() {
-        tripUiState = TripUiState.Loading
+        _tripUiModel.update { it.copy( tripUiState = TripUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                tripUiState = try {
-                    val trips = tripRepository.getAllTrips()
-                    TripUiState.LoadSucceed(trips)
-                } catch (e: Exception) {
-                    TripUiState.LoadFailed
+                _tripUiModel.update {
+                    it.copy(
+                        tripUiState = TripUiState.LoadSucceed,
+                        trips = tripRepository.getAllTrips()
+                    )
                 }
             }
         }
@@ -95,20 +93,13 @@ class TripsViewModel(
         totalCost.value = cost
     }
 
-    fun testReviewRepo() {
-        viewModelScope.launch {
-            //reviewRepository.addNewReview()
-        }
-    }
-
     companion object {
         private val TAG = TripsViewModel::class.java.simpleName
 
         val Factory = viewModelFactory {
             initializer {
                 TripsViewModel(
-                    mallApplication().container.tripRepository,
-                    mallApplication().container.reviewRepository
+                    mallApplication().container.tripRepository
                 )
             }
         }

@@ -36,7 +36,7 @@ class SearchViewModel(
                     _searchUiModel.update {
                         it.copy(
                             searchUiState = SearchUiState.Searching,
-                            filter = DestinationFilter.FilterByLocation(searchKeyword)
+                            filter = DestinationFilter.FilterByNameOrLocation(searchKeyword)
                         )
                     }
                     viewModelScope.launch {
