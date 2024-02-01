@@ -14,8 +14,13 @@ import com.beaconfire.travel.repo.TripRepository
 import com.beaconfire.travel.repo.data.ReviewData
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
+import com.beaconfire.travel.trips.TripUiModel
 import com.beaconfire.travel.trips.TripUiState
+import com.beaconfire.travel.utils.DestinationManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -26,9 +31,13 @@ class DestinationViewModel(
     //private val destination: Destination
 ) : ViewModel() {
 
-    var tripUiState by mutableStateOf<TripUiState>(TripUiState.None)
-    var reviewUiState by mutableStateOf<ReviewUiState>(ReviewUiState.None)
+    private val _tripUiModel = MutableStateFlow(TripUiModel())
+    val tripUiModel: StateFlow<TripUiModel> = _tripUiModel
 
+    private val _reviewUiModel = MutableStateFlow(ReviewUiModel())
+    val reviewUiModel: StateFlow<ReviewUiModel> = _reviewUiModel
+
+    val destination = DestinationManager.getInstance().destination
 
     init {
         loadTrips()
@@ -36,29 +45,29 @@ class DestinationViewModel(
     }
 
     private fun loadTrips() {
-        tripUiState = TripUiState.Loading
+        _tripUiModel.update { it.copy( tripUiState = TripUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                tripUiState = try {
-                    val trips = tripRepository.getAllTrips()
-                    TripUiState.LoadSucceed(trips)
-                } catch (e: Exception) {
-                    TripUiState.LoadFailed
+                _tripUiModel.update {
+                    it.copy(
+                        tripUiState = TripUiState.LoadSucceed,
+                        trips = tripRepository.getAllTrips()
+                    )
                 }
             }
         }
     }
 
     private fun loadReview() {
+        _reviewUiModel.update { it.copy( reviewUiState = ReviewUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-//                reviewUiState = try {
-//                    val reviews = reviewRepository
-//                        .getAllReviewsOnCurrentDestination(destination)
-//                    ReviewUiState.LoadSucceed(reviews)
-//                } catch (e: Exception){
-//                    ReviewUiState.LoadFailed
-//                }
+                _reviewUiModel.update {
+                    it.copy(
+                        reviewUiState = ReviewUiState.LoadSucceedByDestination,
+                        reviews = reviewRepository.getAllReviewsOnCurrentDestination(destination)
+                    )
+                }
             }
         }
     }

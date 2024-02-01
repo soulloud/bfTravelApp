@@ -59,6 +59,7 @@ import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.BlueIconButton
 import com.beaconfire.travel.ui.TagCard
 import com.beaconfire.travel.ui.component.carousel.AutoSlidingCarousel
+import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.DestinationSort
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -209,7 +210,10 @@ fun DestinationCard(
         modifier = Modifier
             .padding(4.dp)
             .fillMaxWidth()
-            .clickable { onNavigate(Navigation.DestinationDetail) },
+            .clickable {
+                DestinationManager.getInstance().setDestination(destination)
+                onNavigate(Navigation.DestinationDetail)
+                       },
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary)) {

@@ -12,11 +12,13 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.utils.MockData
 
 sealed class Navigation(
     val route: String,
     val title: String,
-    val icon: ImageVector
+    val icon: ImageVector,
 ) {
     data object Back : Navigation(
         route = "back",
@@ -24,7 +26,7 @@ sealed class Navigation(
         icon = Icons.Default.ArrowBackIosNew
     )
 
-    data object DestinationDetail : Navigation(
+    data object DestinationDetail: Navigation(
         route = "destinationDetail",
         title = "DestinationDetail",
         icon = Icons.Default.Place
