@@ -22,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.beaconfire.travel.repo.model.Profile
 
 
 @Composable
@@ -44,6 +46,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
     val profileUiModel by profileViewModel.profileUiModel.collectAsState()
     var showEditProfile by remember { mutableStateOf(false) }
     var showUploadedPhotos by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,54 +55,91 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
         verticalArrangement = Arrangement.Center
     ) {
         ProfileItem("Edit Profile", Icons.Filled.Edit) { showEditProfile = !showEditProfile }
-        if (showEditProfile) {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                profileUiModel.profile?.let { profile ->
-                    item {
-                        // Display profile image
-                        ImageLoader(
-                            url = profile.photoImage,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                        )
-                        Text("Full Name: ${profile.fullName}", Modifier.padding(8.dp))
-                        Text("Location: ${profile.location}", Modifier.padding(8.dp))
-                        Text("About You: ${profile.aboutYou}", Modifier.padding(8.dp))
-                        Text("Join Date: ${profile.joinDate}", Modifier.padding(8.dp))
 
-                        // Button to show/hide uploaded photos
-                        Button(onClick = { showUploadedPhotos = !showUploadedPhotos }) {
-                            Text("Uploaded Photos")
-                        }
-                        // LazyColumn to display uploaded photos
-                        if (showUploadedPhotos) {
-                            LazyColumn {
-                                items(profile.uploadedPhotos) { photoUrl ->
-                                    ImageLoader(
-                                        url = photoUrl,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(200.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        if (showEditProfile) {
+            EditProfileSection(profileViewModel, profileUiModel)
         }
+
         ProfileItem("Your reviews", Icons.Filled.Reviews, onClick = {})
         Spacer(modifier = Modifier.height(128.dp))
+
         Button(
             onClick = { /* Handle log out */ },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Delete Account")
         }
-
     }
 }
+
+@Composable
+fun EditProfileSection(profileViewModel: ProfileViewModel, profileUiModel: ProfileUiModel?) {
+    profileUiModel?.profile?.let { profile ->
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            item {
+                ImageLoader(
+                    url = profile.photoImage,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                )
+                Text("Full Name: ${profile.fullName}", Modifier.padding(8.dp))
+                ProfileEditableField("Full Name", profile.fullName) { newName ->
+                    profileViewModel.updateFullName(newName)
+                }
+                Text("Location: ${profile.location}", Modifier.padding(8.dp))
+                ProfileEditableField("Location", profile.location) { newLocation ->
+                    profileViewModel.updateLocation(newLocation)
+                }
+                Text("About You: ${profile.aboutYou}", Modifier.padding(8.dp))
+                ProfileEditableField("About You", profile.aboutYou, isMultiline = true) { newAbout ->
+                    profileViewModel.updateAboutYou(newAbout)
+                }
+                Text("Join Date: ${profile.joinDate}", Modifier.padding(8.dp))
+
+                // If you want to display uploaded photos, uncomment the line below
+                // UploadedPhotosSection(profileViewModel, showUploadedPhotos)
+
+
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ProfileEditableField(label: String, value: String, isMultiline: Boolean = false, onUpdate: (String) -> Unit) {
+    var text by remember { mutableStateOf(value) }
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        label = { Text(label) },
+        modifier = Modifier.fillMaxWidth()
+    )
+    Button(
+        onClick = { onUpdate(text) },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Update $label")
+    }
+}
+
+//@Composable
+//fun UploadedPhotosSection(profileViewModel: ProfileViewModel, showUploadedPhotos: Boolean) {
+//    // Button to show/hide uploaded photos
+//    Button(onClick = { showUploadedPhotos = !showUploadedPhotos }) {
+//        Text("Uploaded Photos")
+//    }
+//
+//    // Display uploaded photos when button is clicked
+//    if (showUploadedPhotos) {
+//        Column {
+//            profileViewModel.uploadedPhotos.forEach { photoUrl ->
+//                ImageLoader(url = photoUrl, modifier = Modifier.fillMaxWidth().height(150.dp))
+//            }
+//        }
+//    }
+//}
 
 //@Composable
 //fun ProfileHeader(profile: Profile, image: Int, size: Int) {

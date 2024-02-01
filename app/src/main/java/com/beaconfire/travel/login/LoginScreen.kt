@@ -46,8 +46,8 @@ fun LoginScreen(
     loginViewModel: LoginViewModel,
     onNavigate: (Navigation) -> Unit,
 ) {
-    var email by remember { mutableStateOf("hh@gmail.com") }
-    var password by remember { mutableStateOf("123") }
+    var email by remember { mutableStateOf("dd4@123.com") }
+    var password by remember { mutableStateOf("qwer") }
     var passwordVisibility by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()

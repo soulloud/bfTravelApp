@@ -40,6 +40,18 @@ class UserRepository(private val appContainer: AppContainer) {
             }
         }
 
+    suspend fun updateDisplayName(userId: String, newDisplayName: String) = callbackFlow {
+        val userRef = appContainer.firebaseStore.collection("user").document(userId)
+        userRef.update("displayName", newDisplayName)
+            .addOnSuccessListener {
+                trySend(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                trySend(null)
+            }
+        awaitClose()
+    }.first()
+
     private suspend fun createUser(userData: UserData) = callbackFlow {
         val userRef = appContainer.firebaseStore.collection("user").document()
         userRef.set(userData)
