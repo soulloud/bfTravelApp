@@ -11,38 +11,53 @@ import com.beaconfire.travel.utils.DestinationSort
 import com.beaconfire.travel.utils.filterBy
 import com.beaconfire.travel.utils.sort
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(FlowPreview::class)
 class SearchViewModel(
     private val destinationRepository: DestinationRepository
 ) : ViewModel() {
+    private val _searchKeyword = MutableSharedFlow<String>(1)
 
     private val _searchUiModel = MutableStateFlow(SearchUiModel())
     var searchUiModel: StateFlow<SearchUiModel> = _searchUiModel
 
-    fun search(keyword: String) {
-        _searchUiModel.update {
-            it.copy(
-                searchUiState = SearchUiState.Searching,
-                filter = DestinationFilter.FilterByLocation(keyword)
-            )
-        }
+    init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                _searchUiModel.update {
-                    it.copy(
-                        searchUiState = SearchUiState.SearchSucceed,
-                        destinations = destinationRepository.getAllDestinations()
-                            .filterBy(it.filter)
-                            .sort(it.sort)
-                    )
+                _searchKeyword.debounce(1000).collect { searchKeyword ->
+                    _searchUiModel.update {
+                        it.copy(
+                            searchUiState = SearchUiState.Searching,
+                            filter = DestinationFilter.FilterByLocation(searchKeyword)
+                        )
+                    }
+                    viewModelScope.launch {
+                        withContext(Dispatchers.IO) {
+                            _searchUiModel.update {
+                                it.copy(
+                                    searchUiState = SearchUiState.SearchSucceed,
+                                    destinations = destinationRepository.getAllDestinations()
+                                        .filterBy(it.filter)
+                                        .sort(it.sort)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+
+    fun search(keyword: String) {
+        _searchKeyword.tryEmit(keyword)
     }
 
     fun onSortChanged(sort: DestinationSort) {
