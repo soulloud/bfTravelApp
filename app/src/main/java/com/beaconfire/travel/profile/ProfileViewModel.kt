@@ -19,7 +19,6 @@ class ProfileViewModel(
     private val appContainer: AppContainer
 ) : ViewModel() {
 
-    // Change the type from User? to Profile?
     private val _profileUiModel =
         MutableStateFlow(ProfileUiModel(status = ProfileUiModelStatus.None, null))
     val profileUiModel: StateFlow<ProfileUiModel> = _profileUiModel.asStateFlow()
@@ -32,12 +31,23 @@ class ProfileViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 appContainer.assetRepository.uploadImageAsset(uri)?.let { filename ->
-                    appContainer.assetRepository.fetchImageAsset(filename)
-                        ?.let { assetUri ->
-                            _profileUiModel.update {
-                                it.copy(capturedImageUri = assetUri)
-                            }
-                        }
+                    _profileUiModel.update {
+                        it.copy(assetFileName = filename)
+                    }
+                    loadAssetForProfileImage(filename)
+                }
+            }
+        }
+    }
+
+    fun setAsProfilePhoto() {
+        val uiModel = _profileUiModel.value
+        uiModel.assetFileName?.let { assetFileName ->
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    uiModel.profile?.copy(photoImage = assetFileName)?.let { updatedProfile ->
+                        appContainer.profileRepository.updateProfile(updatedProfile)
+                    }
                 }
             }
         }
@@ -55,6 +65,9 @@ class ProfileViewModel(
                             profile = user.profile
                         )
                     }
+                    if (user.profile.photoImage.isNotBlank()) {
+                        loadAssetForProfileImage(user.profile.photoImage)
+                    }
                 } else {
                     _profileUiModel.update { it.copy(ProfileUiModelStatus.LoadFailed) }
                 }
@@ -62,6 +75,14 @@ class ProfileViewModel(
         }
     }
 
+    private suspend fun loadAssetForProfileImage(filename: String) {
+        appContainer.assetRepository.fetchImageAsset(filename)
+            ?.let { assetUri ->
+                _profileUiModel.update {
+                    it.copy(capturedImageUri = assetUri)
+                }
+            }
+    }
 
     companion object {
         private val TAG = ProfileViewModel::class.java.simpleName

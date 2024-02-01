@@ -10,6 +10,7 @@ import kotlinx.coroutines.tasks.await
 import java.io.File
 
 class AssetRepository(private val appContainer: AppContainer) {
+
     suspend fun uploadImageAsset(uri: Uri) = callbackFlow {
         val file = File(uri.toString())
         val timestamp = System.currentTimeMillis()
@@ -17,20 +18,23 @@ class AssetRepository(private val appContainer: AppContainer) {
         val filename = "$timestamp.$fileExt"
         val storageRef = generateStorageReference(filename)
         storageRef.putFile(uri)
-            .addOnSuccessListener { trySend(filename) }
+            .addOnSuccessListener { trySend(filename.parseToFirebaseAsset()) }
             .addOnFailureListener { trySend(null) }
             .await()
         awaitClose()
     }.first()
 
-    suspend fun fetchImageAsset(filename: String) = callbackFlow {
-        generateStorageReference(filename)
-            .downloadUrl
-            .addOnSuccessListener { trySend(it) }
-            .addOnFailureListener { trySend(null) }
-            .await()
-        awaitClose()
-    }.first()
+    suspend fun fetchImageAsset(firebaseAsset: String) =
+        firebaseAsset.toFilename()?.let { filename ->
+            callbackFlow {
+                generateStorageReference(filename)
+                    .downloadUrl
+                    .addOnSuccessListener { trySend(it) }
+                    .addOnFailureListener { trySend(null) }
+                    .await()
+                awaitClose()
+            }.first()
+        }
 
     private suspend fun generateStorageReference(fileName: String): StorageReference {
         val userId = appContainer.userRepository.getLoginUser()?.userId ?: "tmp"
@@ -38,7 +42,13 @@ class AssetRepository(private val appContainer: AppContainer) {
         return appContainer.firebaseStorage.reference.child(filename)
     }
 
+    private fun String.parseToFirebaseAsset() = "$FIREBASE_ASSETS$this"
+
+    private fun String.toFilename() =
+        if (startsWith(FIREBASE_ASSETS)) substring(FIREBASE_ASSETS.length) else null
+
     companion object {
         val TAG = AssetRepository::class.java.simpleName
+        val FIREBASE_ASSETS = "firebase://"
     }
 }

@@ -14,4 +14,5 @@ data class ProfileUiModel(
     val status: ProfileUiModelStatus,
     val profile: Profile?,
     val capturedImageUri: Uri? = Uri.EMPTY,
+    val assetFileName: String? = null,
 )

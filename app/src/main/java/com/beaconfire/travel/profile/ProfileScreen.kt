@@ -68,8 +68,9 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
                                 contentDescription = null
                             )
                         }
-                        CameraCaptureButton {
-                            profileViewModel.onImageCaptured(it)
+                        CameraCaptureButton { profileViewModel.onImageCaptured(it) }
+                        Button(onClick = { profileViewModel.setAsProfilePhoto() }) {
+                            Text(text = "Set as Profile Photo")
                         }
                         Text("Full Name: ${profile.fullName}", Modifier.padding(8.dp))
                         Text("Location: ${profile.location}", Modifier.padding(8.dp))
