@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.beaconfire.travel.ui.screen.CameraCaptureButton
-
+import com.beaconfire.travel.ui.component.button.CameraCaptureButton
+import com.beaconfire.travel.ui.component.button.GalleryPhotoPickerButton
 
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel) {
@@ -68,6 +68,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
                                 contentDescription = null
                             )
                         }
+                        GalleryPhotoPickerButton { profileViewModel.onImageCaptured(it) }
                         CameraCaptureButton { profileViewModel.onImageCaptured(it) }
                         Button(onClick = { profileViewModel.setAsProfilePhoto() }) {
                             Text(text = "Set as Profile Photo")

@@ -1,4 +1,4 @@
-package com.beaconfire.travel.ui.screen
+package com.beaconfire.travel.ui.component.button
 
 import android.Manifest
 import android.content.pm.PackageManager
