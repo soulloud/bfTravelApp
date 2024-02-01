@@ -17,6 +17,9 @@ fun TripsScreen() {
     val totalCost by tripsViewModel.totalCost.observeAsState()
     val tripUiState = tripsViewModel.tripUiState
 
+    val testReviewRepoOutput by tripsViewModel.testReviewRepoOutput.observeAsState()
+
+
 
 //    // test for create new trip
 //    tripsViewModel.createNewTrip(
@@ -41,14 +44,15 @@ fun TripsScreen() {
     if (tripUiState is TripUiState.LoadSucceed) {
 
     //Text(text = tripUiState.trips.toString(), modifier = Modifier.padding(all = 30.dp))
-        tripsViewModel.setCurrentDestinationList(tripUiState.trips[0]) //Ok
+        //tripsViewModel.setCurrentDestinationList(tripUiState.trips[0]) //Ok
         //tripsViewModel.removeDestination(tripUiState.trips[0], tripsViewModel.currentDestinationList[0])
 
         //tripsViewModel.toggleTripVisibility(tripUiState.trips[0]) //OK
 
 //        tripsViewModel.removeDestinationFromCurrentTrip(Destination(), tripUiState.trips[0])
 
-        Text(text = totalCost.toString())
+        //Text(text = totalCost.toString())
+
     }
 
 //    if (destinationUiState is DestinationUiState.LoadSucceed){
