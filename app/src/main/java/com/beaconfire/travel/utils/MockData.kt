@@ -1,6 +1,8 @@
 package com.beaconfire.travel.utils
 
 import com.beaconfire.travel.R
+import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.model.Price
 import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.User
 
@@ -94,5 +96,40 @@ object MockData {
         R.drawable.ic_profile_mike,
         R.drawable.ic_profile_shali,
         R.drawable.ic_profile_shuaige
+    )
+
+
+    val destination = Destination(
+        name = "beijing",
+        location = "China",
+        description = "Beijing, the capital city of China, is a vibrant metropolis rich in history and culture. Known for its ancient architecture, including the iconic Great Wall and the Forbidden City, Beijing offers a unique blend of traditional charm and modern dynamism. The city's hutongs, traditional alleyways, provide a glimpse into the old way of life, while the bustling shopping districts like Wangfujing showcase contemporary China. Culinary enthusiasts will find Beijing's food scene, especially the famous Peking duck, a delightful experience. The city's parks and temples offer serene retreats, making it a versatile destination for travelers.",
+        images = listOf(
+            "https://pyt-blogs.imgix.net/2016/02/12.jpg?auto=format&ixlib=php-3.3.0",
+            "https://www.beijing-visitor.com/images/content_images/chinesenewyear2019.jpg"
+        ),
+        price = Price(233.0, "USD"),
+        reviews = listOf("this,", "good"),
+        destinationId = "3333",
+        tags = listOf("nature", "music"),
+        rating = 34.9
+    )
+
+    val categoryCard = listOf(
+        listOf(
+            "Camping & Hiking",
+            R.drawable.ic_camp,
+            "Money can not buy happiness but it can buy a tent and that's kinda the same thing."
+        ),
+        listOf(
+            "Restaurant & Coffee",
+            R.drawable.ic_food,
+            "Know the best places to eat and drink in this City. "
+        ),
+        listOf("National Park", R.drawable.ic_park, "Best National Parks In this city To Visit "),
+        listOf(
+            "Buildings",
+            R.drawable.ic_building,
+            "Explore those beautiful buildings in this city"
+        ),
     )
 }

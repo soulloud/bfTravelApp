@@ -40,7 +40,7 @@ fun MainScreen() {
                         icon = {
                             Icon(
                                 navigationItem.icon,
-                                contentDescription = navigationItem.title
+                                contentDescription = navigationItem.title,
                             )
                         },
                         onClick = {

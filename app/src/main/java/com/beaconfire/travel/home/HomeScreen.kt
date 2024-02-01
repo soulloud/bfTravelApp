@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,11 +70,11 @@ import kotlinx.coroutines.launch
 fun HomeScreen(onNavigate: (Navigation) -> Unit) {
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
     val homeUiModel by homeViewModel.homeUiModel.collectAsState()
-    var tags = remember { mutableListOf<String>() }
+    val tags = remember { mutableListOf<String>() }
 
     LazyColumn(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 64.dp)) {
         item {
-            Title(MockData.users[0])
+            homeUiModel.user?.let { Title(it) }
             TopMenu(homeViewModel, onNavigate)
             LazyRow {
                 items(MockData.tagImages.size) {
@@ -209,8 +210,9 @@ fun DestinationCard(
             .padding(4.dp)
             .fillMaxWidth()
             .clickable { onNavigate(Navigation.DestinationDetail) },
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(modifier = Modifier.background(MaterialTheme.colorScheme.onTertiary)) {
+        Column(modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary)) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imageUrl)

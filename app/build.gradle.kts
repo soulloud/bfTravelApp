@@ -96,6 +96,9 @@ dependencies {
     // coil
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    // pager
+    implementation("com.google.accompanist:accompanist-pager:0.33.2-alpha")
+
     //////////////////////////////// ui ////////////////////////////////
     // Auto Image Slider
     implementation("com.google.accompanist:accompanist-pager:0.22.0-rc")
