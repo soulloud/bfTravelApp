@@ -31,18 +31,18 @@ class ReviewRepository(private val appContainer: AppContainer) {
         }
     }
 
-    suspend fun addNewReview(/*reviewData: ReviewData*/) = callbackFlow{
+    suspend fun addNewReview(reviewData: ReviewData) = callbackFlow{
 
         val userId = getUserInfo()?.userId
-        val reviewData = ReviewData(
-            reviewId = "3",
-            destination = "Jh37jrgWHfvFNO3chG9t",
-            score = 5.0,
-            title = "Fantastic Place",
-            description = "Highly recommend this destination!",
-            timestamp = "2022-03-10T15:45:00",
-            owner = "fbZxm70A90ORSi5D86cC"
-        )
+//        val reviewData = ReviewData(
+//            reviewId = "3",
+//            destination = "Jh37jrgWHfvFNO3chG9t",
+//            score = 5.0,
+//            title = "Fantastic Place",
+//            description = "Highly recommend this destination!",
+//            timestamp = "2022-03-10T15:45:00",
+//            owner = "fbZxm70A90ORSi5D86cC"
+//        )
 
         appContainer.firebaseStore.collection("review")
             .add(reviewData)

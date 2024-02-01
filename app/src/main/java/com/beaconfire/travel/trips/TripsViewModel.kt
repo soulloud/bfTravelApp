@@ -98,7 +98,7 @@ class TripsViewModel(
     fun testReviewRepo(){
 
         viewModelScope.launch {
-            reviewRepository.addNewReview()
+            //reviewRepository.addNewReview()
         }
     }
 
