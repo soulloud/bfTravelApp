@@ -31,8 +31,14 @@ class ProfileViewModel(
     fun onImageCaptured(uri: Uri) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                appContainer.assetRepository.uploadImageAsset(uri)
-                _profileUiModel.update { it.copy(capturedImageUri = uri) }
+                appContainer.assetRepository.uploadImageAsset(uri)?.let { filename ->
+                    appContainer.assetRepository.fetchImageAsset(filename)
+                        ?.let { assetUri ->
+                            _profileUiModel.update {
+                                it.copy(capturedImageUri = assetUri)
+                            }
+                        }
+                }
             }
         }
     }
