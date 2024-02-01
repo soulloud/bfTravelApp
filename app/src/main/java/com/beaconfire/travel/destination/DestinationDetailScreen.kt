@@ -20,8 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +52,6 @@ import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.launch
 
 @Composable
 fun DestinationDetailScreen(onNavigate: (Navigation) -> Unit) {
@@ -170,7 +166,7 @@ fun DescriptionCard(
 fun ImagePager(destination: Destination) {
     // Remember a PagerState
     val pagerState = rememberPagerState()
-    val scope = rememberCoroutineScope()
+
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -204,38 +200,6 @@ fun ImagePager(destination: Destination) {
                     )
                 }
 
-            }
-            Row(modifier = Modifier.align(Alignment.BottomCenter)) {
-                IconButton(
-                    onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(
-                                if (pagerState.currentPage == 0) pagerState.currentPage else pagerState.currentPage - 1
-                            )
-                        }
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ChevronLeft,
-                        contentDescription = "Go back",
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                IconButton(
-                    onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(
-                                pagerState.currentPage + 1
-                            )
-                        }
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ChevronRight,
-                        contentDescription = "Go forward",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
             }
         }
     }
