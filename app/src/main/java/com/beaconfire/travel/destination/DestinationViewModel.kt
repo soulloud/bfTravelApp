@@ -16,6 +16,7 @@ import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
 import com.beaconfire.travel.trips.TripUiModel
 import com.beaconfire.travel.trips.TripUiState
+import com.beaconfire.travel.utils.DestinationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,8 +34,10 @@ class DestinationViewModel(
     private val _tripUiModel = MutableStateFlow(TripUiModel())
     val tripUiModel: StateFlow<TripUiModel> = _tripUiModel
 
-    var reviewUiState by mutableStateOf<ReviewUiState>(ReviewUiState.None)
+    private val _reviewUiModel = MutableStateFlow(ReviewUiModel())
+    val reviewUiModel: StateFlow<ReviewUiModel> = _reviewUiModel
 
+    val destination = DestinationManager.getInstance().destination
 
     init {
         loadTrips()
@@ -56,15 +59,15 @@ class DestinationViewModel(
     }
 
     private fun loadReview() {
+        _reviewUiModel.update { it.copy( reviewUiState = ReviewUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-//                reviewUiState = try {
-//                    val reviews = reviewRepository
-//                        .getAllReviewsOnCurrentDestination(destination)
-//                    ReviewUiState.LoadSucceed(reviews)
-//                } catch (e: Exception){
-//                    ReviewUiState.LoadFailed
-//                }
+                _reviewUiModel.update {
+                    it.copy(
+                        reviewUiState = ReviewUiState.LoadSucceedByDestination,
+                        reviews = reviewRepository.getAllReviewsOnCurrentDestination(destination)
+                    )
+                }
             }
         }
     }

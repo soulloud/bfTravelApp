@@ -12,9 +12,11 @@ import com.beaconfire.travel.login.LoginScreen
 import com.beaconfire.travel.login.LoginViewModel
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.profile.ProfileScreen
+import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.search.SearchScreen
 import com.beaconfire.travel.settings.SettingsScreen
 import com.beaconfire.travel.trips.TripsScreen
+import com.beaconfire.travel.utils.MockData
 
 @Composable
 fun MainNavigationGraph(
