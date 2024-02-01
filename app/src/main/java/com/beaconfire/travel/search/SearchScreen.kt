@@ -74,7 +74,10 @@ fun SearchScreen(onNavigate: (Navigation) -> Unit) {
         ) {
             SearchBar(
                 query = query,
-                onQueryChanged = { query = it },
+                onQueryChanged = {
+                    query = it
+                    searchViewModel.search(query)
+                },
                 onSearch = {
                     searchViewModel.search(query)
                 },
