@@ -23,15 +23,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TravelTheme {
-                AppScreen()
+                AppScreen(viewModel(factory = AppViewModel.Factory))
             }
         }
     }
 }
 
 @Composable
-fun AppScreen() {
-    val appViewModel: AppViewModel = viewModel(factory = AppViewModel.Factory)
+fun AppScreen(appViewModel: AppViewModel) {
     val appUiModel by appViewModel.appUiModel.collectAsState()
 
     if (appUiModel.user != null) {

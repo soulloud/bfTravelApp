@@ -43,15 +43,17 @@ class UserRepository(private val appContainer: AppContainer) {
             )?.toUser(profile)?.also { persistUserId(it) }
         }
 
-    suspend fun getLoginUser() =
-        appContainer.userSharedPreferences.getString(Constant.SP_USER_KEY_USER_ID, null)?.let {
-            queryUser(it)?.let { userData ->
-                userData.profile?.let { appContainer.profileRepository.queryProfile(userData.profile) }
-                    ?.let { profile ->
-                        userData.toUser(profile).also { _loginUser.update { it } }
-                    }
-            }
+    suspend fun getLoginUser() = _loginUser.value ?: appContainer.userSharedPreferences.getString(
+        Constant.SP_USER_KEY_USER_ID,
+        null
+    )?.let {
+        queryUser(it)?.let { userData ->
+            userData.profile?.let { appContainer.profileRepository.queryProfile(userData.profile) }
+                ?.let { profile ->
+                    userData.toUser(profile).also { _loginUser.update { it } }
+                }
         }
+    }
 
     private suspend fun createUser(userData: UserData) = callbackFlow {
         val userRef = appContainer.firebaseStore.collection("user").document()
