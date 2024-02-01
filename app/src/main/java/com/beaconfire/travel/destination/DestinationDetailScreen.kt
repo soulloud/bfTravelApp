@@ -52,6 +52,7 @@ import coil.request.ImageRequest
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.utils.MockData
+import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
@@ -94,7 +95,7 @@ fun DestinationInfoCard(
         ) {
             Column {
                 Text(
-                    text = "${destination.name}",
+                    text = destination.name,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(Modifier.height(16.dp))
@@ -106,7 +107,7 @@ fun DestinationInfoCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "${destination.location}",
+                        text = destination.location,
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -149,7 +150,7 @@ fun DescriptionCard(
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "${destination.description}",
+                text = destination.description,
                 style = MaterialTheme.typography.bodyMedium,
 
                 maxLines = if (expanded) Int.MAX_VALUE else 4
@@ -164,6 +165,7 @@ fun DescriptionCard(
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ImagePager(destination: Destination) {
     // Remember a PagerState
