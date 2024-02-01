@@ -16,16 +16,25 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,13 +57,20 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.trips.TripUiState
+import com.beaconfire.travel.trips.TripsViewModel
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import androidx.compose.material3.rememberModalBottomSheetState as rememberModalBottomSheetState1
 
 @Composable
-fun DestinationDetailScreen(onNavigate: (Navigation) -> Unit) {
+fun DestinationDetailScreen(
+    tripsViewModel: TripsViewModel,
+    onNavigate: (Navigation) -> Unit
+) {
+    var showSheet by remember { mutableStateOf(false) }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -62,11 +78,13 @@ fun DestinationDetailScreen(onNavigate: (Navigation) -> Unit) {
     ) {
         item {
             DestinationImageCard(onNavigate)
-            DestinationInfoCard(MockData.destination)
+            DestinationInfoCard(MockData.destination) { showSheet = true }
             DescriptionCard(MockData.destination)
             ImagePager(MockData.destination)
             ActivityCard()
-            //   SectionScreen()
+            if (showSheet) {
+                AddToTripBottomSheet(tripsViewModel) { showSheet = false }
+            }
         }
     }
 
@@ -74,7 +92,8 @@ fun DestinationDetailScreen(onNavigate: (Navigation) -> Unit) {
 
 @Composable
 fun DestinationInfoCard(
-    destination: Destination
+    destination: Destination,
+    onAddToTrip: () -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -108,8 +127,7 @@ fun DestinationInfoCard(
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(144.dp))
-            Column {
+            Column(modifier = Modifier.weight(1.0f), horizontalAlignment = Alignment.End) {
                 Text(
                     text = "$${destination.price.value}",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
@@ -120,6 +138,10 @@ fun DestinationInfoCard(
                     text = "Per person",
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = onAddToTrip) {
+                    Text(text = "Add to Trip")
+                }
             }
         }
     }
@@ -321,6 +343,62 @@ fun DestinationImageCard(
                     .align(Alignment.TopEnd)
                     .size(40.dp)
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddToTripBottomSheet(
+    tripsViewModel: TripsViewModel,
+    onDismiss: () -> Unit
+) {
+    val modalBottomSheetState = rememberModalBottomSheetState1()
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = modalBottomSheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
+        val tripUiState = tripsViewModel.tripUiState
+        Column(modifier = Modifier.padding(32.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(modifier = Modifier.weight(1.0f), text = "Add Trip To:")
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            Divider(modifier = Modifier.padding(4.dp))
+            when (tripUiState) {
+                is TripUiState.LoadSucceed -> {
+                    LazyColumn {
+                        itemsIndexed(tripUiState.trips) { _, trip ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(checked = false, onCheckedChange = {})
+                                Text(text = trip.title)
+                            }
+                        }
+                    }
+                }
+
+                else -> {}
+            }
+            Divider(modifier = Modifier.padding(4.dp))
+            Button(onClick = { /*TODO*/ }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        modifier = Modifier.padding(end = 4.dp),
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(modifier = Modifier.fillMaxWidth(), text = "Done")
+                }
+            }
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }

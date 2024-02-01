@@ -15,6 +15,7 @@ import com.beaconfire.travel.profile.ProfileScreen
 import com.beaconfire.travel.search.SearchScreen
 import com.beaconfire.travel.settings.SettingsScreen
 import com.beaconfire.travel.trips.TripsScreen
+import com.beaconfire.travel.trips.TripsViewModel
 
 @Composable
 fun MainNavigationGraph(
@@ -38,7 +39,10 @@ fun MainNavigationGraph(
         startDestination = startDestination.route,
     ) {
         composable(route = Navigation.DestinationDetail.route) {
-            DestinationDetailScreen(onNavigate)
+            DestinationDetailScreen(
+                tripsViewModel = viewModel(factory = TripsViewModel.Factory),
+                onNavigate
+            )
         }
         composable(route = Navigation.Home.route) {
             HomeScreen(onNavigate)
