@@ -1,18 +1,18 @@
 package com.beaconfire.travel.repo
 
+import android.net.Uri
 import com.beaconfire.travel.AppContainer
+import java.io.File
 
 class AssetRepository(private val appContainer: AppContainer) {
-//    suspend fun uploadImageAsset(userId: String, ): String {
-//        val fileName = "uploaded_photos/${userId}_${System.currentTimeMillis()}.jpg"
-//        val ref = storage.reference.child(fileName)
-//        ref.putFile(imageUri).await()
-//        val downloadUrl = ref.downloadUrl.await().toString()
-//
-//        // Add the photo URL to the uploadedPhotos list in the Firestore profile document
-//        val profileRef = db.collection("profile").document(userId)
-//        profileRef.update("uploadedPhotos", FieldValue.arrayUnion(downloadUrl)).await()
-//
-//        return downloadUrl
-//    }
+    suspend fun uploadImageAsset(uri: Uri): String {
+        val file = File(uri.toString())
+        val userId = appContainer.userRepository.getLoginUser()?.userId ?: "tmp"
+        val timestamp = System.currentTimeMillis()
+        val fileExt = file.path.substring(file.path.lastIndexOf(".") + 1)
+        val fileName = "assets/$userId/$timestamp.$fileExt"
+        val ref = appContainer.firebaseStorage.reference.child(fileName)
+        ref.putFile(uri)
+        return ref.downloadUrl.toString()
+    }
 }

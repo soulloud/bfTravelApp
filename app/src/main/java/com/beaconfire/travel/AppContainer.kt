@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.beaconfire.travel.constant.Constant
+import com.beaconfire.travel.repo.AssetRepository
 import com.beaconfire.travel.repo.DestinationRepository
 import com.beaconfire.travel.repo.ProfileRepository
 import com.beaconfire.travel.repo.ReviewRepository
@@ -19,6 +20,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 interface AppContainer {
+    val assetRepository: AssetRepository
+    val context: Context
     val destinationRepository: DestinationRepository
     val firebaseStore: FirebaseFirestore
     val firebaseStorage: FirebaseStorage
@@ -32,9 +35,8 @@ interface AppContainer {
     val reviewRepository: ReviewRepository
 }
 
-class MallAppDataContainer(
-    context: Context
-) : AppContainer {
+class MallAppDataContainer(override val context: Context) : AppContainer {
+    override val assetRepository by lazy { AssetRepository(this) }
     override val destinationRepository by lazy { DestinationRepository(this) }
     override val firebaseStore by lazy { FirebaseFirestore.getInstance() }
     override val firebaseStorage by lazy { FirebaseStorage.getInstance() }
