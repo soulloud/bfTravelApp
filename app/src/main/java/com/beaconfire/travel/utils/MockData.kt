@@ -100,12 +100,17 @@ object MockData {
 
 
     val destination = Destination(
-        name = "beijing",
+        name = "Lorem ipsum",
         location = "China",
-        description = "Beijing, the capital city of China, is a vibrant metropolis rich in history and culture. Known for its ancient architecture, including the iconic Great Wall and the Forbidden City, Beijing offers a unique blend of traditional charm and modern dynamism. The city's hutongs, traditional alleyways, provide a glimpse into the old way of life, while the bustling shopping districts like Wangfujing showcase contemporary China. Culinary enthusiasts will find Beijing's food scene, especially the famous Peking duck, a delightful experience. The city's parks and temples offer serene retreats, making it a versatile destination for travelers.",
+        description = "Integer placerat dui odio, quis tempus libero mollis molestie. Curabitur ultrices leo diam, at porta massa suscipit sagittis. Vivamus a nisi quam. Aliquam sit amet lobortis sapien, vitae porttitor magna. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum sit amet feugiat nisl. Nunc mattis odio sit amet erat mollis, vitae tempus nibh porttitor. Nunc ac imperdiet nunc. Proin eget laoreet arcu. Mauris fringilla vehicula mauris, non viverra ex pharetra ut. Suspendisse at dui nec nisi scelerisque convallis at dignissim risus. Curabitur rhoncus diam vitae libero auctor, quis feugiat neque ornare. Donec id eros turpis. In hac habitasse platea dictumst. Duis sit amet metus ac dui suscipit vulputate sit amet in urna. Nam vel augue faucibus, faucibus ligula non, sollicitudin risus.\n" +
+                "\n" +
+                "Cras sollicitudin, arcu vel luctus auctor, velit massa consectetur felis, non pellentesque enim felis gravida leo. Integer urna ipsum, pellentesque id nisi ac, cursus egestas mauris. Ut aliquet consectetur leo, id fermentum dolor pellentesque eleifend. Nulla neque eros, hendrerit in rhoncus eu, viverra sit amet est. Fusce lacinia erat a nulla sodales dignissim. Fusce viverra ligula ac egestas fringilla. Praesent aliquam elementum laoreet. Sed egestas dictum lacus vel tincidunt. In posuere a turpis eu iaculis.",
         images = listOf(
-            "https://pyt-blogs.imgix.net/2016/02/12.jpg?auto=format&ixlib=php-3.3.0",
-            "https://www.beijing-visitor.com/images/content_images/chinesenewyear2019.jpg"
+            "https://img.freepik.com/premium-photo/dock-with-mountain-background_865967-28763.jpg",
+            "https://wallpapers.com/images/featured/beautiful-love-2wtfr7zi86cfovd9.jpg",
+            "https://static8.depositphotos.com/1491329/1068/i/450/depositphotos_10687188-stock-photo-foggy-landscape-early-morning-mist.jpg",
+            "https://www.womansworld.com/wp-content/uploads/2024/08/cute-cats.jpg?w=953",
+            "https://hips.hearstapps.com/hmg-prod/images/cat-instagram-captions-64ff2dfa47e9a.jpg?crop=1xw:0.84375xh;center,top&resize=1200:*"
         ),
         price = Price(233.0, "USD"),
         reviews = listOf("this,", "good"),
