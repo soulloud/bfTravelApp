@@ -50,6 +50,15 @@ class TripRepository(private val appContainer: AppContainer) {
         awaitClose()
     }.first()
 
+    suspend fun addDestination(trip: Trip, destination: Destination) = callbackFlow {
+        val tripRef = appContainer.firebaseStore.collection("trip").document(trip.tripId)
+        tripRef.update("destinations", FieldValue.arrayUnion(destination.destinationId))
+            .addOnSuccessListener { trySend(true) }
+            .addOnFailureListener{ trySend(false)}
+            .await()
+        awaitClose()
+    }.first()
+
     suspend fun deleteTrip(trip: Trip) = callbackFlow {
         appContainer.firebaseStore.collection("trip").document(trip.tripId)
             .delete()

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
+import com.beaconfire.travel.repo.ReviewRepository
 import com.beaconfire.travel.repo.TripRepository
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TripsViewModel(
-    private val tripRepository: TripRepository
+    private val tripRepository: TripRepository,
+    private val reviewRepository: ReviewRepository
 ) : ViewModel() {
 
     var tripUiState by mutableStateOf<TripUiState>(TripUiState.None)
@@ -26,8 +28,11 @@ class TripsViewModel(
     var currentDestinationList: List<Destination> = emptyList()
     val totalCost = MutableLiveData(0.0)
 
+    val testReviewRepoOutput = MutableLiveData("")
+
     init {
         loadTrips()
+        //testReviewRepo()
     }
 
     private fun loadTrips() {
@@ -90,12 +95,22 @@ class TripsViewModel(
         totalCost.value = cost
     }
 
+    fun testReviewRepo(){
+
+        viewModelScope.launch {
+            reviewRepository.addNewReview()
+        }
+    }
+
     companion object {
         private val TAG = TripsViewModel::class.java.simpleName
 
         val Factory = viewModelFactory {
             initializer {
-                TripsViewModel(mallApplication().container.tripRepository)
+                TripsViewModel(
+                    mallApplication().container.tripRepository,
+                    mallApplication().container.reviewRepository
+                )
             }
         }
     }
