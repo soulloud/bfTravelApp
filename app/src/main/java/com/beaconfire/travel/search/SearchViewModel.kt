@@ -1,17 +1,19 @@
 package com.beaconfire.travel.search
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.DestinationRepository
+import com.beaconfire.travel.utils.DestinationFilter
 import com.beaconfire.travel.utils.DestinationSort
+import com.beaconfire.travel.utils.filterBy
 import com.beaconfire.travel.utils.sort
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -19,20 +21,36 @@ class SearchViewModel(
     private val destinationRepository: DestinationRepository
 ) : ViewModel() {
 
-    var searchUiModel by mutableStateOf<SearchUiModel>(SearchUiModel.None)
+    private val _searchUiModel = MutableStateFlow(SearchUiModel())
+    var searchUiModel: StateFlow<SearchUiModel> = _searchUiModel
 
     fun search(keyword: String) {
-        searchUiModel = SearchUiModel.Searching
+        _searchUiModel.update {
+            it.copy(
+                searchUiState = SearchUiState.Searching,
+                filter = DestinationFilter.FilterByLocation(keyword)
+            )
+        }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                searchUiModel = try {
-                    val destinations = destinationRepository.searchDestination(keyword)
-                        .sort(DestinationSort.AlphabetAscending)
-                    SearchUiModel.SearchSucceed(destinations)
-                } catch (e: Exception) {
-                    SearchUiModel.SearchFailed
+                _searchUiModel.update {
+                    it.copy(
+                        searchUiState = SearchUiState.SearchSucceed,
+                        destinations = destinationRepository.getAllDestinations()
+                            .filterBy(it.filter)
+                            .sort(it.sort)
+                    )
                 }
             }
+        }
+    }
+
+    fun onSortChanged(sort: DestinationSort) {
+        _searchUiModel.update {
+            it.copy(
+                destinations = it.destinations.sort(sort),
+                sort = sort
+            )
         }
     }
 

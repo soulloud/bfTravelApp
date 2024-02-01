@@ -61,7 +61,7 @@ fun TagCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer),
+                    .background(if (enabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.onTertiary),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
