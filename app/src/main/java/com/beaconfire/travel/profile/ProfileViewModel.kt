@@ -1,3 +1,4 @@
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -25,6 +26,10 @@ class ProfileViewModel(
 
     init {
         fetchUserProfile()
+    }
+
+    fun onImageCaptured(uri: Uri) {
+        _profileUiModel.update { it.copy(capturedImageUri = uri) }
     }
 
     private fun fetchUserProfile() {

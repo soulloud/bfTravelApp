@@ -22,7 +22,6 @@ class ProfileRepository(private val appContainer: AppContainer) {
         awaitClose()
     }.first()
 
-
     suspend fun createProfile(profile: Profile): Profile? = callbackFlow {
         val profileRef = appContainer.firebaseStore.collection("profile").document()
         profileRef.set(profile.toProfileData())

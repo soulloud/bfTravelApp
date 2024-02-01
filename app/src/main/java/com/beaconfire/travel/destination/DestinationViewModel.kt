@@ -2,7 +2,6 @@ package com.beaconfire.travel.destination
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,13 +13,9 @@ import com.beaconfire.travel.repo.ReviewRepository
 import com.beaconfire.travel.repo.TripRepository
 import com.beaconfire.travel.repo.data.ReviewData
 import com.beaconfire.travel.repo.model.Destination
-import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.repo.model.Trip
 import com.beaconfire.travel.trips.TripUiState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -54,7 +49,7 @@ class DestinationViewModel(
         }
     }
 
-    private fun loadReview(){
+    private fun loadReview() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 //                reviewUiState = try {
@@ -68,19 +63,19 @@ class DestinationViewModel(
         }
     }
 
-    fun addToTrip(trip: Trip, destination: Destination){
+    fun addToTrip(trip: Trip, destination: Destination) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (!trip.destinations.any{ it.destinationId == destination.destinationId}){
+                if (!trip.destinations.any { it.destinationId == destination.destinationId }) {
                     tripRepository.addDestination(trip, destination)
                 }
             }
         }
     }
 
-    fun createNewReview(reviewData: ReviewData){
+    fun createNewReview(reviewData: ReviewData) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 reviewRepository.addNewReview(reviewData)
             }
         }

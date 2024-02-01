@@ -54,7 +54,7 @@ class TripRepository(private val appContainer: AppContainer) {
         val tripRef = appContainer.firebaseStore.collection("trip").document(trip.tripId)
         tripRef.update("destinations", FieldValue.arrayUnion(destination.destinationId))
             .addOnSuccessListener { trySend(true) }
-            .addOnFailureListener{ trySend(false)}
+            .addOnFailureListener { trySend(false) }
             .await()
         awaitClose()
     }.first()
