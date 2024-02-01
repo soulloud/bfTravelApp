@@ -48,7 +48,7 @@ class UserRepository(private val appContainer: AppContainer) {
         null
     )?.let {
         queryUser(it)?.let { userData ->
-            userData.profile?.let { appContainer.profileRepository.queryProfile(userData.profile) }
+            userData.profile?.let { appContainer.profileRepository.queryProfile(it) }
                 ?.let { profile ->
                     userData.toUser(profile).also { _loginUser.update { it } }
                 }
