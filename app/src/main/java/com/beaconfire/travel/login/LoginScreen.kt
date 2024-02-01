@@ -46,8 +46,8 @@ fun LoginScreen(
     loginViewModel: LoginViewModel,
     onNavigate: (Navigation) -> Unit,
 ) {
-    var email by remember { mutableStateOf("hh@gmail.com") }
-    var password by remember { mutableStateOf("123") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
@@ -124,7 +124,7 @@ fun LoginScreen(
 
         LaunchedEffect(loginUiModel.loginStatus) {
             when (loginUiModel.loginStatus) {
-                LoginStatus.AuthenticationSuccess -> scope.launch { onNavigate(Navigation.Main) }
+                LoginStatus.AuthenticationSuccess -> scope.launch { onNavigate(Navigation.Splash) }
                 else -> {}
             }
         }

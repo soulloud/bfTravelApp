@@ -4,19 +4,32 @@ import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.constant.Constant
 import com.beaconfire.travel.repo.data.UserData
 import com.beaconfire.travel.repo.model.Profile
+import com.beaconfire.travel.repo.model.User
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.tasks.await
 
 class UserRepository(private val appContainer: AppContainer) {
+    private val _loginUser = MutableStateFlow<User?>(null)
+    val loginUser: StateFlow<User?> = _loginUser
+
     suspend fun login(email: String, password: String) =
         queryUser(email, password)?.let { userData ->
             userData.profile?.let { appContainer.profileRepository.queryProfile(userData.profile) }
                 ?.let { profile ->
-                    userData.toUser(profile).also { persistUserId(userData.userId) }
+                    userData.toUser(profile).also { persistUserId(it) }
                 }
         }
+
+    fun logout() {
+        appContainer.userSharedPreferences.edit()
+            .remove(Constant.SP_USER_KEY_USER_ID).apply()
+        _loginUser.update { null }
+    }
 
     suspend fun register(email: String, displayName: String, password: String, profile: Profile) =
         appContainer.profileRepository.createProfile(profile)?.let { it ->
@@ -27,18 +40,20 @@ class UserRepository(private val appContainer: AppContainer) {
                     password = password,
                     profile = it.profileId
                 )
-            )?.toUser(profile)?.also { persistUserId(it.userId) }
+            )?.toUser(profile)?.also { persistUserId(it) }
         }
 
-    suspend fun getLoginUser() =
-        appContainer.userSharedPreferences.getString(Constant.SP_USER_KEY_USER_ID, null)?.let {
-            queryUser(it)?.let { userData ->
-                userData.profile?.let { appContainer.profileRepository.queryProfile(userData.profile) }
-                    ?.let { profile ->
-                        userData.toUser(profile)
-                    }
-            }
+    suspend fun getLoginUser() = _loginUser.value ?: appContainer.userSharedPreferences.getString(
+        Constant.SP_USER_KEY_USER_ID,
+        null
+    )?.let {
+        queryUser(it)?.let { userData ->
+            userData.profile?.let { appContainer.profileRepository.queryProfile(userData.profile) }
+                ?.let { profile ->
+                    userData.toUser(profile).also { _loginUser.update { it } }
+                }
         }
+    }
 
     private suspend fun createUser(userData: UserData) = callbackFlow {
         val userRef = appContainer.firebaseStore.collection("user").document()
@@ -73,9 +88,10 @@ class UserRepository(private val appContainer: AppContainer) {
         awaitClose()
     }.first()
 
-    private fun persistUserId(userId: String) {
+    private fun persistUserId(user: User) {
         appContainer.userSharedPreferences.edit()
-            .putString(Constant.SP_USER_KEY_USER_ID, userId).apply()
+            .putString(Constant.SP_USER_KEY_USER_ID, user.userId).apply()
+        _loginUser.update { user }
     }
 
     companion object {

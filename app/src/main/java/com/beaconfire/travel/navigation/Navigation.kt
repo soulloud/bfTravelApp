@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Search
@@ -69,6 +70,12 @@ sealed class Navigation(
         route = "settings",
         title = "Settings",
         icon = Icons.Default.Settings
+    )
+
+    data object Splash : Navigation(
+        route = "splash",
+        title = "Splash",
+        icon = Icons.Default.Navigation
     )
 
     data object Trips : Navigation(
