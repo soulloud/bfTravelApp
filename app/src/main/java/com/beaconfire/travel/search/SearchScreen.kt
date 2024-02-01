@@ -94,7 +94,8 @@ fun SearchScreen(onNavigate: (Navigation) -> Unit) {
                         itemsIndexed(searchUiModel.destinations) { _, destination ->
                             DestinationCard(
                                 destination = destination,
-                                image = destination.images[2]
+                                image = destination.images[2],
+                                onNavigate = onNavigate
                             )
                         }
                     }
@@ -209,4 +210,3 @@ private fun FilterDropdownMenuItem(
         }
     )
 }
-

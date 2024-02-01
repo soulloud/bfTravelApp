@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
  *     SectionScreen(title = "Title", sections = mockSections)
  */
 @Composable
-internal fun SectionScreen(
+fun SectionScreen(
     modifier: Modifier = Modifier,
     title: String,
     sections: List<Section>
@@ -55,7 +55,7 @@ internal fun SectionScreen(
 
     val sectionsListState = rememberLazyListState()
     val itemsListState = rememberLazyListState()
-    var selectedSectionIndex by remember { mutableStateOf(0) }
+    var selectedSectionIndex by remember { mutableIntStateOf(0) }
 
     Column(modifier) {
         Text(
