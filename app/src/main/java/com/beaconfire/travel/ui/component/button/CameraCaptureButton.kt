@@ -7,12 +7,14 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.beaconfire.travel.ext.createImageFile
@@ -49,7 +51,9 @@ fun CameraCaptureButton(
     }
 
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Button(onClick = {
+        Button(
+            modifier = Modifier.width(200.dp),
+            onClick = {
             val permissionCheckResult =
                 ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
             if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
@@ -58,7 +62,7 @@ fun CameraCaptureButton(
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }) {
-            Text(text = "Capture Image From Camera")
+            Text(text = "Capture from camera")
         }
     }
 }
