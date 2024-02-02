@@ -1,5 +1,6 @@
 package com.beaconfire.travel.settings
 
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,14 +16,11 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.Feedback
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,7 +36,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.beaconfire.travel.R
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.component.ProfileImage
 import com.beaconfire.travel.utils.CurrencyManager
@@ -61,8 +58,7 @@ fun SettingsScreen() {
         settingsUiModel.user?.let {
             SettingHeader(
                 user = it,
-                image = R.drawable.ic_profile_shuaige,
-                96
+                imageUri = settingsUiModel.profilePhotoUri
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -94,7 +90,7 @@ fun SettingsScreen() {
             }
         }
 
-        Spacer(modifier = Modifier.height(128.dp))
+        Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = { settingsViewModel.logout() },
             modifier = Modifier.fillMaxWidth()
@@ -109,14 +105,17 @@ fun SettingsScreen() {
 @Composable
 fun SettingHeader(
     user: User,
-    image: Int,
-    size: Int,
+    imageUri: Uri?
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ProfileImage(image = image, size = size)
+        ProfileImage(
+            modifier = Modifier
+                .size(256.dp)
+                .padding(bottom = 8.dp), imageUri = imageUri
+        )
         Text(text = user.displayName, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Text(text = user.email, fontSize = 16.sp, color = Color.Gray)
     }
