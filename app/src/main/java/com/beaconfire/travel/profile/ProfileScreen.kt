@@ -48,8 +48,6 @@ import com.beaconfire.travel.ui.component.review.ReviewCard
 fun ProfileScreen(profileViewModel: ProfileViewModel) {
     val profileUiModel by profileViewModel.profileUiModel.collectAsState()
     val reviewUiModel by profileViewModel.reviewUiModel.collectAsState()
-    var showEditProfile by remember { mutableStateOf(false) }
-    val showUploadedPhotos by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -77,11 +75,9 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
 
             GalleryPhotoPickerButton {
                 profileViewModel.onImageCaptured(it)
-                profileViewModel.setAsProfilePhoto()
             }
             CameraCaptureButton {
                 profileViewModel.onImageCaptured(it)
-                profileViewModel.setAsProfilePhoto()
             }
 
             Spacer(modifier = Modifier.height(16.dp))
