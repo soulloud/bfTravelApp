@@ -50,7 +50,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.beaconfire.travel.R
+import com.beaconfire.travel.constant.Constant
 import com.beaconfire.travel.ui.component.ProfileImage
 import com.beaconfire.travel.ui.component.button.CameraCaptureButton
 import com.beaconfire.travel.ui.component.button.GalleryPhotoPickerButton
@@ -257,7 +257,7 @@ fun ProfilePhotoUpdateBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(32.dp),
                 verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
-                itemsIndexed(MutableList(12) { R.drawable.ic_park }) { _, profilePhotoId ->
+                itemsIndexed(Constant.DEFAULT_USER_PROFILE_PHOTOS) { _, profilePhotoId ->
                     ProfileImage(modifier = Modifier.size(48.dp), imageId = profilePhotoId) {
                         profileViewModel.onImageCaptured(profilePhotoId)
                     }
