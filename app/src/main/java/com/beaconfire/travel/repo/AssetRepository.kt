@@ -1,5 +1,6 @@
 package com.beaconfire.travel.repo
 
+import android.graphics.Bitmap
 import android.net.Uri
 import com.beaconfire.travel.AppContainer
 import com.google.firebase.storage.StorageReference
@@ -7,6 +8,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 class AssetRepository(private val appContainer: AppContainer) {
@@ -18,6 +20,20 @@ class AssetRepository(private val appContainer: AppContainer) {
         val filename = "$timestamp.$fileExt"
         val storageRef = generateStorageReference(filename)
         storageRef.putFile(uri)
+            .addOnSuccessListener { trySend(filename.parseToFirebaseAsset()) }
+            .addOnFailureListener { trySend(null) }
+            .await()
+        awaitClose()
+    }.first()
+
+    suspend fun uploadImageAsset(bitmap: Bitmap) = callbackFlow {
+        val timestamp = System.currentTimeMillis()
+        val filename = "$timestamp.bmp"
+        val storageRef = generateStorageReference(filename)
+        val baos = ByteArrayOutputStream()
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        storageRef.putBytes(baos.toByteArray())
             .addOnSuccessListener { trySend(filename.parseToFirebaseAsset()) }
             .addOnFailureListener { trySend(null) }
             .await()

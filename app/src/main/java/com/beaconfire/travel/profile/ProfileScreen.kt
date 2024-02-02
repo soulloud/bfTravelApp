@@ -6,7 +6,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +18,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Reviews
@@ -45,6 +50,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.beaconfire.travel.R
 import com.beaconfire.travel.ui.component.ProfileImage
 import com.beaconfire.travel.ui.component.button.CameraCaptureButton
 import com.beaconfire.travel.ui.component.button.GalleryPhotoPickerButton
@@ -238,8 +244,28 @@ fun ProfilePhotoUpdateBottomSheet(
         Column(
             modifier = Modifier
                 .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 32.dp)
-                .fillMaxWidth()
+                .fillMaxSize()
         ) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                contentPadding = PaddingValues(
+                    start = 8.dp,
+                    end = 8.dp,
+                    top = 32.dp,
+                    bottom = 32.dp
+                ),
+                horizontalArrangement = Arrangement.spacedBy(32.dp),
+                verticalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                itemsIndexed(MutableList(12) { R.drawable.ic_park }) { _, profilePhotoId ->
+                    ProfileImage(modifier = Modifier.size(48.dp), imageId = profilePhotoId) {
+                        profileViewModel.onImageCaptured(profilePhotoId)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             GalleryPhotoPickerButton { profileViewModel.onImageCaptured(it) }
             CameraCaptureButton { profileViewModel.onImageCaptured(it) }
 
