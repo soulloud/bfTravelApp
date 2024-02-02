@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.mallApplication
-import com.beaconfire.travel.repo.DestinationRepository
 import com.beaconfire.travel.repo.model.DestinationFilter
 import com.beaconfire.travel.repo.model.DestinationSort
 import com.beaconfire.travel.repo.model.filterBy
@@ -21,9 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(FlowPreview::class)
-class SearchViewModel(
-    private val destinationRepository: DestinationRepository
-) : ViewModel() {
+class SearchViewModel(private val appContainer: AppContainer) : ViewModel() {
     private val _searchKeyword = MutableSharedFlow<String>(1)
 
     private val _searchUiModel = MutableStateFlow(SearchUiModel())
@@ -44,11 +42,13 @@ class SearchViewModel(
                             _searchUiModel.update {
                                 it.copy(
                                     searchUiState = SearchUiState.SearchSucceed,
-                                    destinations = destinationRepository.getAllDestinations()
+                                    destinations = appContainer.destinationRepository.getAllDestinations()
                                         .filterBy(it.filter)
                                         .sort(it.sort)
                                 )
                             }
+
+                            _searchUiModel.update { it.copy(reviews = appContainer.reviewRepository.getAllReviews()) }
                         }
                     }
                 }
@@ -73,9 +73,7 @@ class SearchViewModel(
         private val TAG = SearchViewModel::class.java.simpleName
 
         val Factory = viewModelFactory {
-            initializer {
-                SearchViewModel(mallApplication().container.destinationRepository)
-            }
+            initializer { SearchViewModel(mallApplication().container) }
         }
     }
 }

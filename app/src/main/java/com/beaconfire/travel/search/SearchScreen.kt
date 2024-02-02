@@ -95,6 +95,7 @@ fun SearchScreen(onNavigate: (Navigation) -> Unit) {
                             DestinationCard(
                                 destination = destination,
                                 image = destination.images[2],
+                                reviews = searchUiModel.reviews,
                                 onNavigate = onNavigate
                             )
                         }
@@ -127,7 +128,6 @@ fun SearchBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(modifier = Modifier.weight(3f)) {
-
                 OutlinedTextField(
                     value = query,
                     onValueChange = onQueryChanged,
@@ -154,27 +154,16 @@ fun SearchBar(
                     ),
                 )
             }
-            Box(modifier = Modifier.weight(1f)) {
-                Actions(searchViewModel = searchViewModel)
-            }
+            Box(modifier = Modifier.padding(end = 8.dp)) { Actions(searchViewModel = searchViewModel) }
         }
     }
 }
 
 @Composable
-private fun Actions(
-    searchViewModel: SearchViewModel
-) {
+private fun Actions(searchViewModel: SearchViewModel) {
     var expanded by remember { mutableStateOf(false) }
-
-    Box(
-        Modifier
-            .wrapContentSize(Alignment.TopEnd)
-    ) {
-
-        BlueIconButton(
-            onClick = { expanded = true }
-        )
+    Box(Modifier.wrapContentSize(Alignment.TopEnd)) {
+        BlueIconButton(onClick = { expanded = true })
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }) {

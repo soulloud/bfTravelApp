@@ -59,7 +59,7 @@ fun AppScreen(appViewModel: AppViewModel) {
     if (appUiModel.currentScreen == Navigation.Splash) {
         SplashScreen()
         LaunchedEffect(null) {
-            delay(5000)
+            delay(3000)
             appViewModel.navigateTo(Navigation.Login)
         }
     } else if (loginUser != null) {
