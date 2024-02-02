@@ -1,6 +1,5 @@
 package com.beaconfire.travel.trips
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -71,16 +71,8 @@ fun TripsScreen() {
                 .padding(8.dp)
                 .weight(1.0f)
         ) {
-            items(tripUiModel.trips.size) {
-                TripCard(trip = tripUiModel.trips[it],
-                    {
-                        tripsViewModel.removeDestination(
-                            tripUiModel.trips[it],
-                            tripUiModel.trips[it].destinations[it]
-                        )
-                    },
-                    { tripsViewModel.toggleTripVisibility(tripUiModel.trips[it]) },
-                    { tripsViewModel.deleteTrip(tripUiModel.trips[it]) })
+            itemsIndexed(tripUiModel.trips) { _, trip ->
+                TripCard(tripsViewModel = tripsViewModel, trip = trip)
             }
         }
 
@@ -108,10 +100,8 @@ fun TripsScreen() {
 
 @Composable
 fun TripCard(
+    tripsViewModel: TripsViewModel,
     trip: Trip,
-    onClickDeleteDestination: () -> Unit,
-    onClickChangeVisibility: () -> Unit,
-    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -129,17 +119,17 @@ fun TripCard(
             Text(text = "Duration: ${trip.duration}", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(4.dp))
             trip.destinations.take(3).forEach {
-                DestinationItemCard(it, onClick = onClickDeleteDestination)
+                DestinationItemCard(it, onClick = { tripsViewModel.removeDestination(trip, it) })
             }
             Spacer(modifier = Modifier.height(4.dp))
-            TripVisibilityCard(trip, onClickChangeVisibility)
+            TripVisibilityCard(trip) { tripsViewModel.toggleTripVisibility(trip) }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Participants: ${trip.numPeople}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Button(onClick = onClick) {
+            Button(onClick = { tripsViewModel.deleteTrip(trip) }) {
                 Text(text = "Delete Trip")
             }
         }
