@@ -26,7 +26,7 @@ import com.beaconfire.travel.repo.model.Trip
 fun PickTripDialog(
     trips: List<Trip>,
     destination: Destination
-){
+) {
     var showDialog by remember { mutableStateOf(true) }
     var selectedTrip by remember { mutableStateOf<Trip?>(null) }
 

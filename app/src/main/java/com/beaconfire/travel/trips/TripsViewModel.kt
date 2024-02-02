@@ -1,15 +1,11 @@
 package com.beaconfire.travel.trips
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
-import com.beaconfire.travel.repo.ReviewRepository
 import com.beaconfire.travel.repo.TripRepository
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Trip
@@ -34,7 +30,7 @@ class TripsViewModel(
     }
 
     private fun loadTrips() {
-        _tripUiModel.update { it.copy( tripUiState = TripUiState.Loading) }
+        _tripUiModel.update { it.copy(tripUiState = TripUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _tripUiModel.update {
@@ -47,11 +43,15 @@ class TripsViewModel(
         }
     }
 
-    fun createTrip() {
+    fun createTrip(
+        title: String,
+        description: String,
+        numPeople: Long,
+        duration: String,
+        privacy: String,
+    ) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                tripRepository.createTrip()
-            }
+            withContext(Dispatchers.IO) { tripRepository.createTrip(title, description, numPeople, duration, privacy) }
         }
         loadTrips()
     }

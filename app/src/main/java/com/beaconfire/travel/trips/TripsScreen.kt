@@ -1,10 +1,7 @@
 package com.beaconfire.travel.trips
 
 import android.util.Log
-import android.widget.Space
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,16 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -33,7 +29,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -47,9 +42,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,9 +66,11 @@ fun TripsScreen() {
                 contentScale = ContentScale.FillHeight
             )
     ) {
-        LazyRow(modifier = Modifier
-            .padding(8.dp)
-            .weight(1.0f)) {
+        LazyRow(
+            modifier = Modifier
+                .padding(8.dp)
+                .weight(1.0f)
+        ) {
             items(tripUiModel.trips.size) {
                 TripCard(trip = tripUiModel.trips[it],
                     {
@@ -88,7 +85,7 @@ fun TripsScreen() {
         }
 
         if (showSheet) {
-            TripCreationContent { showSheet = false }
+            TripCreationContent(tripsViewModel = tripsViewModel) { showSheet = false }
         }
 
         FloatingActionButton(
@@ -186,7 +183,10 @@ fun TripVisibilityCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TripCreationContent(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
+fun TripCreationContent(
+    modifier: Modifier = Modifier,
+    tripsViewModel: TripsViewModel,
+    onDismiss: () -> Unit) {
     val modalBottomSheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
@@ -228,6 +228,7 @@ fun TripCreationContent(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
             OutlinedTextField(
                 label = { Text("Number of People") },
                 value = numOfPeople,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 onValueChange = { numOfPeople = it },
                 singleLine = true,
                 leadingIcon = {
@@ -250,8 +251,18 @@ fun TripCreationContent(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
             PrivacyRadioButtons { privacy = it }
             Spacer(modifier = Modifier.height(8.dp))
             Button(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
-                onClick = { Log.d("Athena", "save\n ${tripName.text} \n ${description.text} \n ${numOfPeople.text} \n ${duration.text} \n $privacy") }) {
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp),
+                onClick = {
+                    tripsViewModel.createTrip(
+                        title = tripName.text,
+                        description = description.text,
+                        numPeople = numOfPeople.text.toLong(),
+                        duration = duration.text,
+                        privacy = privacy)
+                    onDismiss()
+                }) {
                 Text(text = "Save")
             }
         }
@@ -261,7 +272,7 @@ fun TripCreationContent(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
 @Composable
 fun PrivacyRadioButtons(onSelectedChanged: (String) -> Unit) {
     val radioOptions = listOf("Private", "Public")
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0] ) }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
     Row {
         radioOptions.forEach { text ->
             Row(modifier = Modifier

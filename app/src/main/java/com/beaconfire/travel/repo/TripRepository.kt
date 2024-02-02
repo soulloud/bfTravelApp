@@ -20,13 +20,21 @@ class TripRepository(private val appContainer: AppContainer) {
         }
     } ?: emptyList()
 
-    suspend fun createTrip() = appContainer.userRepository.getLoginUser()?.let {
+    suspend fun createTrip(
+        title: String,
+        description: String,
+        numPeople: Long,
+        duration: String,
+        privacy: String,
+    ) = appContainer.userRepository.getLoginUser()?.let {
         callbackFlow {
             val tripData = TripData(
                 owner = it.userId,
-                duration = "duration",
-                title = "title",
-                visibility = Trip.Visibility.Public().value
+                duration = duration,
+                title = title,
+                description = description,
+                numPeople = numPeople,
+                visibility = privacy
             )
             val tripRef = appContainer.firebaseStore.collection("trip").document()
             tripRef.set(tripData)
