@@ -24,7 +24,7 @@ import com.beaconfire.travel.repo.model.Review
 @Composable
 fun ReviewCard(
     review: Review
-){
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

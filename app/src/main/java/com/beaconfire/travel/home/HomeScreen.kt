@@ -211,9 +211,11 @@ fun DestinationCard(
             .padding(4.dp)
             .fillMaxWidth()
             .clickable {
-                DestinationManager.getInstance().setDestination(destination)
+                DestinationManager
+                    .getInstance()
+                    .setDestination(destination)
                 onNavigate(Navigation.DestinationDetail)
-                       },
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary)) {

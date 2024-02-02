@@ -390,7 +390,8 @@ fun AddToTripBottomSheet(
                 TripUiState.LoadSucceed -> {
                     LazyColumn {
                         itemsIndexed(tripUiModel.trips) { _, trip ->
-                            val checked = trip.destinations.any { it.destinationId == destination.destinationId }
+                            val checked =
+                                trip.destinations.any { it.destinationId == destination.destinationId }
                             Row(
                                 modifier = Modifier.clickable {
                                     if (!checked) {
@@ -399,7 +400,8 @@ fun AddToTripBottomSheet(
                                         tripsViewModel.removeDestination(trip, destination)
                                     }
                                 },
-                                verticalAlignment = Alignment.CenterVertically) {
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Checkbox(
                                     checked = checked,
                                     onCheckedChange = {
