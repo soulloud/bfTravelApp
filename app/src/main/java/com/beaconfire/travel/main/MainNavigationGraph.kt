@@ -22,14 +22,14 @@ fun MainNavigationGraph(
     navController: NavHostController,
     startDestination: Navigation = Navigation.Home,
 ) {
-    val onNavigate: (Navigation) -> Unit = {
-        when (it) {
+    val onNavigate: (Navigation) -> Unit = { navigation ->
+        when (navigation) {
             Navigation.Back -> {
                 navController.popBackStack()
             }
 
             else -> {
-                navController.navigate(it)
+                navController.navigate(navigation)
             }
         }
     }
@@ -41,7 +41,7 @@ fun MainNavigationGraph(
         composable(route = Navigation.DestinationDetail.route) {
             DestinationDetailScreen(
                 tripsViewModel = viewModel(factory = TripsViewModel.Factory),
-                onNavigate
+                onNavigate = onNavigate,
             )
         }
         composable(route = Navigation.Home.route) {

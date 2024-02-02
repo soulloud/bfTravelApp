@@ -70,6 +70,16 @@ class TripsViewModel(
         getTotalPrice()
     }
 
+    fun addDestination(trip: Trip, destination: Destination) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                tripRepository.addDestination(trip, destination)
+            }
+        }
+        loadTrips()
+        setCurrentDestinationList(trip)
+    }
+
     fun removeDestination(trip: Trip, destination: Destination) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {

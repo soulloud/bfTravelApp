@@ -2,6 +2,7 @@ package com.beaconfire.travel.destination
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +61,7 @@ import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.trips.TripUiState
 import com.beaconfire.travel.trips.TripsViewModel
+import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -68,7 +71,7 @@ import androidx.compose.material3.rememberModalBottomSheetState as rememberModal
 @Composable
 fun DestinationDetailScreen(
     tripsViewModel: TripsViewModel,
-    onNavigate: (Navigation) -> Unit
+    onNavigate: (Navigation) -> Unit,
 ) {
     var showSheet by remember { mutableStateOf(false) }
     LazyColumn(
@@ -77,13 +80,17 @@ fun DestinationDetailScreen(
             .padding(bottom = 96.dp)
     ) {
         item {
-            DestinationImageCard(onNavigate)
-            DestinationInfoCard(MockData.destination) { showSheet = true }
-            DescriptionCard(MockData.destination)
-            ImagePager(MockData.destination)
+            DestinationImageCard(DestinationManager.getInstance().destination, onNavigate)
+            DestinationInfoCard(DestinationManager.getInstance().destination) { showSheet = true }
+            DescriptionCard(DestinationManager.getInstance().destination)
+            ImagePager(DestinationManager.getInstance().destination)
             ActivityCard()
             if (showSheet) {
-                AddToTripBottomSheet(tripsViewModel) { showSheet = false }
+                AddToTripBottomSheet(
+                    tripsViewModel,
+                    DestinationManager.getInstance().destination,
+                    onNavigate
+                ) { showSheet = false }
             }
         }
     }
@@ -186,7 +193,6 @@ fun DescriptionCard(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ImagePager(destination: Destination) {
-    // Remember a PagerState
     val pagerState = rememberPagerState()
 
     Card(
@@ -204,7 +210,7 @@ fun ImagePager(destination: Destination) {
                 .height(200.dp)
         ) {
             HorizontalPager(
-                count = destination.images.size,
+                count = destination.images.size - 1,
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -212,7 +218,7 @@ fun ImagePager(destination: Destination) {
                 Box {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(destination.images[it])
+                            .data(destination.images[it + 1])
                             .build(),
                         contentDescription = null,
                         modifier = Modifier
@@ -322,12 +328,13 @@ fun CategoryCard(title: String, description: String, imageResId: Int) {
 
 @Composable
 fun DestinationImageCard(
+    destination: Destination,
     onNavigate: (Navigation) -> Unit
 ) {
     Box {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data("https://static.independent.co.uk/s3fs-public/thumbnails/image/2014/03/25/12/eiffel.jpg")
+                .data(destination.images.first())
                 .build(),
             contentDescription = "Destination Image",
             modifier = Modifier
@@ -351,6 +358,8 @@ fun DestinationImageCard(
 @Composable
 fun AddToTripBottomSheet(
     tripsViewModel: TripsViewModel,
+    destination: Destination,
+    onNavigate: (Navigation) -> Unit,
     onDismiss: () -> Unit
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState1()
@@ -359,11 +368,12 @@ fun AddToTripBottomSheet(
         sheetState = modalBottomSheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
-        val tripUiState = tripsViewModel.tripUiState
+        val context = LocalContext.current
+        val tripUiModel by tripsViewModel.tripUiModel.collectAsState()
         Column(modifier = Modifier.padding(32.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(modifier = Modifier.weight(1.0f), text = "Add Trip To:")
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { onNavigate(Navigation.Trips) }) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = null,
@@ -372,12 +382,29 @@ fun AddToTripBottomSheet(
                 }
             }
             Divider(modifier = Modifier.padding(4.dp))
-            when (tripUiState) {
-                is TripUiState.LoadSucceed -> {
+            when (tripUiModel.tripUiState) {
+                TripUiState.LoadSucceed -> {
                     LazyColumn {
-                        itemsIndexed(tripUiState.trips) { _, trip ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Checkbox(checked = false, onCheckedChange = {})
+                        itemsIndexed(tripUiModel.trips) { _, trip ->
+                            val checked = trip.destinations.any { it.destinationId == destination.destinationId }
+                            Row(
+                                modifier = Modifier.clickable {
+                                    if (!checked) {
+                                        tripsViewModel.addDestination(trip, destination)
+                                    } else {
+                                        tripsViewModel.removeDestination(trip, destination)
+                                    }
+                                },
+                                verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(
+                                    checked = checked,
+                                    onCheckedChange = {
+                                        if (it) {
+                                            tripsViewModel.addDestination(trip, destination)
+                                        } else {
+                                            tripsViewModel.removeDestination(trip, destination)
+                                        }
+                                    })
                                 Text(text = trip.title)
                             }
                         }
@@ -387,7 +414,7 @@ fun AddToTripBottomSheet(
                 else -> {}
             }
             Divider(modifier = Modifier.padding(4.dp))
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = onDismiss) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         modifier = Modifier.padding(end = 4.dp),
