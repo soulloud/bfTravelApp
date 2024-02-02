@@ -3,6 +3,7 @@ package com.beaconfire.travel.ui.component
 import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -16,11 +17,14 @@ import coil.compose.rememberAsyncImagePainter
 fun ProfileImage(
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier.size(96.dp),
     imageUri: Uri?,
+    onClick: (() -> Unit)? = null,
 ) {
     Image(
         painter = rememberAsyncImagePainter(imageUri),
         contentDescription = "Profile",
         contentScale = ContentScale.Crop,
-        modifier = modifier.clip(shape = CircleShape)
+        modifier = modifier
+            .clip(shape = CircleShape)
+            .clickable { onClick?.let { it() } }
     )
 }
