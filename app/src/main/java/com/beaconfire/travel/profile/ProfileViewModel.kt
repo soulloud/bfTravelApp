@@ -1,9 +1,16 @@
 import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.AppContainer
+import com.beaconfire.travel.destination.ReviewUiModel
+import com.beaconfire.travel.destination.ReviewUiState
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.profile.ProfileUiModel
 import com.beaconfire.travel.profile.ProfileUiModelStatus
@@ -23,8 +30,13 @@ class ProfileViewModel(
         MutableStateFlow(ProfileUiModel(status = ProfileUiModelStatus.None, null))
     val profileUiModel: StateFlow<ProfileUiModel> = _profileUiModel.asStateFlow()
 
+    private val _reviewUiModel =
+        MutableStateFlow(ReviewUiModel(reviewUiState = ReviewUiState.None))
+    val reviewUiModel = _reviewUiModel.asStateFlow()
+
     init {
         fetchUserProfile()
+        loadReviews()
     }
 
     fun onImageCaptured(uri: Uri) {
@@ -53,6 +65,14 @@ class ProfileViewModel(
         }
     }
 
+    fun updateName(newName: String){
+        viewModelScope.launch {
+            val profile = _profileUiModel.value.profile!!.copy(fullName = newName)
+            appContainer.profileRepository.updateProfile(profile)
+            fetchUserProfile()
+        }
+    }
+
     private fun fetchUserProfile() {
         _profileUiModel.update { it.copy(ProfileUiModelStatus.Loading) }
         viewModelScope.launch {
@@ -70,6 +90,28 @@ class ProfileViewModel(
                     }
                 } else {
                     _profileUiModel.update { it.copy(ProfileUiModelStatus.LoadFailed) }
+                }
+            }
+        }
+    }
+
+    private fun loadReviews(){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                val user = appContainer.userRepository.getLoginUser()
+                if (user != null){
+                    val reviews = appContainer.reviewRepository.getAllReviewsOfCurrentUser()
+                    _reviewUiModel.update {
+                        it.copy(
+                            user = user,
+                            reviews = reviews,
+                            reviewUiState = ReviewUiState.LoadSucceedByUser
+                        )
+                    }
+                } else {
+                    _reviewUiModel.update {
+                        it.copy(reviewUiState = ReviewUiState.LoadFailed)
+                    }
                 }
             }
         }

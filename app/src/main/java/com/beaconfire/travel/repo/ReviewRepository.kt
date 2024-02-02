@@ -1,5 +1,6 @@
 package com.beaconfire.travel.repo
 
+import android.util.Log
 import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.repo.data.ReviewData
 import com.beaconfire.travel.repo.model.Destination
@@ -24,6 +25,7 @@ class ReviewRepository(private val appContainer: AppContainer) {
 
     suspend fun getAllReviewsOfCurrentUser(): List<Review> {
         val userId = getUserInfo()?.userId
+        Log.d("test", userId!!)
         return queryReviewsByCondition(
             "owner", userId!!
         ).map {
@@ -32,18 +34,6 @@ class ReviewRepository(private val appContainer: AppContainer) {
     }
 
     suspend fun addNewReview(reviewData: ReviewData) = callbackFlow {
-
-        val userId = getUserInfo()?.userId
-//        val reviewData = ReviewData(
-//            reviewId = "3",
-//            destination = "Jh37jrgWHfvFNO3chG9t",
-//            score = 5.0,
-//            title = "Fantastic Place",
-//            description = "Highly recommend this destination!",
-//            timestamp = "2022-03-10T15:45:00",
-//            owner = "fbZxm70A90ORSi5D86cC"
-//        )
-
         appContainer.firebaseStore.collection("review")
             .add(reviewData)
             .addOnSuccessListener { trySend(true) }
