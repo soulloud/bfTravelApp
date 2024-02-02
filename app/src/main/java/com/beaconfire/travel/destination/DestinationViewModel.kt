@@ -1,8 +1,5 @@
 package com.beaconfire.travel.destination
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -62,10 +59,11 @@ class DestinationViewModel(
         _reviewUiModel.update { it.copy( reviewUiState = ReviewUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                val reviews = reviewRepository.getAllReviewsOnCurrentDestination(destination)
                 _reviewUiModel.update {
                     it.copy(
                         reviewUiState = ReviewUiState.LoadSucceedByDestination,
-                        reviews = reviewRepository.getAllReviewsOnCurrentDestination(destination)
+                        reviews = reviews
                     )
                 }
             }
