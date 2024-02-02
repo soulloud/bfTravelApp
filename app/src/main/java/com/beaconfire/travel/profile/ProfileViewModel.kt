@@ -11,6 +11,7 @@ import com.beaconfire.travel.ext.drawableToBitmap
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.profile.ProfileUiModel
 import com.beaconfire.travel.profile.ProfileUiModelStatus
+import com.beaconfire.travel.repo.model.Profile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -80,9 +81,8 @@ class ProfileViewModel(
         }
     }
 
-    fun updateName(newName: String){
+    fun updateProfile(profile: Profile) {
         viewModelScope.launch {
-            val profile = _profileUiModel.value.profile!!.copy(fullName = newName)
             appContainer.profileRepository.updateProfile(profile)
             fetchUserProfile()
         }
