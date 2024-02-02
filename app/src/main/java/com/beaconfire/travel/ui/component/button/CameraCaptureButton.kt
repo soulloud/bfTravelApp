@@ -54,14 +54,14 @@ fun CameraCaptureButton(
         Button(
             modifier = Modifier.width(200.dp),
             onClick = {
-            val permissionCheckResult =
-                ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-            if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                cameraLauncher.launch(uri)
-            } else {
-                permissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }) {
+                val permissionCheckResult =
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                    cameraLauncher.launch(uri)
+                } else {
+                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+            }) {
             Text(text = "Capture from camera")
         }
     }

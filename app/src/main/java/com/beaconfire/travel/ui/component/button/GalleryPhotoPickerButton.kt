@@ -24,8 +24,9 @@ fun GalleryPhotoPickerButton(onPhotoPicked: OnPhotoPicked) {
     Column {
         Button(
             modifier = Modifier.width(200.dp),
-            onClick = { launcher.launch("image/*")
-        }) {
+            onClick = {
+                launcher.launch("image/*")
+            }) {
             Text(text = "Pick from library")
         }
     }
