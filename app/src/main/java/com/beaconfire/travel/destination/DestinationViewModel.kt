@@ -28,7 +28,6 @@ class DestinationViewModel(
     private val destinationRepository: DestinationRepository,
     private val tripRepository: TripRepository,
     private val reviewRepository: ReviewRepository,
-    //private val destination: Destination
 ) : ViewModel() {
 
     private val _tripUiModel = MutableStateFlow(TripUiModel())
@@ -48,10 +47,11 @@ class DestinationViewModel(
         _tripUiModel.update { it.copy( tripUiState = TripUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                val allTrips = tripRepository.getAllTrips()
                 _tripUiModel.update {
                     it.copy(
                         tripUiState = TripUiState.LoadSucceed,
-                        trips = tripRepository.getAllTrips()
+                        trips = allTrips
                     )
                 }
             }
@@ -76,7 +76,9 @@ class DestinationViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 if (!trip.destinations.any { it.destinationId == destination.destinationId }) {
-                    tripRepository.addDestination(trip, destination)
+                    if (tripRepository.addDestination(trip, destination)) {
+                        loadTrips()
+                    }
                 }
             }
         }
@@ -99,7 +101,6 @@ class DestinationViewModel(
                     mallApplication().container.destinationRepository,
                     mallApplication().container.tripRepository,
                     mallApplication().container.reviewRepository
-                    //destination = Destination()
                 )
             }
         }

@@ -1,8 +1,8 @@
 package com.beaconfire.travel.destination
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,22 +17,28 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,65 +53,54 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.trips.TripUiState
+import com.beaconfire.travel.trips.TripsViewModel
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import java.util.Locale
+import androidx.compose.material3.rememberModalBottomSheetState as rememberModalBottomSheetState1
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DestinationDetailScreen(onNavigate: (Navigation) -> Unit) {
-
-    val destinationViewModel: DestinationViewModel = viewModel(factory = DestinationViewModel.Factory)
-    //val reviewUiState = destinationViewModel.reviewUiState
-    val destination = DestinationManager.getInstance().destination
-
-    Scaffold(
-        floatingActionButton = {
-            // Floating Action Button
-            FloatingActionButton(
-                onClick = { /* Handle FAB click here */ },
-                modifier = Modifier
-                    .padding(bottom = 70.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = null)
-            }
-        },
-        content = {
-            // Main content of the screen
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 96.dp)
-            ) {
-                item {
-                    DestinationImageCard(onNavigate, destination)
-                    DestinationInfoCard(destination)
-                    DescriptionCard(destination)
-                    ImagePager(destination)
-                    ActivityCard(destination)
-                    //   SectionScreen()
-                }
+fun DestinationDetailScreen(
+    tripsViewModel: TripsViewModel,
+    onNavigate: (Navigation) -> Unit,
+) {
+    var showSheet by remember { mutableStateOf(false) }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 96.dp)
+    ) {
+        item {
+            DestinationImageCard(DestinationManager.getInstance().destination, onNavigate)
+            DestinationInfoCard(DestinationManager.getInstance().destination) { showSheet = true }
+            DescriptionCard(DestinationManager.getInstance().destination)
+            ImagePager(DestinationManager.getInstance().destination)
+            ActivityCard()
+            if (showSheet) {
+                AddToTripBottomSheet(
+                    tripsViewModel,
+                    DestinationManager.getInstance().destination,
+                    onNavigate
+                ) { showSheet = false }
             }
         }
-    )
+    }
+
 }
 
 @Composable
 fun DestinationInfoCard(
-    destination: Destination
+    destination: Destination,
+    onAddToTrip: () -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -139,8 +134,7 @@ fun DestinationInfoCard(
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(144.dp))
-            Column {
+            Column(modifier = Modifier.weight(1.0f), horizontalAlignment = Alignment.End) {
                 Text(
                     text = "$${destination.price.value}",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
@@ -151,6 +145,10 @@ fun DestinationInfoCard(
                     text = "Per person",
                     style = MaterialTheme.typography.bodyLarge
                 )
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = onAddToTrip) {
+                    Text(text = "Add to Trip")
+                }
             }
         }
     }
@@ -195,7 +193,6 @@ fun DescriptionCard(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ImagePager(destination: Destination) {
-    // Remember a PagerState
     val pagerState = rememberPagerState()
 
     Card(
@@ -213,7 +210,7 @@ fun ImagePager(destination: Destination) {
                 .height(200.dp)
         ) {
             HorizontalPager(
-                count = destination.images.size,
+                count = destination.images.size - 1,
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -221,7 +218,7 @@ fun ImagePager(destination: Destination) {
                 Box {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(destination.images[it])
+                            .data(destination.images[it + 1])
                             .build(),
                         contentDescription = null,
                         modifier = Modifier
@@ -237,7 +234,7 @@ fun ImagePager(destination: Destination) {
 }
 
 @Composable
-fun ActivityCard(destination: Destination) {
+fun ActivityCard() {
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -253,7 +250,7 @@ fun ActivityCard(destination: Destination) {
                 .padding(16.dp)
         ) {
             Text(
-                text = "EXPERIENCE ${destination.name.uppercase()}, THE LAND OF ENCHANTMENT",
+                text = "EXPERIENCE HERE, THE LAND OF ENCHANTMENT",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 color = Color.Black
             )
@@ -331,13 +328,13 @@ fun CategoryCard(title: String, description: String, imageResId: Int) {
 
 @Composable
 fun DestinationImageCard(
-    onNavigate: (Navigation) -> Unit,
-    destination: Destination
+    destination: Destination,
+    onNavigate: (Navigation) -> Unit
 ) {
     Box {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(destination.images[0])
+                .data(destination.images.first())
                 .build(),
             contentDescription = "Destination Image",
             modifier = Modifier
@@ -357,7 +354,78 @@ fun DestinationImageCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReviewList(){
+fun AddToTripBottomSheet(
+    tripsViewModel: TripsViewModel,
+    destination: Destination,
+    onNavigate: (Navigation) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val modalBottomSheetState = rememberModalBottomSheetState1()
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = modalBottomSheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
+        val context = LocalContext.current
+        val tripUiModel by tripsViewModel.tripUiModel.collectAsState()
+        Column(modifier = Modifier.padding(32.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(modifier = Modifier.weight(1.0f), text = "Add Trip To:")
+                IconButton(onClick = { onNavigate(Navigation.Trips) }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            Divider(modifier = Modifier.padding(4.dp))
+            when (tripUiModel.tripUiState) {
+                TripUiState.LoadSucceed -> {
+                    LazyColumn {
+                        itemsIndexed(tripUiModel.trips) { _, trip ->
+                            val checked = trip.destinations.any { it.destinationId == destination.destinationId }
+                            Row(
+                                modifier = Modifier.clickable {
+                                    if (!checked) {
+                                        tripsViewModel.addDestination(trip, destination)
+                                    } else {
+                                        tripsViewModel.removeDestination(trip, destination)
+                                    }
+                                },
+                                verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(
+                                    checked = checked,
+                                    onCheckedChange = {
+                                        if (it) {
+                                            tripsViewModel.addDestination(trip, destination)
+                                        } else {
+                                            tripsViewModel.removeDestination(trip, destination)
+                                        }
+                                    })
+                                Text(text = trip.title)
+                            }
+                        }
+                    }
+                }
 
+                else -> {}
+            }
+            Divider(modifier = Modifier.padding(4.dp))
+            Button(onClick = onDismiss) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        modifier = Modifier.padding(end = 4.dp),
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(modifier = Modifier.fillMaxWidth(), text = "Done")
+                }
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
 }
