@@ -116,6 +116,7 @@ fun rememberExoPlayer(context: Context, videoResId: Int): ExoPlayer {
         setMediaItem(mediaItem)
         prepare()
         playWhenReady = true
+        volume = 0.0f
         repeatMode = Player.REPEAT_MODE_ONE
     }
 
