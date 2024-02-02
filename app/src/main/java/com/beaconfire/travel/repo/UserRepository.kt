@@ -76,7 +76,7 @@ class UserRepository(private val appContainer: AppContainer) {
         awaitClose()
     }.first()
 
-    private suspend fun queryUser(userId: String) = callbackFlow {
+    suspend fun queryUser(userId: String) = callbackFlow {
         appContainer.firebaseStore.collection("user")
             .document(userId)
             .get()

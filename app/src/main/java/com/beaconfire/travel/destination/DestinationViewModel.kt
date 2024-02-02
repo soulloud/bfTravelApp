@@ -1,16 +1,17 @@
 package com.beaconfire.travel.destination
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.mallApplication
-import com.beaconfire.travel.repo.DestinationRepository
-import com.beaconfire.travel.repo.ReviewRepository
-import com.beaconfire.travel.repo.TripRepository
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.repo.model.Trip
+import com.beaconfire.travel.repo.model.sort
 import com.beaconfire.travel.trips.TripUiModel
 import com.beaconfire.travel.trips.TripUiState
 import com.beaconfire.travel.utils.DestinationManager
@@ -22,9 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class DestinationViewModel(
-    private val destinationRepository: DestinationRepository,
-    private val tripRepository: TripRepository,
-    private val reviewRepository: ReviewRepository,
+    private val appContainer: AppContainer
 ) : ViewModel() {
 
     private val _tripUiModel = MutableStateFlow(TripUiModel())
@@ -44,7 +43,7 @@ class DestinationViewModel(
         _tripUiModel.update { it.copy( tripUiState = TripUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val allTrips = tripRepository.getAllTrips()
+                val allTrips = appContainer.tripRepository.getAllTrips()
                 _tripUiModel.update {
                     it.copy(
                         tripUiState = TripUiState.LoadSucceed,
@@ -55,23 +54,35 @@ class DestinationViewModel(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun createNewReview(review: Review) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                reviewRepository.addNewReview(review)
+                appContainer.reviewRepository.addNewReview(review)
+            }
+            val reviews = (_reviewUiModel.value.reviews + review.copy(
+                title = appContainer.userRepository.getLoginUser()?.displayName ?: ""
+            )).sort()
+            _reviewUiModel.update {
+                it.copy(
+                    reviewUiState = ReviewUiState.LoadSucceedByDestination,
+                    reviews = reviews
+                )
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun loadReview() {
         _reviewUiModel.update { it.copy(reviewUiState = ReviewUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val reviews = reviewRepository.getAllReviewsOnCurrentDestination(destination)
+                val reviews =
+                    appContainer.reviewRepository.getAllReviewsOnCurrentDestination(destination)
                 _reviewUiModel.update {
                     it.copy(
                         reviewUiState = ReviewUiState.LoadSucceedByDestination,
-                        reviews = reviews
+                        reviews = reviews.sort()
                     )
                 }
             }
@@ -82,7 +93,7 @@ class DestinationViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 if (!trip.destinations.any { it.destinationId == destination.destinationId }) {
-                    if (tripRepository.addDestination(trip, destination)) {
+                    if (appContainer.tripRepository.addDestination(trip, destination)) {
                         loadTrips()
                     }
                 }
@@ -95,11 +106,7 @@ class DestinationViewModel(
 
         val Factory = viewModelFactory {
             initializer {
-                DestinationViewModel(
-                    mallApplication().container.destinationRepository,
-                    mallApplication().container.tripRepository,
-                    mallApplication().container.reviewRepository
-                )
+                DestinationViewModel(mallApplication().container)
             }
         }
     }

@@ -68,7 +68,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.6")
 
     // material
-    implementation("androidx.compose.material3:material3:1.1.2")
+    implementation("androidx.compose.material3:material3:1.2.0-rc01")
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
 
     // Retrofit

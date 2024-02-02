@@ -17,11 +17,15 @@ class ReviewRepository(private val appContainer: AppContainer) {
 
     suspend fun getAllReviewsOnCurrentDestination(destination: Destination): List<Review> {
         val destinationId = destination.destinationId
-        return queryReviewsByCondition(
-            "destination", destinationId!!
-        ).map {
-            it.toReview()
-        }
+        return queryReviewsByCondition("destination", destinationId!!)
+            .map { it.toReview() }
+            .map {
+                it.copy(title = it.owner.let { reviewerId ->
+                    appContainer.userRepository.queryUser(
+                        reviewerId
+                    )?.displayName
+                } ?: "Unknown")
+            }
     }
 
     suspend fun getAllReviewsOfCurrentUser(): List<Review> {
@@ -35,12 +39,16 @@ class ReviewRepository(private val appContainer: AppContainer) {
     }
 
     suspend fun addNewReview(review: Review) = callbackFlow {
-        val documentRef = appContainer.firebaseStore.collection("review").add(review.toReviewData())
-        documentRef
-            .addOnSuccessListener { trySend(true) }
-            .addOnFailureListener { trySend(false) }
-            .await()
-        awaitClose()
+        val userId = getUserInfo()?.userId
+        userId?.let {
+            val documentRef = appContainer.firebaseStore.collection("review")
+                .add(review.copy(owner = userId).toReviewData())
+            documentRef
+                .addOnSuccessListener { trySend(true) }
+                .addOnFailureListener { trySend(false) }
+                .await()
+            awaitClose()
+        } ?: trySend(false)
     }.first()
 
     suspend fun deleteReview(review: Review) = callbackFlow {
@@ -59,7 +67,9 @@ class ReviewRepository(private val appContainer: AppContainer) {
         appContainer.firebaseStore.collection("review")
             .whereEqualTo(collectionName, conditionText)
             .get()
-            .addOnSuccessListener { documents -> trySend(documents.mapNotNull { it.toReviewData(it.id) }) }
+            .addOnSuccessListener { documents ->
+                trySend(documents.mapNotNull { it.toReviewData(it.id) })
+            }
             .addOnFailureListener { trySend(emptyList()) }
             .await()
         awaitClose()
