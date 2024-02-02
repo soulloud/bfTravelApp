@@ -24,7 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -61,6 +60,8 @@ import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.trips.TripUiState
 import com.beaconfire.travel.trips.TripsViewModel
+import com.beaconfire.travel.ui.component.section.Section
+import com.beaconfire.travel.ui.component.section.SectionScreen
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -73,28 +74,62 @@ fun DestinationDetailScreen(
     tripsViewModel: TripsViewModel,
     onNavigate: (Navigation) -> Unit,
 ) {
+    val destination = DestinationManager.getInstance().destination
     var showSheet by remember { mutableStateOf(false) }
-    LazyColumn(
+    val sections = listOf(
+        Section(sectionHeader = {
+            Text(
+                "About",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) {
+            DestinationInfoCard(destination) {
+                showSheet = true
+            }
+        },
+        Section(sectionHeader = {
+            Text(
+                "Description",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) { DescriptionCard(destination) },
+        Section(sectionHeader = {
+            Text(
+                "Photos",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) { ImagePager(destination) },
+        Section(sectionHeader = {
+            Text(
+                "Activities",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) { ActivityCard() },
+        Section(sectionHeader = {
+            Text(
+                "Reviews",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) { Text(text = "Reviews") },
+    )
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(bottom = 96.dp)
     ) {
-        item {
-            DestinationImageCard(DestinationManager.getInstance().destination, onNavigate)
-            DestinationInfoCard(DestinationManager.getInstance().destination) { showSheet = true }
-            DescriptionCard(DestinationManager.getInstance().destination)
-            ImagePager(DestinationManager.getInstance().destination)
-            ActivityCard()
-            if (showSheet) {
-                AddToTripBottomSheet(
-                    tripsViewModel,
-                    DestinationManager.getInstance().destination,
-                    onNavigate
-                ) { showSheet = false }
-            }
+        DestinationImageCard(DestinationManager.getInstance().destination, onNavigate)
+        SectionScreen(
+            title = "${destination.name} \u2708 ${destination.location}",
+            sections = sections
+        )
+        if (showSheet) {
+            AddToTripBottomSheet(
+                tripsViewModel,
+                DestinationManager.getInstance().destination,
+                onNavigate
+            ) { showSheet = false }
         }
     }
-
 }
 
 @Composable
@@ -105,9 +140,8 @@ fun DestinationInfoCard(
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(1.dp),
+            .padding(bottom = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RectangleShape
     ) {
         Row(
@@ -115,37 +149,19 @@ fun DestinationInfoCard(
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            Column {
-                Text(
-                    text = destination.name,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
-                Spacer(Modifier.height(16.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Filled.GpsFixed,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1.0f), horizontalAlignment = Alignment.Start) {
                     Text(
-                        text = destination.location,
-                        style = MaterialTheme.typography.titleMedium
+                        text = "$${destination.price.value}",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = "Per person",
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
-            }
-            Column(modifier = Modifier.weight(1.0f), horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "$${destination.price.value}",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "Per person",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(Modifier.height(16.dp))
                 Button(onClick = onAddToTrip) {
                     Text(text = "Add to Trip")
                 }
@@ -163,21 +179,15 @@ fun DescriptionCard(
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(1.dp),
+            .padding(bottom = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RectangleShape
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Description",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
             Spacer(Modifier.height(16.dp))
             Text(
                 text = destination.description,
                 style = MaterialTheme.typography.bodyMedium,
-
                 maxLines = if (expanded) Int.MAX_VALUE else 4
             )
             ClickableText(
@@ -198,9 +208,8 @@ fun ImagePager(destination: Destination) {
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(1.dp),
+            .padding(bottom = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RectangleShape
     ) {
         Box(
@@ -238,9 +247,8 @@ fun ActivityCard() {
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(1.dp),
+            .padding(bottom = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RectangleShape
     ) {
         Column(
@@ -280,10 +288,9 @@ fun CategoryCard(title: String, description: String, imageResId: Int) {
     Card(
         modifier = Modifier
             .width(192.dp)
-            .height(256.dp),
-
+            .height(256.dp)
+            .padding(bottom = 4.dp),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box {
             Image(
