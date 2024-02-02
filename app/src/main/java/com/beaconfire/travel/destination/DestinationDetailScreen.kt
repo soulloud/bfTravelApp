@@ -1,5 +1,8 @@
 package com.beaconfire.travel.destination
 
+import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -33,6 +37,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,11 +45,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,29 +64,34 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.beaconfire.travel.constant.Constant
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.trips.TripUiState
 import com.beaconfire.travel.trips.TripsViewModel
-import com.beaconfire.travel.ui.ReviewCard
+import com.beaconfire.travel.ui.component.review.ReviewCard
+import com.beaconfire.travel.ui.component.review.StarRatingPicker
 import com.beaconfire.travel.ui.component.section.Section
 import com.beaconfire.travel.ui.component.section.SectionScreen
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
-import com.beaconfire.travel.utils.ReviewGenerator
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import java.util.Date
 import kotlin.math.roundToInt
 import androidx.compose.material3.rememberModalBottomSheetState as rememberModalBottomSheetState1
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DestinationDetailScreen(
     tripsViewModel: TripsViewModel,
@@ -89,7 +101,8 @@ fun DestinationDetailScreen(
         viewModel(factory = DestinationViewModel.Factory)
     val destination = DestinationManager.getInstance().destination
     val destinationUiModel by destinationViewModel.reviewUiModel.collectAsState()
-    var showSheet by remember { mutableStateOf(false) }
+    var showAddToTripSheet by remember { mutableStateOf(false) }
+    var showSubmitReviewSheet by remember { mutableStateOf(false) }
     val sections = listOf(
         Section(sectionHeader = {
             Text(
@@ -98,7 +111,7 @@ fun DestinationDetailScreen(
             )
         }) {
             DestinationInfoCard(destination) {
-                showSheet = true
+                showAddToTripSheet = true
             }
         },
         Section(sectionHeader = {
@@ -125,11 +138,9 @@ fun DestinationDetailScreen(
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
         }) {
-            RatingsAndReviewsScreen(
-                destinationViewModel = destinationViewModel,
-                destination = destination,
-                reviews = destinationUiModel.reviews
-            )
+            RatingsAndReviewsScreen(reviews = destinationUiModel.reviews) {
+                showSubmitReviewSheet = true
+            }
         }
     )
     Column(
@@ -137,17 +148,41 @@ fun DestinationDetailScreen(
             .fillMaxSize()
             .padding(bottom = 96.dp)
     ) {
-        DestinationImageCard(DestinationManager.getInstance().destination, onNavigate)
         SectionScreen(
-            title = "${destination.name} \u2708 ${destination.location}",
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { onNavigate(Navigation.Back) }) {
+                        Icon(
+                            Icons.Filled.ArrowBackIosNew,
+                            contentDescription = "Back",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Text(
+                        modifier = Modifier.padding(
+                            horizontal = 10.dp,
+                            vertical = 30.dp
+                        ),
+                        text = "${destination.name} \u2708 ${destination.location}",
+                        style = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
             sections = sections
         )
-        if (showSheet) {
+        if (showAddToTripSheet) {
             AddToTripBottomSheet(
                 tripsViewModel,
                 DestinationManager.getInstance().destination,
                 onNavigate
-            ) { showSheet = false }
+            ) { showAddToTripSheet = false }
+        }
+        if (showSubmitReviewSheet) {
+            SubmitNewReviewBottomSheet(
+                destinationViewModel,
+                DestinationManager.getInstance().destination
+            ) { showSubmitReviewSheet = false }
         }
     }
 }
@@ -164,6 +199,7 @@ fun DestinationInfoCard(
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
         shape = RectangleShape
     ) {
+        DestinationImageCard(DestinationManager.getInstance().destination)
         Row(
             modifier = Modifier
                 .padding(16.dp)
@@ -354,10 +390,7 @@ fun CategoryCard(title: String, description: String, imageResId: Int) {
 }
 
 @Composable
-fun DestinationImageCard(
-    destination: Destination,
-    onNavigate: (Navigation) -> Unit
-) {
+fun DestinationImageCard(destination: Destination) {
     Box {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -369,15 +402,6 @@ fun DestinationImageCard(
                 .height(196.dp),
             contentScale = ContentScale.FillWidth,
         )
-        IconButton(onClick = { onNavigate(Navigation.Back) }) {
-            Icon(
-                Icons.Filled.ArrowBackIosNew,
-                contentDescription = "Back",
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(40.dp)
-            )
-        }
     }
 }
 
@@ -459,58 +483,127 @@ fun AddToTripBottomSheet(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@SuppressLint("SimpleDateFormat")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RatingsAndReviewsScreen(
+fun SubmitNewReviewBottomSheet(
     destinationViewModel: DestinationViewModel,
     destination: Destination,
-    reviews: List<Review>
+    onDismiss: () -> Unit
 ) {
-
-    val userId = "iWw0bNUCgPsGie3WvDSB"
-    val reviewGenerator = ReviewGenerator()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    val modalBottomSheetState = rememberModalBottomSheetState1()
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        sheetState = modalBottomSheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
-        HeaderSection(
-            averageRating = reviews.map { it.score }.average(),
-            totalRatings = reviews.size
-        )
-        Spacer(Modifier.height(16.dp))
-        StarRatings(reviews)
-        Spacer(Modifier.height(16.dp))
-        Spacer(Modifier.height(16.dp))
-        Button(
-            onClick = {
-
-                repeat(11){
-                    destinationViewModel.createNewReview(
-                        reviewGenerator.getRandomPositiveReview(destination.destinationId!!, userId)
-                    )
-                }
-
-                repeat(6){
-                    destinationViewModel.createNewReview(
-                        reviewGenerator.getRandomNegativeReview(destination.destinationId!!, userId)
-                    )
-                }
-            },
+        var description by remember { mutableStateOf(TextFieldValue("")) }
+        var rating by remember { mutableDoubleStateOf(1.0) }
+        Column(
             modifier = Modifier
+                .padding(32.dp)
                 .fillMaxWidth()
-                .height(50.dp)
-                .clip(CircleShape),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
         ) {
             Text(
-                text = "Write a Review",
-                color = Color.White,
-                fontWeight = FontWeight.Bold
+                modifier = Modifier.padding(bottom = 8.dp),
+                text = "Submit Review",
+                style = MaterialTheme.typography.titleMedium
             )
+            Spacer(modifier = Modifier.height(2.dp))
+            OutlinedTextField(
+                label = { Text("Description") },
+                value = description,
+                onValueChange = { description = it },
+                singleLine = true,
+                leadingIcon = {
+                    Icon(Icons.Filled.Description, contentDescription = null)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Row(horizontalArrangement = Arrangement.Center) {
+                Text(text = "Rating:")
+                Spacer(modifier = Modifier.padding(end = 4.dp))
+                StarRatingPicker { rating = it }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp),
+                onClick = {
+                    destinationViewModel.createNewReview(
+                        Review(
+                            reviewId = "",
+                            destination = destination.destinationId!!,
+                            title = "",
+                            description = description.text,
+                            score = rating,
+                            timestamp = Constant.DATE_FORMATTER.format(Date()),
+                            owner = ""
+                        )
+                    )
+                    onDismiss()
+                }) {
+                Text(text = "Submit")
+            }
         }
-        LazyRow {
-            itemsIndexed(reviews) { _, review -> ReviewCard(review) }
+    }
+    Spacer(modifier = Modifier.height(32.dp))
+}
+
+@Composable
+fun RatingsAndReviewsScreen(
+    reviews: List<Review>,
+    onSubmitReviewClicked: () -> Unit,
+) {
+    if (reviews.isEmpty()) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            Text(modifier = Modifier.padding(8.dp), text = "Loading Reviews")
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            HeaderSection(
+                averageRating = reviews.map { it.score }.average(),
+                totalRatings = reviews.size
+            )
+            Spacer(Modifier.height(16.dp))
+            StarRatings(reviews)
+            Spacer(Modifier.height(16.dp))
+            Button(
+                onClick = onSubmitReviewClicked,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .clip(CircleShape),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text(
+                    text = "Write a Review",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            LazyRow {
+                itemsIndexed(reviews) { _, review ->
+                    ReviewCard(
+                        author = review.title,
+                        score = review.score,
+                        description = review.description,
+                        time = review.timestamp
+                    )
+                }
+            }
         }
     }
 }

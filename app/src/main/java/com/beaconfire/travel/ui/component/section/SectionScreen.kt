@@ -1,11 +1,8 @@
 package com.beaconfire.travel.ui.component.section
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -13,10 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
 /**
@@ -48,7 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SectionScreen(
     modifier: Modifier = Modifier,
-    title: String,
+    title: @Composable () -> Unit,
     sections: List<Section>
 ) {
     val scope = rememberCoroutineScope()
@@ -58,15 +51,7 @@ fun SectionScreen(
     var selectedSectionIndex by remember { mutableIntStateOf(0) }
 
     Column(modifier) {
-        Text(
-            modifier = Modifier.padding(
-                horizontal = 10.dp,
-                vertical = 30.dp
-            ),
-            text = title,
-            style = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary
-        )
+        title()
 
         SectionTitleViews(
             selectedIndex = selectedSectionIndex,
