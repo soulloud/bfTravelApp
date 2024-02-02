@@ -1,5 +1,7 @@
 package com.beaconfire.travel.trips
 
+import android.util.Log
+import android.widget.Space
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,9 +14,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Flight
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -56,9 +64,12 @@ fun TripsScreen() {
     var showSheet by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize().paint(
-            painter = painterResource(R.drawable.ic_background),
-            contentScale = ContentScale.FillHeight)
+        modifier = Modifier
+            .fillMaxSize()
+            .paint(
+                painter = painterResource(R.drawable.ic_background),
+                contentScale = ContentScale.FillHeight
+            )
     ) {
         LazyRow(modifier = Modifier
             .padding(8.dp)
@@ -182,38 +193,103 @@ fun TripCreationContent(modifier: Modifier = Modifier, onDismiss: () -> Unit) {
         sheetState = modalBottomSheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
+        var tripName by remember { mutableStateOf(TextFieldValue("")) }
+        var description by remember { mutableStateOf(TextFieldValue("")) }
+        var numOfPeople by remember { mutableStateOf(TextFieldValue("")) }
+        var duration by remember { mutableStateOf(TextFieldValue("")) }
+        var privacy by remember { mutableStateOf("private") }
         Column(
             modifier = modifier
-                .fillMaxSize()
-                .padding(16.dp)
+                .padding(32.dp)
+                .fillMaxWidth()
         ) {
             OutlinedTextField(
-                value = TextFieldValue("Itinerary"),
-                onValueChange = { /* Handle change */ },
+                label = { Text("Trip Name") },
+                value = tripName,
+                onValueChange = { tripName = it },
                 singleLine = true,
                 leadingIcon = {
-                    Icon(Icons.Filled.CalendarToday, contentDescription = null)
+                    Icon(Icons.Filled.Flight, contentDescription = null)
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                DateField("Starts")
-                DateField("Ends")
+            Spacer(modifier = Modifier.height(2.dp))
+            OutlinedTextField(
+                label = { Text("Description") },
+                value = description,
+                onValueChange = { description = it },
+                singleLine = true,
+                leadingIcon = {
+                    Icon(Icons.Filled.Description, contentDescription = null)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            OutlinedTextField(
+                label = { Text("Number of People") },
+                value = numOfPeople,
+                onValueChange = { numOfPeople = it },
+                singleLine = true,
+                leadingIcon = {
+                    Icon(Icons.Filled.Person, contentDescription = null)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            OutlinedTextField(
+                label = { Text("Duration") },
+                value = duration,
+                onValueChange = { duration = it },
+                singleLine = true,
+                leadingIcon = {
+                    Icon(Icons.Filled.AccessTime, contentDescription = null)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            PrivacyRadioButtons { privacy = it }
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
+                onClick = { Log.d("Athena", "save\n ${tripName.text} \n ${description.text} \n ${numOfPeople.text} \n ${duration.text} \n $privacy") }) {
+                Text(text = "Save")
             }
         }
     }
 }
 
 @Composable
-fun DateField(label: String) {
-    OutlinedButton(
-        onClick = { /* Open date picker */ },
-        border = BorderStroke(1.dp, Color.White),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
-    ) {
-        Text(label)
+fun PrivacyRadioButtons(onSelectedChanged: (String) -> Unit) {
+    val radioOptions = listOf("Private", "Public")
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0] ) }
+    Row {
+        radioOptions.forEach { text ->
+            Row(modifier = Modifier
+                .padding(8.dp)
+                .weight(1.0f)
+                .selectable(
+                    selected = (text == selectedOption),
+                    onClick = {
+                        onOptionSelected(text)
+                        onSelectedChanged(text.lowercase())
+                    }
+                )
+                .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = (text == selectedOption),
+                    onClick = {
+                        onOptionSelected(text)
+                        onSelectedChanged(text.lowercase())
+                    }
+                )
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyMedium.merge(),
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+        }
     }
 }
