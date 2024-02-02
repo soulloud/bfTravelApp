@@ -1,4 +1,5 @@
 import android.net.Uri
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -6,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.destination.ReviewUiModel
 import com.beaconfire.travel.destination.ReviewUiState
+import com.beaconfire.travel.ext.drawableToBitmap
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.profile.ProfileUiModel
 import com.beaconfire.travel.profile.ProfileUiModelStatus
@@ -38,6 +40,20 @@ class ProfileViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 appContainer.assetRepository.uploadImageAsset(uri)?.let { filename ->
+                    _profileUiModel.update {
+                        it.copy(assetFileName = filename)
+                    }
+                }
+                _profileUiModel.value.assetFileName?.let { loadAssetForProfileImage(it) }
+            }
+        }
+    }
+
+    fun onImageCaptured(@DrawableRes drawable: Int) {
+        val bitmap = appContainer.context.drawableToBitmap(drawable)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                appContainer.assetRepository.uploadImageAsset(bitmap)?.let { filename ->
                     _profileUiModel.update {
                         it.copy(assetFileName = filename)
                     }
