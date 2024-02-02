@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.beaconfire.travel.login.LoginScreen
 import com.beaconfire.travel.login.LoginViewModel
@@ -32,8 +33,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppScreen(appViewModel: AppViewModel) {
     val appUiModel by appViewModel.appUiModel.collectAsState()
+    val loginUser by (LocalContext.current.applicationContext as TravelApplication).container.userRepository.loginUserId.collectAsState()
 
-    if (appUiModel.user != null) {
+    if (loginUser != null) {
         MainScreen()
     } else {
         when (appUiModel.currentScreen) {
