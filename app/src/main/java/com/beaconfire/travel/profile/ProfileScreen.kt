@@ -73,13 +73,13 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .padding(top = 60.dp),
+            .padding(top = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         profileUiModel.profile?.let { profile ->
 
-            val imageModifier = Modifier.size(180.dp).clip(CircleShape).clickable {}
+            val imageModifier = Modifier.size(120.dp).clip(CircleShape).clickable {}
 
             if (profileUiModel.capturedImageUri?.path?.isNotEmpty() == true) {
                 Image(

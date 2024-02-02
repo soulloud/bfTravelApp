@@ -28,7 +28,6 @@ class DestinationViewModel(
     private val destinationRepository: DestinationRepository,
     private val tripRepository: TripRepository,
     private val reviewRepository: ReviewRepository,
-    //private val destination: Destination
 ) : ViewModel() {
 
     private val _tripUiModel = MutableStateFlow(TripUiModel())

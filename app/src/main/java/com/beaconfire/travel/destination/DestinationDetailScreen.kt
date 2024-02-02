@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -24,15 +26,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +61,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.model.Trip
+import com.beaconfire.travel.ui.PickTripDialog
+import com.beaconfire.travel.ui.ReviewCard
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -67,14 +76,16 @@ import java.util.Locale
 fun DestinationDetailScreen(onNavigate: (Navigation) -> Unit) {
 
     val destinationViewModel: DestinationViewModel = viewModel(factory = DestinationViewModel.Factory)
-    //val reviewUiState = destinationViewModel.reviewUiState
+    val reviewUiModel = destinationViewModel.reviewUiModel.collectAsState()
+    val tripUiModel = destinationViewModel.tripUiModel.collectAsState()
     val destination = DestinationManager.getInstance().destination
+    var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         floatingActionButton = {
             // Floating Action Button
             FloatingActionButton(
-                onClick = { /* Handle FAB click here */ },
+                onClick = { showDialog = true},
                 modifier = Modifier
                     .padding(bottom = 70.dp)
                     .clip(CircleShape)
@@ -97,6 +108,57 @@ fun DestinationDetailScreen(onNavigate: (Navigation) -> Unit) {
                     ImagePager(destination)
                     ActivityCard(destination)
                     //   SectionScreen()
+                }
+            }
+            if (showDialog){
+                var selectedTrip by remember { mutableStateOf<Trip?>(null) }
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text(text = "Adding to which trip?") },
+                        text = {
+                            Column {
+                                tripUiModel.value.trips.forEach { trip ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .selectable(
+                                                selected = (trip == selectedTrip),
+                                                onClick = { selectedTrip = trip }
+                                            )
+                                            .padding(vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        RadioButton(
+                                            selected = (trip == selectedTrip),
+                                            onClick = null
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(text = trip.title)
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    showDialog = false
+                                    selectedTrip?.let {
+                                        it -> destinationViewModel.addToTrip(it, destination)
+                                    }
+                                }
+                            ) {
+                                Text(text = "Confirm")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { showDialog = false }
+                            ) {
+                                Text(text = "Cancel")
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -358,6 +420,23 @@ fun DestinationImageCard(
 }
 
 @Composable
-fun ReviewList(){
-
+fun ReviewList(
+    reviewUiModel: ReviewUiModel
+){
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(1.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RectangleShape
+    ){
+        LazyColumn(
+            modifier = Modifier.padding(bottom = 70.dp)
+        ) {
+            items(reviewUiModel.reviews) {review ->
+                ReviewCard(review = review)
+            }
+        }
+    }
 }
