@@ -18,6 +18,6 @@ fun LoadingIndicator() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-        Text(modifier = Modifier.padding(8.dp), text = "Loading Reviews")
+        Text(modifier = Modifier.padding(8.dp), text = "Crazy Loading ...")
     }
 }
