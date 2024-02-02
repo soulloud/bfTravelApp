@@ -82,6 +82,7 @@ import com.beaconfire.travel.ui.component.review.ReviewCard
 import com.beaconfire.travel.ui.component.review.StarRatingPicker
 import com.beaconfire.travel.ui.component.section.Section
 import com.beaconfire.travel.ui.component.section.SectionScreen
+import com.beaconfire.travel.utils.CurrencyManager
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -199,6 +200,8 @@ fun DestinationInfoCard(
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
         shape = RectangleShape
     ) {
+        val currencyManager = CurrencyManager.getInstance()
+        val priceInCurrency = currencyManager.getPriceInSelectedCurrency(destination.price.value)
         DestinationImageCard(DestinationManager.getInstance().destination)
         Row(
             modifier = Modifier
@@ -208,7 +211,7 @@ fun DestinationInfoCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1.0f), horizontalAlignment = Alignment.Start) {
                     Text(
-                        text = "$${destination.price.value}",
+                        text = "${currencyManager.currency} $priceInCurrency",
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary,
                     )
