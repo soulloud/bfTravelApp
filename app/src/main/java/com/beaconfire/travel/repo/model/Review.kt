@@ -17,14 +17,31 @@ data class Review(
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun List<Review>.sort(): List<Review> {
-    val formatter = DateTimeFormatter.ofPattern(Constant.DATE_FORMAT)
-    return filter {
-        try {
-            LocalDateTime.parse(it.timestamp, formatter)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }.sortedByDescending { LocalDateTime.parse(it.timestamp, formatter) }
+fun Review.getDateTime() = try {
+    LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern(Constant.DATE_FORMAT))
+} catch (e: Exception) {
+    null
+}
+
+enum class ReviewSort {
+    Newest,
+    Oldest,
+    Highest,
+    Lowest,
+    None,
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun List<Review>.sort(sort: ReviewSort = ReviewSort.Newest) = when (sort) {
+    ReviewSort.Newest -> this.filter { it.getDateTime() != null }
+        .sortedByDescending { it.getDateTime()!! }
+
+    ReviewSort.Oldest -> this.filter { it.getDateTime() != null }.sortedBy { it.getDateTime()!! }
+    ReviewSort.Highest -> this.filter { it.getDateTime() != null }
+        .sortedByDescending { it.getDateTime()!! }.sortedByDescending { it.score }
+
+    ReviewSort.Lowest -> this.filter { it.getDateTime() != null }
+        .sortedByDescending { it.getDateTime()!! }.sortedBy { it.score }
+
+    else -> this
 }

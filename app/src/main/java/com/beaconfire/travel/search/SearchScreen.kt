@@ -39,9 +39,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.beaconfire.travel.navigation.Navigation
+import com.beaconfire.travel.repo.model.DestinationSort
 import com.beaconfire.travel.ui.BlueIconButton
 import com.beaconfire.travel.ui.DestinationCard
-import com.beaconfire.travel.utils.DestinationSort
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

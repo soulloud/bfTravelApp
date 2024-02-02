@@ -52,6 +52,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.model.DestinationSort
 import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.ui.BlueIconButton
@@ -60,7 +61,6 @@ import com.beaconfire.travel.ui.component.LoadingIndicator
 import com.beaconfire.travel.ui.component.ProfileImage
 import com.beaconfire.travel.ui.component.carousel.AutoSlidingCarousel
 import com.beaconfire.travel.utils.DestinationManager
-import com.beaconfire.travel.utils.DestinationSort
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.launch

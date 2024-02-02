@@ -37,8 +37,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -53,6 +53,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,6 +76,7 @@ import com.beaconfire.travel.constant.Constant
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Review
+import com.beaconfire.travel.repo.model.ReviewSort
 import com.beaconfire.travel.trips.TripUiState
 import com.beaconfire.travel.trips.TripsViewModel
 import com.beaconfire.travel.ui.component.LoadingIndicator
@@ -88,6 +90,7 @@ import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.roundToInt
 import androidx.compose.material3.rememberModalBottomSheetState as rememberModalBottomSheetState1
@@ -139,7 +142,10 @@ fun DestinationDetailScreen(
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
         }) {
-            RatingsAndReviewsScreen(reviews = destinationUiModel.reviews) {
+            RatingsAndReviewsScreen(
+                destinationViewModel = destinationViewModel,
+                reviews = destinationUiModel.reviews
+            ) {
                 showSubmitReviewSheet = true
             }
         }
@@ -435,7 +441,7 @@ fun AddToTripBottomSheet(
                     )
                 }
             }
-            Divider(modifier = Modifier.padding(4.dp))
+            HorizontalDivider(modifier = Modifier.padding(4.dp))
             when (tripUiModel.tripUiState) {
                 TripUiState.LoadSucceed -> {
                     LazyColumn {
@@ -469,7 +475,7 @@ fun AddToTripBottomSheet(
 
                 else -> {}
             }
-            Divider(modifier = Modifier.padding(4.dp))
+            HorizontalDivider(modifier = Modifier.padding(4.dp))
             Button(onClick = onDismiss) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -556,11 +562,14 @@ fun SubmitNewReviewBottomSheet(
     Spacer(modifier = Modifier.height(32.dp))
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RatingsAndReviewsScreen(
+    destinationViewModel: DestinationViewModel,
     reviews: List<Review>,
     onSubmitReviewClicked: () -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
     if (reviews.isEmpty()) {
         LoadingIndicator()
     } else {
@@ -591,6 +600,33 @@ fun RatingsAndReviewsScreen(
                 )
             }
             Spacer(Modifier.height(16.dp))
+            HorizontalDivider()
+            Text(text = "Sort By:")
+            LazyRow {
+                item {
+                    Button(
+                        modifier = Modifier.padding(end = 4.dp),
+                        onClick = { scope.launch { destinationViewModel.onSortChanged(ReviewSort.Newest) } }) {
+                        Text(text = "Newest")
+                    }
+                    Button(
+                        modifier = Modifier.padding(end = 4.dp),
+                        onClick = { scope.launch { destinationViewModel.onSortChanged(ReviewSort.Oldest) } }) {
+                        Text(text = "Oldest")
+                    }
+                    Button(
+                        modifier = Modifier.padding(end = 4.dp),
+                        onClick = { scope.launch { destinationViewModel.onSortChanged(ReviewSort.Highest) } }) {
+                        Text(text = "Highest")
+                    }
+                    Button(
+                        modifier = Modifier.padding(end = 4.dp),
+                        onClick = { scope.launch { destinationViewModel.onSortChanged(ReviewSort.Lowest) } }) {
+                        Text(text = "Lowest")
+                    }
+                }
+            }
+            HorizontalDivider()
             LazyRow {
                 itemsIndexed(reviews) { _, review ->
                     ReviewCard(
