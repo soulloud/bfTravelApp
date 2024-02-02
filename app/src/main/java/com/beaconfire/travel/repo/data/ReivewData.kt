@@ -21,3 +21,13 @@ data class ReviewData(
         owner = owner!!
     )
 }
+
+fun Review.toReviewData() = ReviewData(
+    reviewId = reviewId,
+    destination = destination,
+    score = score,
+    title = title,
+    description = description,
+    timestamp = timestamp,
+    owner = owner
+)

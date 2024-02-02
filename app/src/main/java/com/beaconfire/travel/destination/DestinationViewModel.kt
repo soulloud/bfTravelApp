@@ -8,8 +8,8 @@ import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.DestinationRepository
 import com.beaconfire.travel.repo.ReviewRepository
 import com.beaconfire.travel.repo.TripRepository
-import com.beaconfire.travel.repo.data.ReviewData
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.repo.model.Trip
 import com.beaconfire.travel.trips.TripUiModel
 import com.beaconfire.travel.trips.TripUiState
@@ -55,8 +55,16 @@ class DestinationViewModel(
         }
     }
 
+    fun createNewReview(review: Review) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                reviewRepository.addNewReview(review)
+            }
+        }
+    }
+
     private fun loadReview() {
-        _reviewUiModel.update { it.copy( reviewUiState = ReviewUiState.Loading) }
+        _reviewUiModel.update { it.copy(reviewUiState = ReviewUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val reviews = reviewRepository.getAllReviewsOnCurrentDestination(destination)
@@ -78,14 +86,6 @@ class DestinationViewModel(
                         loadTrips()
                     }
                 }
-            }
-        }
-    }
-
-    fun createNewReview(reviewData: ReviewData) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                reviewRepository.addNewReview(reviewData)
             }
         }
     }
