@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.beaconfire.travel.R
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.UserRepository
 import com.beaconfire.travel.repo.model.City
@@ -64,7 +65,7 @@ class RegisterViewModel(
         val profile = Profile(
             fullName = displayName, // Assuming full name is same as username for now
             location = location,
-            joinDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+            joinDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE),
         )
 
         viewModelScope.launch {
