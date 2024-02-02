@@ -3,6 +3,7 @@ package com.beaconfire.travel.repo
 import android.util.Log
 import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.repo.data.ReviewData
+import com.beaconfire.travel.repo.data.toReviewData
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.repo.model.User
@@ -33,9 +34,9 @@ class ReviewRepository(private val appContainer: AppContainer) {
         }
     }
 
-    suspend fun addNewReview(reviewData: ReviewData) = callbackFlow {
-        appContainer.firebaseStore.collection("review")
-            .add(reviewData)
+    suspend fun addNewReview(review: Review) = callbackFlow {
+        val documentRef = appContainer.firebaseStore.collection("review").add(review.toReviewData())
+        documentRef
             .addOnSuccessListener { trySend(true) }
             .addOnFailureListener { trySend(false) }
             .await()

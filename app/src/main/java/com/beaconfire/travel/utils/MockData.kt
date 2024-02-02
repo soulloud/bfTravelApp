@@ -3,8 +3,7 @@ package com.beaconfire.travel.utils
 import com.beaconfire.travel.R
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Price
-import com.beaconfire.travel.repo.model.Profile
-import com.beaconfire.travel.repo.model.User
+import com.beaconfire.travel.repo.model.Review
 
 object MockData {
     val destinationImages = listOf(
@@ -30,64 +29,6 @@ object MockData {
         "Historic",
         "Culture",
         "Music",
-    )
-
-    val users = listOf(
-        User(
-            userId = "",
-            displayName = "John Doe",
-            email = "john@example.com",
-            password = "password123",
-            currency = "USD",
-            reviews = listOf("Review 1", "Review 2"),
-            trips = listOf("Trip 1", "Trip 2"),
-            saves = listOf("Save 1", "Save 2"),
-            profile = Profile(),
-        ),
-        User(
-            userId = "",
-            displayName = "David",
-            email = "john@example.com",
-            password = "password123",
-            currency = "USD",
-            reviews = listOf("Review 1", "Review 2"),
-            trips = listOf("Trip 1", "Trip 2"),
-            saves = listOf("Save 1", "Save 2"),
-            profile = Profile(),
-        ),
-        User(
-            userId = "",
-            displayName = "Su",
-            email = "john@example.com",
-            password = "password123",
-            currency = "USD",
-            reviews = listOf("Review 1", "Review 2"),
-            trips = listOf("Trip 1", "Trip 2"),
-            saves = listOf("Save 1", "Save 2"),
-            profile = Profile(),
-        ),
-        User(
-            userId = "",
-            displayName = "Alice Smith",
-            email = "alice@example.com",
-            password = "alice_password",
-            currency = "EUR",
-            reviews = listOf("Review 3", "Review 4"),
-            trips = listOf("Trip 3", "Trip 4"),
-            saves = listOf("Save 3", "Save 4"),
-            profile = Profile(),
-        ),
-        User(
-            userId = "",
-            displayName = "Bob Johnson",
-            email = "bob@example.com",
-            password = "bob_password",
-            currency = "GBP",
-            reviews = listOf("Review 5", "Review 6"),
-            trips = listOf("Trip 5", "Trip 6"),
-            saves = listOf("Save 5", "Save 6"),
-            profile = Profile(),
-        )
     )
 
     val profileIcons = listOf(
@@ -135,6 +76,36 @@ object MockData {
             "Buildings",
             R.drawable.ic_building,
             "Explore those beautiful buildings in this city"
+        ),
+    )
+
+    val reviews = listOf(
+        Review(
+            "",
+            destination = "destination1",
+            description = "description1",
+            score = 5.0,
+            title = "title1",
+            timestamp = "2024-02-01",
+            owner = "owner"
+        ),
+        Review(
+            "",
+            destination = "destination2",
+            description = "description2",
+            score = 2.0,
+            title = "title2",
+            timestamp = "2024-03-02",
+            owner = "owner"
+        ),
+        Review(
+            "",
+            destination = "destination3",
+            description = "description3",
+            score = 4.0,
+            title = "title3",
+            timestamp = "2024-04-03",
+            owner = "owner"
         ),
     )
 }

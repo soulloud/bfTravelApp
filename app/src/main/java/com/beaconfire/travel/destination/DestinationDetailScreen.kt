@@ -18,15 +18,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.progressSemantics
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -34,9 +37,11 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,18 +60,23 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.trips.TripUiState
 import com.beaconfire.travel.trips.TripsViewModel
-import com.beaconfire.travel.utils.CurrencyManager
+import com.beaconfire.travel.ui.ReviewCard
+import com.beaconfire.travel.ui.component.section.Section
+import com.beaconfire.travel.ui.component.section.SectionScreen
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlin.math.roundToInt
 import androidx.compose.material3.rememberModalBottomSheetState as rememberModalBottomSheetState1
 
 @Composable
@@ -74,28 +84,71 @@ fun DestinationDetailScreen(
     tripsViewModel: TripsViewModel,
     onNavigate: (Navigation) -> Unit,
 ) {
+    val destinationViewModel: DestinationViewModel =
+        viewModel(factory = DestinationViewModel.Factory)
+    val destination = DestinationManager.getInstance().destination
+    val destinationUiModel by destinationViewModel.reviewUiModel.collectAsState()
     var showSheet by remember { mutableStateOf(false) }
-    LazyColumn(
+    val sections = listOf(
+        Section(sectionHeader = {
+            Text(
+                "About",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) {
+            DestinationInfoCard(destination) {
+                showSheet = true
+            }
+        },
+        Section(sectionHeader = {
+            Text(
+                "Description",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) { DescriptionCard(destination) },
+        Section(sectionHeader = {
+            Text(
+                "Photos",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) { ImagePager(destination) },
+        Section(sectionHeader = {
+            Text(
+                "Activities",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) { ActivityCard() },
+        Section(sectionHeader = {
+            Text(
+                "Reviews",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        }) {
+            RatingsAndReviewsScreen(
+                destinationViewModel = destinationViewModel,
+                destination = destination,
+                reviews = destinationUiModel.reviews
+            )
+        }
+    )
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(bottom = 96.dp)
     ) {
-        item {
-            DestinationImageCard(DestinationManager.getInstance().destination, onNavigate)
-            DestinationInfoCard(DestinationManager.getInstance().destination) { showSheet = true }
-            DescriptionCard(DestinationManager.getInstance().destination)
-            ImagePager(DestinationManager.getInstance().destination)
-            ActivityCard()
-            if (showSheet) {
-                AddToTripBottomSheet(
-                    tripsViewModel,
-                    DestinationManager.getInstance().destination,
-                    onNavigate
-                ) { showSheet = false }
-            }
+        DestinationImageCard(DestinationManager.getInstance().destination, onNavigate)
+        SectionScreen(
+            title = "${destination.name} \u2708 ${destination.location}",
+            sections = sections
+        )
+        if (showSheet) {
+            AddToTripBottomSheet(
+                tripsViewModel,
+                DestinationManager.getInstance().destination,
+                onNavigate
+            ) { showSheet = false }
         }
     }
-
 }
 
 @Composable
@@ -103,15 +156,11 @@ fun DestinationInfoCard(
     destination: Destination,
     onAddToTrip: () -> Unit,
 ) {
-    val currencyManager = CurrencyManager.getInstance()
-    val priceInCurrency = currencyManager.getPriceInSelectedCurrency(destination.price.value)
-
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(1.dp),
+            .padding(bottom = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RectangleShape
     ) {
         Row(
@@ -119,37 +168,19 @@ fun DestinationInfoCard(
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            Column {
-                Text(
-                    text = destination.name,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                )
-                Spacer(Modifier.height(16.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Filled.GpsFixed,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1.0f), horizontalAlignment = Alignment.Start) {
                     Text(
-                        text = destination.location,
-                        style = MaterialTheme.typography.titleMedium
+                        text = "$${destination.price.value}",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = "Per person",
+                        style = MaterialTheme.typography.bodyLarge
                     )
                 }
-            }
-            Column(modifier = Modifier.weight(1.0f), horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "${currencyManager.currency} ${priceInCurrency.toString()}",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "Per person",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(Modifier.height(16.dp))
                 Button(onClick = onAddToTrip) {
                     Text(text = "Add to Trip")
                 }
@@ -167,21 +198,15 @@ fun DescriptionCard(
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(1.dp),
+            .padding(bottom = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RectangleShape
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Description",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
             Spacer(Modifier.height(16.dp))
             Text(
                 text = destination.description,
                 style = MaterialTheme.typography.bodyMedium,
-
                 maxLines = if (expanded) Int.MAX_VALUE else 4
             )
             ClickableText(
@@ -202,9 +227,8 @@ fun ImagePager(destination: Destination) {
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(1.dp),
+            .padding(bottom = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RectangleShape
     ) {
         Box(
@@ -242,9 +266,8 @@ fun ActivityCard() {
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(1.dp),
+            .padding(bottom = 4.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.onPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RectangleShape
     ) {
         Column(
@@ -284,10 +307,9 @@ fun CategoryCard(title: String, description: String, imageResId: Int) {
     Card(
         modifier = Modifier
             .width(192.dp)
-            .height(256.dp),
-
+            .height(256.dp)
+            .padding(bottom = 4.dp),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box {
             Image(
@@ -435,3 +457,115 @@ fun AddToTripBottomSheet(
         }
     }
 }
+
+@Composable
+fun RatingsAndReviewsScreen(
+    destinationViewModel: DestinationViewModel,
+    destination: Destination,
+    reviews: List<Review>
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        HeaderSection(
+            averageRating = reviews.map { it.score }.average(),
+            totalRatings = reviews.size
+        )
+        Spacer(Modifier.height(16.dp))
+        StarRatings(reviews)
+        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = {
+                destinationViewModel.createNewReview(
+                    Review(
+                        reviewId = "",
+                        destination = destination.destinationId ?: "",
+                        score = 3.0,
+                        title = "empty title",
+                        description = "Nothing",
+                        timestamp = "00:00",
+                        owner = ""
+                    )
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .clip(CircleShape),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+        ) {
+            Text(
+                text = "Write a Review",
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        LazyRow {
+            itemsIndexed(reviews) { _, review -> ReviewCard(review) }
+        }
+    }
+}
+
+@Composable
+fun HeaderSection(averageRating: Double, totalRatings: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(
+                text = "%.1f".format(averageRating),
+                style = MaterialTheme.typography.displayMedium
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = "Star",
+                    tint = Color(0xFFFFD700)
+                )
+                Text(
+                    text = "$totalRatings Ratings",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun StarRatings(reviews: List<Review>) {
+    val scores = reviews.groupBy { it.score.roundToInt() }
+    val max = scores.entries.maxOfOrNull { it.value.size } ?: 0
+    Column {
+        RatingRow(starCount = 5, ratingCount = scores[5]?.size ?: 0, maxCount = max)
+        RatingRow(starCount = 4, ratingCount = scores[4]?.size ?: 0, maxCount = max)
+        RatingRow(starCount = 3, ratingCount = scores[3]?.size ?: 0, maxCount = max)
+        RatingRow(starCount = 2, ratingCount = scores[2]?.size ?: 0, maxCount = max)
+        RatingRow(starCount = 1, ratingCount = scores[1]?.size ?: 0, maxCount = max)
+        TextButton(onClick = { /* TODO: Terms and Conditions Action */ }) {
+            Text(text = "Terms and Conditions", color = Color.Gray)
+        }
+    }
+}
+
+@Composable
+fun RatingRow(starCount: Int, ratingCount: Int, maxCount: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "$starCount Star", modifier = Modifier.width(64.dp))
+        LinearProgressIndicator(
+            progress = ratingCount / maxCount.toFloat(),
+            modifier = Modifier
+                .weight(1f)
+                .height(12.dp)
+                .progressSemantics()
+        )
+    }
+}
+

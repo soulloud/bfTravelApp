@@ -1,5 +1,6 @@
 package com.beaconfire.travel.ui.component.section
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -9,6 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun SectionItemViews(
@@ -33,7 +35,7 @@ fun SectionItemViews(
     ) {
         sections.forEach { section ->
             item {
-                section.sectionHeader()
+                Box(modifier = Modifier.padding(8.dp)) { section.sectionHeader() }
                 section.content()
             }
         }
