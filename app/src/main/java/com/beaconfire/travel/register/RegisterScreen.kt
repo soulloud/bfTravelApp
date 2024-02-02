@@ -86,13 +86,6 @@ fun RegisterScreen(
                 color = MaterialTheme.colorScheme.primary
             )
         )
-        Text(
-            text = "Please enter details to register",
-            style = MaterialTheme.typography.bodySmall.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        )
         Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = email,
