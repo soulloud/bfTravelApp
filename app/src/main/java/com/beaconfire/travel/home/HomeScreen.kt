@@ -51,10 +51,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.beaconfire.travel.R
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.BlueIconButton
 import com.beaconfire.travel.ui.TagCard
@@ -75,7 +77,7 @@ fun HomeScreen(onNavigate: (Navigation) -> Unit) {
 
     LazyColumn(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 64.dp)) {
         item {
-            homeUiModel.user?.let { Title(it) }
+            homeUiModel.user?.profile?.let { Title(it) }
             TopMenu(homeViewModel, onNavigate)
             LazyRow {
                 items(MockData.tagImages.size) {
@@ -250,7 +252,7 @@ fun DestinationCard(
 
 @Composable
 private fun Title(
-    user: User
+    profile: Profile
 ) {
     Row(
         modifier = Modifier
@@ -266,8 +268,9 @@ private fun Title(
                 .clip(shape = RoundedCornerShape(50.dp)),
             contentScale = ContentScale.Crop
         )
+
         Spacer(modifier = Modifier.width(16.dp))
-        Text("Hello, ${user.displayName}")
+        Text("Hello, ${profile.fullName}")
     }
 }
 

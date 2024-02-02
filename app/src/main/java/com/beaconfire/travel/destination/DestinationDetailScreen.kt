@@ -73,6 +73,7 @@ import com.beaconfire.travel.ui.component.section.Section
 import com.beaconfire.travel.ui.component.section.SectionScreen
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
+import com.beaconfire.travel.utils.ReviewGenerator
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -464,6 +465,10 @@ fun RatingsAndReviewsScreen(
     destination: Destination,
     reviews: List<Review>
 ) {
+
+    val userId = "iWw0bNUCgPsGie3WvDSB"
+    val reviewGenerator = ReviewGenerator()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -479,17 +484,18 @@ fun RatingsAndReviewsScreen(
         Spacer(Modifier.height(16.dp))
         Button(
             onClick = {
-                destinationViewModel.createNewReview(
-                    Review(
-                        reviewId = "",
-                        destination = destination.destinationId ?: "",
-                        score = 3.0,
-                        title = "empty title",
-                        description = "Nothing",
-                        timestamp = "00:00",
-                        owner = ""
+
+                repeat(11){
+                    destinationViewModel.createNewReview(
+                        reviewGenerator.getRandomPositiveReview(destination.destinationId!!, userId)
                     )
-                )
+                }
+
+                repeat(6){
+                    destinationViewModel.createNewReview(
+                        reviewGenerator.getRandomNegativeReview(destination.destinationId!!, userId)
+                    )
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()

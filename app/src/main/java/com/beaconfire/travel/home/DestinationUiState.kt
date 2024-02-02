@@ -1,6 +1,7 @@
 package com.beaconfire.travel.home
 
 import com.beaconfire.travel.repo.model.Destination
+import com.beaconfire.travel.repo.model.Profile
 import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.utils.DestinationFilter
 import com.beaconfire.travel.utils.DestinationSort

@@ -70,7 +70,7 @@ fun ReviewDetails(review: Review) {
         )
         Text(
             modifier = Modifier.padding(4.dp),
-            text = "Reviewed ${review.timestamp}",
+            text = "Reviewed ${review.timestamp.substring(0, 10)}",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
         )
