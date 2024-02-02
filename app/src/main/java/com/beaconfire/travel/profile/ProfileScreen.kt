@@ -42,6 +42,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ import com.beaconfire.travel.ui.component.ProfileImage
 import com.beaconfire.travel.ui.component.button.CameraCaptureButton
 import com.beaconfire.travel.ui.component.button.GalleryPhotoPickerButton
 import com.beaconfire.travel.ui.component.review.ReviewCard
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -62,6 +64,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
     val profileUiModel by profileViewModel.profileUiModel.collectAsState()
     val reviewUiModel by profileViewModel.reviewUiModel.collectAsState()
     var showSaveProfilePhotoBottomSheet by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -84,34 +87,54 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
 
             ClickableTextWithDialog(
                 label = "Display Name",
-                value = profile.fullName,
-                profileViewModel = profileViewModel
-            )
+                value = profile.fullName
+            ) { displayName ->
+                scope.launch {
+                    profileUiModel.profile?.let {
+                        profileViewModel.updateProfile(it.copy(fullName = displayName))
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             ClickableTextWithDialog(
                 label = "Location",
-                value = profile.location,
-                profileViewModel = profileViewModel
-            )
+                value = profile.location
+            ) { location ->
+                scope.launch {
+                    profileUiModel.profile?.let {
+                        profileViewModel.updateProfile(it.copy(location = location))
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             ClickableTextWithDialog(
                 label = "Introduction",
                 value = profile.aboutYou,
-                maxLines = 5,
-                profileViewModel = profileViewModel
-            )
+                maxLines = 5
+            ) { aboutYou ->
+                scope.launch {
+                    profileUiModel.profile?.let {
+                        profileViewModel.updateProfile(it.copy(aboutYou = aboutYou))
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             ClickableTextWithDialog(
                 label = "Join Date",
-                value = profile.joinDate,
-                profileViewModel = profileViewModel
-            )
+                value = profile.joinDate
+            ) { joinDate ->
+                scope.launch {
+                    profileUiModel.profile?.let {
+                        profileViewModel.updateProfile(it.copy(joinDate = joinDate))
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -159,7 +182,7 @@ fun ClickableTextWithDialog(
     label: String,
     value: String,
     maxLines: Int = 1,
-    profileViewModel: ProfileViewModel
+    onSave: (String) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var newValue by remember { mutableStateOf(value) }
@@ -205,7 +228,7 @@ fun ClickableTextWithDialog(
                     TextButton(
                         onClick = {
                             showDialog = false
-                            profileViewModel.updateName(newValue)
+                            onSave(newValue)
                         }
                     ) {
                         Text(text = "Save")
