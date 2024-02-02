@@ -95,7 +95,7 @@ fun SearchScreen(onNavigate: (Navigation) -> Unit) {
                             DestinationCard(
                                 destination = destination,
                                 image = destination.images[2],
-                                reviews = searchUiModel.reviews,
+                                reviews = searchUiModel.reviews.filter { it.destination == destination.destinationId },
                                 onNavigate = onNavigate
                             )
                         }
