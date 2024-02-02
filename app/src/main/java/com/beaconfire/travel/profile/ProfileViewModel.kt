@@ -1,9 +1,4 @@
 import android.net.Uri
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -119,11 +114,7 @@ class ProfileViewModel(
 
     private suspend fun loadAssetForProfileImage(filename: String) {
         appContainer.assetRepository.fetchImageAsset(filename)
-            ?.let { assetUri ->
-                _profileUiModel.update {
-                    it.copy(capturedImageUri = assetUri)
-                }
-            }
+            ?.let { assetUri -> _profileUiModel.update { it.copy(capturedImageUri = assetUri) } }
     }
 
     companion object {

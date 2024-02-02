@@ -61,11 +61,9 @@ class HomeViewModel(
     private fun loadUser() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                _homeUiModel.update {
-                    it.copy(
-                        user = appContainer.userRepository.getLoginUser()
-                    )
-                }
+                val user = appContainer.userRepository.getLoginUser()
+                _homeUiModel.update { it.copy(user = user) }
+                user?.profile?.photoImage?.let { loadAssetForProfileImage(it) }
             }
         }
     }
@@ -84,6 +82,12 @@ class HomeViewModel(
             }
         }
     }
+
+    private suspend fun loadAssetForProfileImage(filename: String) {
+        appContainer.assetRepository.fetchImageAsset(filename)
+            ?.let { assetUri -> _homeUiModel.update { it.copy(profilePhotoUri = assetUri) } }
+    }
+
 
     companion object {
         private val TAG = HomeViewModel::class.java.simpleName

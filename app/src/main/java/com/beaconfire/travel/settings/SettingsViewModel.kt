@@ -34,13 +34,20 @@ class SettingsViewModel(
     private fun loadUser() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                val user = appContainer.userRepository.getLoginUser()
                 _settingsUiModel.update {
                     it.copy(
-                        user = appContainer.userRepository.getLoginUser()
+                        user = user
                     )
                 }
+                user?.profile?.photoImage?.let { loadAssetForProfileImage(it) }
             }
         }
+    }
+
+    private suspend fun loadAssetForProfileImage(filename: String) {
+        appContainer.assetRepository.fetchImageAsset(filename)
+            ?.let { assetUri -> _settingsUiModel.update { it.copy(profilePhotoUri = assetUri) } }
     }
 
     companion object {

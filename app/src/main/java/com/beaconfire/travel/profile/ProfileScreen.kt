@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.beaconfire.travel.ui.component.ProfileImage
 import com.beaconfire.travel.ui.component.button.CameraCaptureButton
 import com.beaconfire.travel.ui.component.button.GalleryPhotoPickerButton
 import com.beaconfire.travel.ui.component.review.ReviewCard
@@ -66,10 +67,11 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
                 .clickable {}
 
             if (profileUiModel.capturedImageUri?.path?.isNotEmpty() == true) {
-                Image(
-                    modifier = imageModifier,
-                    painter = rememberAsyncImagePainter(profileUiModel.capturedImageUri),
-                    contentDescription = null
+                ProfileImage(
+                    modifier = Modifier
+                        .size(256.dp)
+                        .padding(bottom = 8.dp),
+                    imageUri = profileUiModel.capturedImageUri
                 )
             }
 
@@ -119,12 +121,12 @@ fun ProfileScreen(profileViewModel: ProfileViewModel) {
 
             ProfileItem("Your reviews", Icons.Filled.Reviews, onClick = {})
 
-            LazyColumn(
-                modifier = Modifier.padding(bottom = 70.dp)
+            LazyRow(
+                modifier = Modifier.padding(bottom = 16.dp)
             ) {
                 items(reviewUiModel.reviews) { review ->
                     ReviewCard(
-                        author = "",
+                        author = profileUiModel.profile?.fullName,
                         score = review.score,
                         description = review.description,
                         time = review.timestamp

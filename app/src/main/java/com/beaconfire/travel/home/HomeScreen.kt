@@ -1,7 +1,7 @@
 package com.beaconfire.travel.home
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,22 +44,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.beaconfire.travel.R
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Profile
-import com.beaconfire.travel.repo.model.User
 import com.beaconfire.travel.ui.BlueIconButton
 import com.beaconfire.travel.ui.TagCard
+import com.beaconfire.travel.ui.component.ProfileImage
 import com.beaconfire.travel.ui.component.carousel.AutoSlidingCarousel
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.DestinationSort
@@ -77,7 +73,7 @@ fun HomeScreen(onNavigate: (Navigation) -> Unit) {
 
     LazyColumn(Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 64.dp)) {
         item {
-            homeUiModel.user?.profile?.let { Title(it) }
+            homeUiModel.user?.profile?.let { Title(it, homeUiModel.profilePhotoUri) }
             TopMenu(homeViewModel, onNavigate)
             LazyRow {
                 items(MockData.tagImages.size) {
@@ -252,7 +248,8 @@ fun DestinationCard(
 
 @Composable
 private fun Title(
-    profile: Profile
+    profile: Profile,
+    profilePhotoUri: Uri? = null,
 ) {
     Row(
         modifier = Modifier
@@ -260,16 +257,12 @@ private fun Title(
             .height(48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_profile_shuaige),
-            contentDescription = "Profile",
+        ProfileImage(
             modifier = Modifier
-                .size(32.dp)
-                .clip(shape = RoundedCornerShape(50.dp)),
-            contentScale = ContentScale.Crop
+                .padding(end = 16.dp)
+                .size(48.dp),
+            imageUri = profilePhotoUri
         )
-
-        Spacer(modifier = Modifier.width(16.dp))
         Text("Hello, ${profile.fullName}")
     }
 }
