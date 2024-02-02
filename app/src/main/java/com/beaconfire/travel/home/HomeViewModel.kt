@@ -28,6 +28,7 @@ class HomeViewModel(
     init {
         loadUser()
         loadDestinations()
+        loadReviews() // This is not a good solution, but the database now is corrupt. We can fix this later.
     }
 
     fun onFilterChanged(tags: List<String>) {
@@ -72,13 +73,22 @@ class HomeViewModel(
         _homeUiModel.update { it.copy(homeUiState = HomeUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                val destinations = appContainer.destinationRepository.getAllDestinations()
+                    .sort(_homeUiModel.value.sort)
                 _homeUiModel.update {
                     it.copy(
                         homeUiState = HomeUiState.LoadSucceed,
-                        destinations = appContainer.destinationRepository.getAllDestinations()
-                            .sort(it.sort)
+                        destinations = destinations
                     )
                 }
+            }
+        }
+    }
+
+    private fun loadReviews() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _homeUiModel.update { it.copy(reviews = it.reviews + appContainer.reviewRepository.getAllReviews()) }
             }
         }
     }

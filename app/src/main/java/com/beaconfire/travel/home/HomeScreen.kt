@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +24,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -53,8 +53,10 @@ import coil.request.ImageRequest
 import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Profile
+import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.ui.BlueIconButton
 import com.beaconfire.travel.ui.TagCard
+import com.beaconfire.travel.ui.component.LoadingIndicator
 import com.beaconfire.travel.ui.component.ProfileImage
 import com.beaconfire.travel.ui.component.carousel.AutoSlidingCarousel
 import com.beaconfire.travel.utils.DestinationManager
@@ -117,11 +119,15 @@ fun HomeScreen(onNavigate: (Navigation) -> Unit) {
 
             when (homeUiModel.homeUiState) {
                 HomeUiState.Loading -> {
-                    Text(text = "Loading")
+                    LoadingIndicator()
                 }
 
                 HomeUiState.LoadSucceed -> {
-                    Destinations(destinations = homeUiModel.destinations, onNavigate = onNavigate)
+                    Destinations(
+                        destinations = homeUiModel.destinations,
+                        reviews = homeUiModel.reviews,
+                        onNavigate = onNavigate
+                    )
                 }
 
                 HomeUiState.LoadFailed -> {}
@@ -178,7 +184,11 @@ fun DestinationSearchBar(onNavigate: (Navigation) -> Unit) {
 }
 
 @Composable
-fun Destinations(destinations: List<Destination>, onNavigate: (Navigation) -> Unit) {
+fun Destinations(
+    destinations: List<Destination>,
+    reviews: List<Review>,
+    onNavigate: (Navigation) -> Unit
+) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(128.dp),
         modifier = Modifier
@@ -192,6 +202,7 @@ fun Destinations(destinations: List<Destination>, onNavigate: (Navigation) -> Un
             DestinationCard(
                 destination = destination,
                 imageUrl = destination.images[0],
+                reviews = reviews.filter { it.destination == destination.destinationId },
                 onNavigate = onNavigate
             )
         }
@@ -202,6 +213,7 @@ fun Destinations(destinations: List<Destination>, onNavigate: (Navigation) -> Un
 fun DestinationCard(
     destination: Destination,
     imageUrl: String,
+    reviews: List<Review>,
     onNavigate: (Navigation) -> Unit,
 ) {
     Card(
@@ -225,21 +237,30 @@ fun DestinationCard(
                 modifier = Modifier.fillMaxWidth(),
                 contentScale = ContentScale.FillWidth,
             )
-            Spacer(modifier = Modifier.width(16.dp))
             Row(modifier = Modifier.padding(4.dp)) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(destination.name, style = MaterialTheme.typography.titleMedium)
                     Text(destination.location, style = MaterialTheme.typography.bodyMedium)
                 }
-                Spacer(modifier = Modifier.width(16.dp))
-                Row(modifier = Modifier.weight(1f)) {
-                    Spacer(modifier = Modifier.width(8.dp))
+                Column(horizontalAlignment = Alignment.End) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            modifier = Modifier.size(16.dp),
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "%.1f".format(reviews.map { it.score }.average()),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                     Text(
-                        "\u2606 ${destination.rating}\n${destination.reviews.size} reviews",
+                        modifier = Modifier.padding(top = 4.dp),
+                        text = "Reviews",
                         style = MaterialTheme.typography.bodySmall
                     )
+                    Text(text = "${reviews.size}", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }

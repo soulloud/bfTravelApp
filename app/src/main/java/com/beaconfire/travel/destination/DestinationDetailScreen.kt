@@ -37,7 +37,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -78,6 +77,7 @@ import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Review
 import com.beaconfire.travel.trips.TripUiState
 import com.beaconfire.travel.trips.TripsViewModel
+import com.beaconfire.travel.ui.component.LoadingIndicator
 import com.beaconfire.travel.ui.component.review.ReviewCard
 import com.beaconfire.travel.ui.component.review.StarRatingPicker
 import com.beaconfire.travel.ui.component.section.Section
@@ -562,13 +562,7 @@ fun RatingsAndReviewsScreen(
     onSubmitReviewClicked: () -> Unit,
 ) {
     if (reviews.isEmpty()) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-            Text(modifier = Modifier.padding(8.dp), text = "Loading Reviews")
-        }
+        LoadingIndicator()
     } else {
         Column(
             modifier = Modifier
