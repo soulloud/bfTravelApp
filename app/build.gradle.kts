@@ -96,6 +96,9 @@ dependencies {
     // coil
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    // ExoPlayer
+    implementation("com.google.android.exoplayer:exoplayer:2.19.1")
+
     //////////////////////////////// ui ////////////////////////////////
     // Auto Image Slider
     implementation("com.google.accompanist:accompanist-pager:0.22.0-rc")
