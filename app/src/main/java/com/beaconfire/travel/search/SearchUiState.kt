@@ -1,8 +1,8 @@
 package com.beaconfire.travel.search
 
 import com.beaconfire.travel.repo.model.Destination
-import com.beaconfire.travel.utils.DestinationFilter
-import com.beaconfire.travel.utils.DestinationSort
+import com.beaconfire.travel.repo.model.DestinationFilter
+import com.beaconfire.travel.repo.model.DestinationSort
 
 data class SearchUiModel(
     val searchUiState: SearchUiState = SearchUiState.None,

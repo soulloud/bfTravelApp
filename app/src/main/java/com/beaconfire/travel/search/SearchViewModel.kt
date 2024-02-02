@@ -6,10 +6,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.DestinationRepository
-import com.beaconfire.travel.utils.DestinationFilter
-import com.beaconfire.travel.utils.DestinationSort
-import com.beaconfire.travel.utils.filterBy
-import com.beaconfire.travel.utils.sort
+import com.beaconfire.travel.repo.model.DestinationFilter
+import com.beaconfire.travel.repo.model.DestinationSort
+import com.beaconfire.travel.repo.model.filterBy
+import com.beaconfire.travel.repo.model.sort
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow

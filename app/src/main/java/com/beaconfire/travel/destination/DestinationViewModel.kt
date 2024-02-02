@@ -10,6 +10,7 @@ import com.beaconfire.travel.AppContainer
 import com.beaconfire.travel.mallApplication
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Review
+import com.beaconfire.travel.repo.model.ReviewSort
 import com.beaconfire.travel.repo.model.Trip
 import com.beaconfire.travel.repo.model.sort
 import com.beaconfire.travel.trips.TripUiModel
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@RequiresApi(Build.VERSION_CODES.O)
 class DestinationViewModel(
     private val appContainer: AppContainer
 ) : ViewModel() {
@@ -39,8 +41,17 @@ class DestinationViewModel(
         loadReview()
     }
 
+    fun onSortChanged(sort: ReviewSort) {
+        _reviewUiModel.update {
+            it.copy(
+                reviews = it.reviews.sort(sort),
+                sort = sort
+            )
+        }
+    }
+
     private fun loadTrips() {
-        _tripUiModel.update { it.copy( tripUiState = TripUiState.Loading) }
+        _tripUiModel.update { it.copy(tripUiState = TripUiState.Loading) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val allTrips = appContainer.tripRepository.getAllTrips()
@@ -62,7 +73,7 @@ class DestinationViewModel(
             }
             val reviews = (_reviewUiModel.value.reviews + review.copy(
                 title = appContainer.userRepository.getLoginUser()?.displayName ?: ""
-            )).sort()
+            )).sort(_reviewUiModel.value.sort)
             _reviewUiModel.update {
                 it.copy(
                     reviewUiState = ReviewUiState.LoadSucceedByDestination,
