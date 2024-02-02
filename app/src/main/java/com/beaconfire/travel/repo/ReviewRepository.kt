@@ -28,6 +28,17 @@ class ReviewRepository(private val appContainer: AppContainer) {
             }
     }
 
+    suspend fun getAllReviews() = callbackFlow<List<Review>> {
+        appContainer.firebaseStore.collection("review")
+            .get()
+            .addOnSuccessListener { documents ->
+                trySend(documents.mapNotNull { it.toReviewData(it.id)?.toReview() })
+            }
+            .addOnFailureListener { trySend(emptyList()) }
+            .await()
+        awaitClose()
+    }.first()
+
     suspend fun getAllReviewsOfCurrentUser(): List<Review> {
         val userId = getUserInfo()?.userId
         Log.d("test", userId!!)
