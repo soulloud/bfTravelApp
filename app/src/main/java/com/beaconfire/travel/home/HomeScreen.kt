@@ -292,10 +292,7 @@ private fun Title(
 private fun Actions(
     homeViewModel: HomeViewModel
 ) {
-    Box(
-        Modifier
-            .wrapContentSize(Alignment.TopEnd)
-    ) {
+    Box(Modifier.wrapContentSize(Alignment.TopEnd)) {
         var expanded by remember { mutableStateOf(false) }
         BlueIconButton(onClick = { expanded = !expanded })
         DropdownMenu(
