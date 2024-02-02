@@ -3,12 +3,23 @@ package com.beaconfire.travel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.beaconfire.travel.login.LoginScreen
 import com.beaconfire.travel.login.LoginViewModel
@@ -35,18 +46,16 @@ fun AppScreen(appViewModel: AppViewModel) {
     val appUiModel by appViewModel.appUiModel.collectAsState()
     val loginUser by (LocalContext.current.applicationContext as TravelApplication).container.userRepository.loginUserId.collectAsState()
 
-    if (loginUser != null) {
+    if (appUiModel.currentScreen == Navigation.Splash) {
+        SplashScreen()
+        LaunchedEffect(null) {
+            delay(3000)
+            appViewModel.navigateTo(Navigation.Login)
+        }
+    } else if (loginUser != null) {
         MainScreen()
     } else {
         when (appUiModel.currentScreen) {
-            Navigation.Splash -> {
-                SplashScreen()
-                LaunchedEffect(null) {
-                    delay(3000)
-                    appViewModel.navigateTo(Navigation.Login)
-                }
-            }
-
             Navigation.Login -> {
                 LoginScreen(loginViewModel = viewModel(factory = LoginViewModel.Factory)) {
                     appViewModel.navigateTo(it)
@@ -66,5 +75,19 @@ fun AppScreen(appViewModel: AppViewModel) {
 
 @Composable
 fun SplashScreen() {
-    Text(text = "SplashScreen")
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(id = R.drawable.splash),
+            contentScale = ContentScale.Crop,
+            contentDescription = null
+        )
+        Text(
+            text = "Let's enjoy your Trip!",
+            style = MaterialTheme.typography.titleLarge
+                .copy(fontSize = 36.sp)
+                .copy(fontStyle = FontStyle.Italic)
+                .copy(fontWeight = FontWeight.Bold)
+        )
+    }
 }

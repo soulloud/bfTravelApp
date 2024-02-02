@@ -3,7 +3,6 @@ package com.beaconfire.travel.utils
 import com.beaconfire.travel.R
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.repo.model.Price
-import com.beaconfire.travel.repo.model.Review
 
 object MockData {
     val destinationImages = listOf(
@@ -30,15 +29,6 @@ object MockData {
         "Culture",
         "Music",
     )
-
-    val profileIcons = listOf(
-        R.drawable.ic_profile_alice,
-        R.drawable.ic_profile_mia,
-        R.drawable.ic_profile_mike,
-        R.drawable.ic_profile_shali,
-        R.drawable.ic_profile_shuaige
-    )
-
 
     val destination = Destination(
         name = "Lorem ipsum",
@@ -76,36 +66,6 @@ object MockData {
             "Buildings",
             R.drawable.ic_building,
             "Explore those beautiful buildings in this city"
-        ),
-    )
-
-    val reviews = listOf(
-        Review(
-            "",
-            destination = "destination1",
-            description = "description1",
-            score = 5.0,
-            title = "title1",
-            timestamp = "2024-02-01",
-            owner = "owner"
-        ),
-        Review(
-            "",
-            destination = "destination2",
-            description = "description2",
-            score = 2.0,
-            title = "title2",
-            timestamp = "2024-03-02",
-            owner = "owner"
-        ),
-        Review(
-            "",
-            destination = "destination3",
-            description = "description3",
-            score = 4.0,
-            title = "title3",
-            timestamp = "2024-04-03",
-            owner = "owner"
         ),
     )
 }
