@@ -61,6 +61,7 @@ import com.beaconfire.travel.navigation.Navigation
 import com.beaconfire.travel.repo.model.Destination
 import com.beaconfire.travel.trips.TripUiState
 import com.beaconfire.travel.trips.TripsViewModel
+import com.beaconfire.travel.utils.CurrencyManager
 import com.beaconfire.travel.utils.DestinationManager
 import com.beaconfire.travel.utils.MockData
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -102,6 +103,9 @@ fun DestinationInfoCard(
     destination: Destination,
     onAddToTrip: () -> Unit,
 ) {
+    val currencyManager = CurrencyManager.getInstance()
+    val priceInCurrency = currencyManager.getPriceInSelectedCurrency(destination.price.value)
+
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -136,7 +140,7 @@ fun DestinationInfoCard(
             }
             Column(modifier = Modifier.weight(1.0f), horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "$${destination.price.value}",
+                    text = "${currencyManager.currency} ${priceInCurrency.toString()}",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary,
                 )
