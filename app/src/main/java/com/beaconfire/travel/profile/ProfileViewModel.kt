@@ -41,20 +41,23 @@ class ProfileViewModel(
                     _profileUiModel.update {
                         it.copy(assetFileName = filename)
                     }
-                    setAsProfilePhoto()
                 }
+                _profileUiModel.value.assetFileName?.let { loadAssetForProfileImage(it) }
             }
         }
     }
 
-    private fun setAsProfilePhoto() {
+    fun setAsProfilePhoto() {
         val uiModel = _profileUiModel.value
         uiModel.assetFileName?.let { assetFileName ->
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
                     uiModel.profile?.copy(photoImage = assetFileName)?.let { updatedProfile ->
-                        val succeed  = appContainer.profileRepository.updateProfile(updatedProfile)
-                        if (succeed) { appContainer.userRepository.getLoginUser()?.let { loadAssetForProfileImage(it.profile.photoImage) } }
+                        val succeed = appContainer.profileRepository.updateProfile(updatedProfile)
+                        if (succeed) {
+                            appContainer.userRepository.getLoginUser()
+                                ?.let { loadAssetForProfileImage(it.profile.photoImage) }
+                        }
                     }
                 }
             }
