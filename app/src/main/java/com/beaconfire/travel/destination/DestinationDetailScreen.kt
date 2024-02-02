@@ -123,7 +123,13 @@ fun DestinationDetailScreen(
                 "Reviews",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
-        }) { RatingsAndReviewsScreen(reviews = destinationUiModel.reviews) },
+        }) {
+            RatingsAndReviewsScreen(
+                destinationViewModel = destinationViewModel,
+                destination = destination,
+                reviews = destinationUiModel.reviews
+            )
+        }
     )
     Column(
         modifier = Modifier
@@ -453,7 +459,11 @@ fun AddToTripBottomSheet(
 }
 
 @Composable
-fun RatingsAndReviewsScreen(reviews: List<Review>) {
+fun RatingsAndReviewsScreen(
+    destinationViewModel: DestinationViewModel,
+    destination: Destination,
+    reviews: List<Review>
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -468,7 +478,19 @@ fun RatingsAndReviewsScreen(reviews: List<Review>) {
         Spacer(Modifier.height(16.dp))
         Spacer(Modifier.height(16.dp))
         Button(
-            onClick = { /* TODO: Write Review Action */ },
+            onClick = {
+                destinationViewModel.createNewReview(
+                    Review(
+                        reviewId = "",
+                        destination = destination.destinationId ?: "",
+                        score = 3.0,
+                        title = "empty title",
+                        description = "Nothing",
+                        timestamp = "00:00",
+                        owner = ""
+                    )
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)

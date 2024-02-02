@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.beaconfire.travel.repo.model.Review
 
 @Composable
@@ -59,22 +58,20 @@ fun ReviewDetails(review: Review) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
+            modifier = Modifier.padding(4.dp),
             text = review.title,
             fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
+            style = MaterialTheme.typography.titleMedium,
         )
-//        Text(
-//            text = "${review.score.toString()}: by ${review.timestamp}",
-//            fontSize = 10.sp,
-//            color = MaterialTheme.colorScheme.primary
-//        )
         Text(
+            modifier = Modifier.padding(start = 8.dp, bottom = 4.dp),
             text = review.description,
-            fontSize = 14.sp
+            style = MaterialTheme.typography.bodyMedium,
         )
         Text(
-            text = "Reviewed ${review.timestamp.substring(0, 10)}",
-            fontSize = 10.sp,
+            modifier = Modifier.padding(4.dp),
+            text = "Reviewed ${review.timestamp}",
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
         )
     }
